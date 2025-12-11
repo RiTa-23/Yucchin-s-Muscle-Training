@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 
 export default function CameraPage() {
+    const navigate = useNavigate();
     const videoRef = useRef<HTMLVideoElement>(null);
     const [status, setStatus] = useState<string>('未接続');
     const [messages, setMessages] = useState<string[]>([]);
@@ -83,7 +85,7 @@ export default function CameraPage() {
             </div>
 
             <div className="mt-4">
-                <Button onClick={() => window.location.href = '/home'}>ホームに戻る</Button>
+                <Button onClick={() => navigate('/home')}>ホームに戻る</Button>
             </div>
         </div>
     );
