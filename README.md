@@ -17,7 +17,7 @@
 
 ### Backend
 - **Framework**: FastAPI
-- **Language**: Python 3.12+
+- **Language**: Python 3.14+
 - **Communication**: WebSocket (リアルタイム映像・データ転送)
 - **AI/ML**: MediaPipe (姿勢推定)
 
@@ -38,20 +38,17 @@
     └── ...
 ```
 
-## ⚡ セットアップと実行
+## ⚡ 環境構築と実行
 
-### 前提条件
-- Node.js (v18+)
-- Python (3.12+)
-- uv (Pythonパッケージマネージャー)
+詳細な手順は [SETUP.md](./SETUP.md) を参照してください。
 
 ### 1. バックエンドの起動
 
 ```bash
+# Backend
 cd backend
 # 依存関係のインストール (初回のみ)
 uv sync
-
 # サーバー起動 (ポート8000)
 uv run uvicorn main:app --reload
 ```
@@ -59,12 +56,10 @@ uv run uvicorn main:app --reload
 ### 2. フロントエンドの起動
 
 新しいターミナルを開いて実行してください。
-
 ```bash
 cd frontend
 # 依存関係のインストール (初回のみ)
 npm install
-
 # 開発サーバー起動
 npm run dev
 ```
