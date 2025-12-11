@@ -48,6 +48,7 @@ export default DemoPage;
 
 ```tsx
 // src/App.tsx
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import DemoPage from './pages/demo/DemoPage'; // インポートを追加
 
 function App() {
@@ -100,7 +101,7 @@ const Component = () => {
     console.log("Logged in!");
     
     // 2. 処理が終わったら遷移
-    navigate('/dashboard'); 
+    navigate('/home'); 
   };
 
   return <Button onClick={handleLogin}>ログイン</Button>;

@@ -39,7 +39,7 @@ uv --version
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # シェルの再読み込み (またはターミナル再起動)
-source $HOME/.cargo/env
+# source ~/.zshrc  (または ~/.bashrc など、お使いのシェルに合わせて)
 ```
 
 #### 🪟 Windows (PowerShell)
