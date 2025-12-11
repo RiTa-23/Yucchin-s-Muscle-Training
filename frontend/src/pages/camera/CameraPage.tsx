@@ -38,6 +38,11 @@ export default function CameraPage() {
             setStatus('未接続');
         };
 
+        ws.onerror = (error) => {
+            console.error("WebSocket error:", error);
+            setStatus('エラー');
+        };
+
         return () => {
             ws.close();
             if (videoRef.current && videoRef.current.srcObject) {
