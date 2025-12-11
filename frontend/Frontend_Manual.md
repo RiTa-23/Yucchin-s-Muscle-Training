@@ -71,20 +71,23 @@ function App() {
 
 ### リンクによる遷移 (`<Link>`)
 
-ボタンやテキストをクリックして遷移する場合に使います。
+ボタンやテキストをクリックして**単にページを移動する場合**は、`<Link>` を使うのが基本です
+
+shadcn/ui の `Button` をリンクとして使う場合は `asChild` プロパティを使うときれいに書けます。
 
 ```tsx
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
-<Link to="/home" className="text-blue-500 hover:underline">
-  ホームへ戻る
-</Link>
-
+// 推奨: Buttonをリンク化する
+<Button asChild>
+  <Link to="/home">ホームへ戻る</Link>
+</Button>
 ```
 
 ### プログラムによる遷移 (`useNavigate`)
 
-処理の完了後などに自動で遷移させる場合に使います。
+**処理の完了後**などに自動で遷移させる場合に使います（例：フォーム送信後、ログアウト処理後など）。
 
 ```tsx
 import { useNavigate } from 'react-router-dom';
@@ -93,13 +96,15 @@ const Component = () => {
   const navigate = useNavigate();
 
   const handleLogin = () => {
-    // ログイン処理...
-    navigate('/home'); // ホーム画面へ遷移
+    // 1. ログイン処理などをここで実行
+    console.log("Logged in!");
+    
+    // 2. 処理が終わったら遷移
+    navigate('/dashboard'); 
   };
 
-  return <button onClick={handleLogin}>ログイン</button>;
+  return <Button onClick={handleLogin}>ログイン</Button>;
 };
-
 ```
 
 ---
