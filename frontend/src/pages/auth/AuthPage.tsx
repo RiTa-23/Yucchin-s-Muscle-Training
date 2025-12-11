@@ -1,3 +1,4 @@
+import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -20,13 +21,13 @@ import { Link, useNavigate } from "react-router-dom";
 export default function AuthPage() {
     const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // TODO: Implement actual login logic
         navigate("/home");
     };
 
-    const handleSignup = (e: React.FormEvent) => {
+    const handleSignup = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         // TODO: Implement actual signup logic
         navigate("/home");
