@@ -8,12 +8,15 @@ export default function CameraPage() {
     const socketRef = useRef<WebSocket | null>(null);
 
     useEffect(() => {
+        let currentVideoRef: HTMLVideoElement | null = null;
+
         // カメラアクセス
         const startCamera = async () => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 if (videoRef.current) {
                     videoRef.current.srcObject = stream;
+                    currentVideoRef = videoRef.current;
                 }
             } catch (err) {
                 console.error("Camera access error:", err);
@@ -45,8 +48,8 @@ export default function CameraPage() {
 
         return () => {
             ws.close();
-            if (videoRef.current && videoRef.current.srcObject) {
-                const stream = videoRef.current.srcObject as MediaStream;
+            if (currentVideoRef && currentVideoRef.srcObject) {
+                const stream = currentVideoRef.srcObject as MediaStream;
                 stream.getTracks().forEach(track => track.stop());
             }
         };
