@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 router = APIRouter()
 
@@ -11,5 +11,8 @@ async def websocket_endpoint(websocket: WebSocket):
             # ここで画像データを受け取り、処理を行う予定
             # 今は単純にエコーバックする
             await websocket.send_text(f"Message received: {len(data)} bytes")
+    except WebSocketDisconnect:
+        print("Client disconnected")
     except Exception as e:
-        print(f"Connection error: {e}")
+        print(f"Unexpected error: {e}")
+        raise
