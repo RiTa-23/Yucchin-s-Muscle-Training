@@ -100,7 +100,7 @@ export default function AuthPage() {
           </Card>
         </TabsContent>
         <div className="mt-4 text-center text-sm">
-          <Link to="/" className="text-muted-foreground hover:underline text-blcak text-base">
+          <Link to="/" className="text-muted-foreground hover:underline text-black text-base">
             スタート画面に戻る
           </Link>
         </div>
