@@ -76,8 +76,8 @@ export default function AuthPage() {
                         <form onSubmit={handleSignup}>
                             <CardContent className="space-y-2">
                                 <div className="space-y-1">
-                                    <Label htmlFor="name">名前</Label>
-                                    <Input id="name" placeholder="山田 太郎" required />
+                                    <Label htmlFor="name">ユーザーネーム</Label>
+                                    <Input id="name" required />
                                 </div>
                                 <div className="space-y-1">
                                     <Label htmlFor="signup-email">メールアドレス</Label>
