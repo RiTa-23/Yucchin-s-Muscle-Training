@@ -9,7 +9,7 @@ export default function LandingPage() {
                     Yucchin's Muscle Training
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-[600px]">
-                    AI搭載の筋トレアシスタント。フォームを分析し、あなたの成長を正確に記録します。
+                    ゆっちんの筋トレアシスタント。フォームを分析し、あなたの成長を正確に記録します。
                 </p>
                 <div className="flex justify-center gap-4">
                     <Button asChild size="lg">
