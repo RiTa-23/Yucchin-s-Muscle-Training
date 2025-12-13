@@ -27,19 +27,15 @@ frontend/src/
 
 ```tsx
 // src/pages/demo/DemoPage.tsx
-import React from 'react';
 
-const DemoPage = () => {
+export default function DemoPage() {
   return (
     <div className="p-4">
       <h1 className="text-2xl font-bold">デモページ</h1>
       <p>ここは新しいページです。</p>
     </div>
   );
-};
-
-export default DemoPage;
-
+}
 ```
 
 ### 2. ルーティングの追加
