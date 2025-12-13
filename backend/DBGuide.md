@@ -50,7 +50,7 @@ async def lifespan(app: FastAPI):
 
 ```
 
-### app/models/init.pyに追記する`（こっちはやってね！）`
+### app/models/__init__.py に追記する`（こっちはやってね！）`
 
 **このファイルの役割**: `app/models/__init__.py` は、モデルを一括で管理するための「エントリーポイント」です。新しいモデル（例: `User`、`PoseLog` など）を作成したら、このファイルに追記することで、アプリ全体でそのモデルを認識できるようになります。
 
@@ -72,12 +72,25 @@ from .user import User
 
 例: ユーザー作成時に受け取るデータ
 
-```
+```python
 # app/schemas/user.py
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
+
 class UserCreate(BaseModel):
     username: str
-    email: str
+    email: EmailStr
+    password: str
+```
+
+### app/schemas/__init__.py に追記する `（任意だけど推奨）`
+
+**役割**: インポートを簡単にするため。
+これを書くと、他のファイルで `from app.schemas.user import UserCreate` と書く代わりに、`from app.schemas import UserCreate` と短く書けるようになります。
+
+**例**:
+
+```python
+from .user import UserCreate
 ```
 
 ## **4. CRUD処理の作成**
@@ -86,7 +99,7 @@ class UserCreate(BaseModel):
 
 例: ユーザーを保存する関数
 
-```
+```python
 # app/crud/user.py
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.user import User
@@ -104,15 +117,17 @@ async def create_user(db: AsyncSession, user: UserCreate):
 
 **場所**: `backend/app/routers/` **役割**: URL（例: `/users/`）を作り、外からアクセスできるようにします。
 
-```
-# app/routers/user.py
+```python
+# app/routers/users.py 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserResponse
 from app.crud import user as user_crud
+
 router = APIRouter()
-@router.post("/users/")
+
+@router.post("/users/", response_model=UserResponse)
 async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     return await user_crud.create_user(db=db, user=user)
 
