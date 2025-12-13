@@ -19,9 +19,8 @@ AsyncSessionLocal = async_sessionmaker(
 
 Base = declarative_base()
 
-async def get_db():
+from typing import AsyncGenerator
+
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSessionLocal() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
+        yield session
