@@ -3,6 +3,9 @@ from typing import Optional
 import os
 import jwt
 from passlib.context import CryptContext
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # SECRET_KEY must be set in environment variables
 SECRET_KEY = os.getenv("SECRET_KEY")
