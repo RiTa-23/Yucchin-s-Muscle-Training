@@ -1,5 +1,6 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
+import bgImage from "@/assets/img/doubleyuttin.png";
 import {
     Card,
     CardContent,
@@ -10,12 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
@@ -23,57 +19,75 @@ export default function AuthPage() {
     const navigate = useNavigate();
     const { login, signup } = useAuth();
 
-    // Login State
-    const [loginEmail, setLoginEmail] = useState(""); // This is actually username in backend?
-    // Backend expects 'username' for OAuth2PasswordRequestForm.
-    // However, the AuthPage UI says "Email" for login label (line 54).
-    // But backend logic (auth.py) uses `username=form_data.username`.
-    // If user inputs email as username, that's fine if we registered with email as username?
-    // Wait, typical OAuth2 uses 'username' field, which can hold email.
-    // Let's assume input id="email" is for username/email.
+    // Login form state
+    const [loginEmail, setLoginEmail] = useState("");
     const [loginPassword, setLoginPassword] = useState("");
 
-    // Signup State
+    // Signup form state
     const [signupUsername, setSignupUsername] = useState("");
     const [signupEmail, setSignupEmail] = useState("");
     const [signupPassword, setSignupPassword] = useState("");
 
+    // Error and loading states
+    const [loginError, setLoginError] = useState("");
+    const [signupError, setSignupError] = useState("");
+    const [isLoginLoading, setIsLoginLoading] = useState(false);
+    const [isSignupLoading, setIsSignupLoading] = useState(false);
+
+    // Helper to parse backend errors
+    const parseError = (error: any) => {
+        if (error.response && error.response.data && error.response.data.detail) {
+            const details = error.response.data.detail;
+            if (Array.isArray(details)) {
+                return details.map((d: any) => `${d.loc.join(".")}: ${d.msg}`).join("\n");
+            } else {
+                return details;
+            }
+        }
+        return error instanceof Error ? error.message : "エラーが発生しました";
+    };
+
     const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setLoginError("");
+        setIsLoginLoading(true);
+
         try {
             await login(loginEmail, loginPassword);
             navigate("/home");
         } catch (error) {
-            console.error(error);
-            alert("ログインに失敗しました。ユーザー名またはパスワードを確認してください。");
+            console.error("Login failed:", error);
+            // For login, usually a simple message is better, but we can use parseError if we want specific details
+            // But typically auth endpoints return 401 with generic message
+            setLoginError("ログインに失敗しました。ユーザー名またはパスワードを確認してください。");
+        } finally {
+            setIsLoginLoading(false);
         }
     };
 
     const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setSignupError("");
+        setIsSignupLoading(true);
+
         try {
             await signup(signupUsername, signupEmail, signupPassword);
             navigate("/home");
         } catch (error: any) {
-            console.error(error);
-            if (error.response && error.response.data && error.response.data.detail) {
-                // Pydantic validation error
-                const details = error.response.data.detail;
-                if (Array.isArray(details)) {
-                    const messages = details.map((d: any) => `${d.loc.join(".")}: ${d.msg}`).join("\n");
-                    alert(`登録エラー:\n${messages}`);
-                } else {
-                    alert(`登録エラー: ${details}`);
-                }
-            } else {
-                alert("登録に失敗しました。サーバーを確認してください。");
-            }
+            console.error("Signup failed:", error);
+            const errorMessage = parseError(error);
+            setSignupError(errorMessage);
+        } finally {
+            setIsSignupLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-muted/50 p-4">
-            <Tabs defaultValue="login" className="w-[400px]">
+        <div
+            className="min-h-screen flex items-center justify-center p-4 bg-yellow-200 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${bgImage})` }}
+        >
+            <Tabs defaultValue="login" className="w-[400px] mt-[-90px]">
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="login">ログイン</TabsTrigger>
                     <TabsTrigger value="signup">新規登録</TabsTrigger>
@@ -83,19 +97,27 @@ export default function AuthPage() {
                         <CardHeader>
                             <CardTitle>ログイン</CardTitle>
                             <CardDescription>
-                                アカウント情報を入力してください。
+                                おかえり♡今​日も​ゆっちんと​頑張るわよぉん
                             </CardDescription>
                         </CardHeader>
                         <form onSubmit={handleLogin}>
                             <CardContent className="space-y-2">
+                                {loginError && (
+                                    <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm whitespace-pre-wrap">
+                                        {loginError}
+                                    </div>
+                                )}
                                 <div className="space-y-1">
-                                    <Label htmlFor="login-username">ユーザー名</Label>
+                                    <Label htmlFor="email">メールアドレス</Label>
                                     <Input
-                                        id="login-username"
-                                        placeholder="ユーザー名を入力"
-                                        required
+                                        id="email"
+                                        type="email"
+                                        placeholder="m@example.com"
                                         value={loginEmail}
-                                        onChange={(e) => setLoginEmail(e.target.value)}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                                            setLoginEmail(e.target.value)
+                                        }
+                                        required
                                     />
                                 </div>
                                 <div className="space-y-1">
@@ -103,14 +125,22 @@ export default function AuthPage() {
                                     <Input
                                         id="password"
                                         type="password"
-                                        required
                                         value={loginPassword}
-                                        onChange={(e) => setLoginPassword(e.target.value)}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                                            setLoginPassword(e.target.value)
+                                        }
+                                        required
                                     />
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button type="submit" className="w-full">ログイン</Button>
+                                <Button
+                                    type="submit"
+                                    className="w-full"
+                                    disabled={isLoginLoading}
+                                >
+                                    {isLoginLoading ? "ログイン中..." : "ログイン"}
+                                </Button>
                             </CardFooter>
                         </form>
                     </Card>
@@ -120,18 +150,25 @@ export default function AuthPage() {
                         <CardHeader>
                             <CardTitle>新規登録</CardTitle>
                             <CardDescription>
-                                アカウントを作成してトレーニングを始めましょう。
+                                初めまして♡今​日から​あなたも​ムキムキよぉん
                             </CardDescription>
                         </CardHeader>
                         <form onSubmit={handleSignup}>
                             <CardContent className="space-y-2">
+                                {signupError && (
+                                    <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm whitespace-pre-wrap">
+                                        {signupError}
+                                    </div>
+                                )}
                                 <div className="space-y-1">
                                     <Label htmlFor="username">ユーザーネーム</Label>
                                     <Input
                                         id="username"
-                                        required
                                         value={signupUsername}
-                                        onChange={(e) => setSignupUsername(e.target.value)}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                                            setSignupUsername(e.target.value)
+                                        }
+                                        required
                                     />
                                 </div>
                                 <div className="space-y-1">
@@ -139,9 +176,11 @@ export default function AuthPage() {
                                     <Input
                                         id="signup-email"
                                         type="email"
-                                        required
                                         value={signupEmail}
-                                        onChange={(e) => setSignupEmail(e.target.value)}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                                            setSignupEmail(e.target.value)
+                                        }
+                                        required
                                     />
                                 </div>
                                 <div className="space-y-1">
@@ -149,20 +188,30 @@ export default function AuthPage() {
                                     <Input
                                         id="signup-password"
                                         type="password"
-                                        required
                                         value={signupPassword}
-                                        onChange={(e) => setSignupPassword(e.target.value)}
+                                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                                            setSignupPassword(e.target.value)
+                                        }
+                                        required
                                     />
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button type="submit" className="w-full">アカウント作成</Button>
+                                <Button
+                                    type="submit"
+                                    className="w-full"
+                                    disabled={isSignupLoading}
+                                >
+                                    {isSignupLoading ? "作成中..." : "アカウント作成"}
+                                </Button>
                             </CardFooter>
                         </form>
                     </Card>
                 </TabsContent>
                 <div className="mt-4 text-center text-sm">
-                    <Link to="/" className="text-muted-foreground hover:underline">スタート画面に戻る</Link>
+                    <Link to="/" className="text-black hover:underline text-base">
+                        スタート画面に戻る
+                    </Link>
                 </div>
             </Tabs>
         </div>
