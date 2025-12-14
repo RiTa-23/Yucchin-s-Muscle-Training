@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
-import bgImage from '@/assets/img/doubleyuttin.png';
+import bgImage from "@/assets/img/doubleyuttin.png";
 import {
   Card,
   CardContent,
@@ -30,8 +30,11 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-muted/50 p-4 bg-cover bg-center bg-no-repeat bg-yellow-200" style={{ backgroundImage: `url(${bgImage})` }}>
-      <Tabs defaultValue="login" className="w-[400px] mt-[-90px]" >
+    <div
+      className="min-h-screen flex items-center justify-center p-4 bg-yellow-200 bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+      <Tabs defaultValue="login" className="w-[400px] mt-[-90px]">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="login">ログイン</TabsTrigger>
           <TabsTrigger value="signup">新規登録</TabsTrigger>
@@ -100,7 +103,7 @@ export default function AuthPage() {
           </Card>
         </TabsContent>
         <div className="mt-4 text-center text-sm">
-          <Link to="/" className="text-muted-foreground hover:underline text-black text-base">
+          <Link to="/" className="text-black hover:underline text-base">
             スタート画面に戻る
           </Link>
         </div>

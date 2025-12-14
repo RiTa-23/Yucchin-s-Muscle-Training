@@ -1,30 +1,32 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import bgImage from '@/assets/img/kiriyuttin.png';
+import bgImage from "@/assets/img/kiriyuttin.png";
 
 export default function LandingPage() {
-    return (
-        <div 
-            className="min-h-screen flex flex-col items-end justify-center  bg-background text-foreground bg-cover bg-center bg-no-repeatbg-yellow-200"
-            style={{ 
-                backgroundImage: `url(${bgImage})` , 
-                backgroundSize: '110%' 
-            }} 
->
-            <div className="text-center space-y-6 p-4 mr-18">
-                <h1 className="text-4xl md:text-6xl font-bold tracking-tighter">
-                    これであなたもムキムキよぉん      
-                </h1>
-                
-                <p className="text-xl text-muted-foreground max-w-[600px]">
-                    フォームを分析し、あなたの成長を正確に記録します
-                </p>
-                <div className="flex justify-end gap-4 mr-64">
-                    <Button asChild size="lg">
-                        <Link to="/auth">はじめる</Link>
-                    </Button>
-                </div>
-            </div>
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground bg-cover bg-center bg-no-repeat bg-yellow-200"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: "110%",
+      }}
+    >
+      <div className="w-full max-w-[900px] pr-12 text-right space-y-6 p-4">
+        <div className="flex justify-end">
+          <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-right relative translate-x-[5rem] md:translate-x-[14rem]">
+            これであなたもムキムキよぉん
+          </h1>
         </div>
-    );
+
+        <p className="text-xl text-muted-foreground max-w-[600px] text-right relative translate-x-[9rem] md:translate-x-[20rem]">
+          フォームを分析し、あなたの成長を正確に記録します
+        </p>
+        <div className="flex justify-end gap-4 -translate-x-6 md:-translate-x-8">
+          <Button asChild size="lg">
+            <Link to="/auth">はじめる</Link>
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }
