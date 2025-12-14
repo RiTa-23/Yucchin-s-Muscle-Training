@@ -18,7 +18,7 @@
 
 例: `User` モデル（ユーザー情報を保存する）
 
-```
+```python
 # app/models/user.py
 from sqlalchemy import Column, Integer, String
 from app.database import Base
@@ -38,7 +38,7 @@ class User(Base):
 
 `backend/app/main.py` に以下のコードを追加すると、起動時に自動でテーブルが作られます。
 
-```
+```python
 from app.database import engine, Base
 from app.models import user  # モデルを読み込む必要がある
 # 起動時に実行される処理
@@ -154,5 +154,3 @@ async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
 | **DBから切断** | `\q` (接続後に実行) |
 | **DBをリセット (データ全消去)** | `docker-compose down -v` → `docker-compose up -d` |
 | **コンテナのログ確認** | `docker-compose logs -f db` |
-
-```
