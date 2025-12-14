@@ -32,7 +32,7 @@ class User(Base):
 
 ## **2. DBへの反映（テーブル作成）**
 
-### テーブル自動作成 `（※ この作業はすでに行っているのでやらなくてよい）`
+### テーブル自動作成 **（※ この作業はすでに行っているのでやらなくてよい）**
 
 モデルを書いただけではデータベースに箱（テーブル）は作られません。 簡単な方法は、**アプリ起動時に自動で作る** 設定をすることです。
 
@@ -50,7 +50,7 @@ async def lifespan(app: FastAPI):
 
 ```
 
-### app/models/__init__.py に追記する`（こっちはやってね！）`
+### app/models/__init__.py に追記する **（こっちはやってね！）**
 
 **このファイルの役割**: `app/models/__init__.py` は、モデルを一括で管理するための「エントリーポイント」です。新しいモデル（例: `User`、`PoseLog` など）を作成したら、このファイルに追記することで、アプリ全体でそのモデルを認識できるようになります。
 
@@ -64,7 +64,7 @@ async def lifespan(app: FastAPI):
 from .user import User 
 ```
 
-**from .ファイル名 import モデル名 という形式で書く**
+from .ファイル名 import モデル名 という形式で書く
 
 ## **3. Schema（スキーマ）の作成**
 
@@ -82,7 +82,7 @@ class UserCreate(BaseModel):
     password: str
 ```
 
-### app/schemas/__init__.py に追記する `（任意だけど推奨）`
+### app/schemas/__init__.py に追記する **（任意だけど推奨）**
 
 **役割**: インポートを簡単にするため。
 これを書くと、他のファイルで `from app.schemas.user import UserCreate` と書く代わりに、`from app.schemas import UserCreate` と短く書けるようになります。
@@ -113,7 +113,7 @@ async def create_user(db: AsyncSession, user: UserCreate):
 
 ```
 
-### app/crud/__init__.py に追記する `（任意だけど推奨）`
+### app/crud/__init__.py に追記する **（任意だけど推奨）**
 
 **役割**: インポートを簡単にするため。
 例: `from app.crud.user import create_user` → `from app.crud import create_user`
