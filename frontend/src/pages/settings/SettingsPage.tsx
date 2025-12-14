@@ -132,7 +132,7 @@ export default function SettingsPage() {
                 <div className="pt-4 border-t">
                   <Button
                     variant="outline"
-                    className="text-red-600 border-black-700 hover:bg-red-50 hover:text-red-700"
+                    className="text-red-600 border-gray-700 hover:bg-red-50 hover:text-red-700"
                     onClick={handleLogout}
                   >
                     ログアウト
