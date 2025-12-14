@@ -24,7 +24,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-            raise credentials_exception
     except PyJWTError:
         raise credentials_exception from None
     user = await get_user_by_username(db, username=username)
