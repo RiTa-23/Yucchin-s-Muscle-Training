@@ -5,9 +5,42 @@ import { useNavigate } from "react-router-dom";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
-  const [notify, setNotify] = React.useState<boolean>(true);
-  const [yucchinSound, setYucchinSound] = React.useState<boolean>(true);
-  const [yucchinHidden, setYucchinHidden] = React.useState<boolean>(false);
+  const [notify, setNotify] = React.useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem("settings_notify");
+      return v === null ? true : v === "true";
+    } catch {
+      return true;
+    }
+  });
+
+  const [yucchinSound, setYucchinSound] = React.useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem("settings_yucchinSound");
+      return v === null ? true : v === "true";
+    } catch {
+      return true;
+    }
+  });
+
+  const [yucchinHidden, setYucchinHidden] = React.useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem("settings_yucchinHidden");
+      return v === null ? false : v === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("settings_notify", String(notify));
+      localStorage.setItem("settings_yucchinSound", String(yucchinSound));
+      localStorage.setItem("settings_yucchinHidden", String(yucchinHidden));
+    } catch {
+      // ignore storage errors (e.g. private mode)
+    }
+  }, [notify, yucchinSound, yucchinHidden]);
   const [bgmVolume, setBgmVolume] = React.useState<number>(50);
   const handleLogout = () => {
     navigate("/");
