@@ -34,6 +34,34 @@ export default function AuthPage() {
     const [isLoginLoading, setIsLoginLoading] = useState(false);
     const [isSignupLoading, setIsSignupLoading] = useState(false);
 
+    // Helper to process errors
+    const getErrorMessage = (error: any, defaultMessage: string) => {
+        if (!error.response?.data?.detail) {
+            return error instanceof Error ? error.message : defaultMessage;
+        }
+
+        const detail = error.response.data.detail;
+
+        if (typeof detail === "string") {
+            return detail;
+        }
+
+        if (Array.isArray(detail)) {
+            // Pydantic validation errors
+            return detail
+                .map((d: any) => {
+                    const msg = d.msg;
+                    if (msg.includes("valid email")) return "有効なメールアドレスを入力してください。";
+                    if (msg.includes("at least")) return "文字数が足りません（8文字以上）。";
+                    if (msg.includes("Field required")) return "入力は必須です。";
+                    return msg;
+                })
+                .join("\n");
+        }
+
+        return JSON.stringify(detail);
+    };
+
     const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoginError("");
@@ -44,12 +72,7 @@ export default function AuthPage() {
             navigate("/home");
         } catch (error: any) {
             console.error("Login failed:", error);
-            // Improved error handling
-            let message = "ログインに失敗しました。";
-            if (error.response?.data?.detail) {
-                message += ` ${error.response.data.detail}`;
-            }
-            setLoginError(message);
+            setLoginError(getErrorMessage(error, "ログインに失敗しました。"));
         } finally {
             setIsLoginLoading(false);
         }
@@ -65,17 +88,7 @@ export default function AuthPage() {
             navigate("/home");
         } catch (error: any) {
             console.error("Signup failed:", error);
-            let message = "新規登録に失敗しました。";
-            // Handle Pydantic validation errors (array of errors)
-            if (error.response?.data?.detail) {
-                const detail = error.response.data.detail;
-                if (Array.isArray(detail)) {
-                    message += "\n" + detail.map((d: any) => `${d.loc.join('.')}: ${d.msg}`).join("\n");
-                } else {
-                    message += ` ${detail}`;
-                }
-            }
-            setSignupError(message);
+            setSignupError(getErrorMessage(error, "新規登録に失敗しました。"));
         } finally {
             setIsSignupLoading(false);
         }

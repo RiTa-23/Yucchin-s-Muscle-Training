@@ -13,7 +13,7 @@ async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
     if db_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+            detail="このメールアドレスは既に登録されています"
         )
     
     # Check if user already exists by username
@@ -21,7 +21,7 @@ async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
     if db_user_by_name:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username already taken"
+            detail="このユーザー名は既に使用されています"
         )
 
     return await create_user(db=db, user=user)
