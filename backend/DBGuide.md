@@ -113,6 +113,17 @@ async def create_user(db: AsyncSession, user: UserCreate):
 
 ```
 
+### app/crud/__init__.py に追記する `（任意だけど推奨）`
+
+**役割**: インポートを簡単にするため。
+例: `from app.crud.user import create_user` → `from app.crud import create_user`
+
+**例**:
+
+```python
+from .user import create_user
+```
+
 ## **5. Router（API）の作成**
 
 **場所**: `backend/app/routers/` **役割**: URL（例: `/users/`）を作り、外からアクセスできるようにします。
