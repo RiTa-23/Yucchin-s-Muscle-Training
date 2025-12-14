@@ -2,12 +2,12 @@ import { useState, type FormEvent, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import bgImage from "@/assets/img/doubleyuttin.png";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -213,25 +213,7 @@ export default function AuthPage() {
                         スタート画面に戻る
                     </Link>
                 </div>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={isSignupLoading}
-                >
-                  {isSignupLoading ? "作成中..." : "アカウント作成"}
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
-        </TabsContent>
-        <div className="mt-4 text-center text-sm">
-          <Link to="/" className="text-black hover:underline text-base">
-            スタート画面に戻る
-          </Link>
+            </Tabs>
         </div>
-      </Tabs>
-    </div>
-  );
+    );
 }
