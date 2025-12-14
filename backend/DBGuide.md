@@ -141,5 +141,18 @@ router = APIRouter()
 @router.post("/users/", response_model=UserResponse)
 async def create_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     return await user_crud.create_user(db=db, user=user)
+```
+
+## **6. よく使うDB関連コマンド**
+
+| 目的 | コマンド (ターミナルで実行) |
+| --- | --- |
+| **DBを起動 (最初にこれ！)** | `docker-compose up -d` |
+| **DBに接続 (SQLを実行)** | `docker-compose exec db psql -U user -d muscle_training_db` |
+| **全テーブルを確認** | `\dt` (接続後に実行) |
+| **ユーザー一覧を見る** | `SELECT * FROM users;` (接続後に実行) |
+| **DBから切断** | `\q` (接続後に実行) |
+| **DBをリセット (データ全消去)** | `docker-compose down -v` → `docker-compose up -d` |
+| **コンテナのログ確認** | `docker-compose logs -f db` |
 
 ```
