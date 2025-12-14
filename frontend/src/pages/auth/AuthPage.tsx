@@ -54,9 +54,20 @@ export default function AuthPage() {
         try {
             await signup(signupUsername, signupEmail, signupPassword);
             navigate("/home");
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
-            alert("登録に失敗しました。");
+            if (error.response && error.response.data && error.response.data.detail) {
+                // Pydantic validation error
+                const details = error.response.data.detail;
+                if (Array.isArray(details)) {
+                    const messages = details.map((d: any) => `${d.loc.join(".")}: ${d.msg}`).join("\n");
+                    alert(`登録エラー:\n${messages}`);
+                } else {
+                    alert(`登録エラー: ${details}`);
+                }
+            } else {
+                alert("登録に失敗しました。サーバーを確認してください。");
+            }
         }
     };
 
