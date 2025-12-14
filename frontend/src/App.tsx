@@ -3,6 +3,7 @@ import LandingPage from './pages/landing/LandingPage';
 import AuthPage from './pages/auth/AuthPage';
 import HomePage from './pages/dashboard/HomePage';
 import CameraPage from './pages/camera/CameraPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 import { AuthProvider } from './context/AuthContext';
 
@@ -13,8 +14,22 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/camera" element={<CameraPage />} />
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/camera"
+            element={
+              <ProtectedRoute>
+                <CameraPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
