@@ -4,19 +4,16 @@ React（フロントエンド）からFastAPI（バックエンド）のデー�
 
 ---
 
-## 🚀 1. 準備：Axios（アクシオス）のインストール
+## 🚀 1. 準備：Axios（アクシオス）のインストール (※設定済みのため作業不要)
 
 JavaScript標準の `fetch` でも通信はできますが、より簡単で便利な **Axios** というライブラリを使うのが一般的です。
 
-ターミナル（`frontend` ディレクトリ）で以下のコマンドを実行してインストールします。
-
-```bash
-npm install axios
-```
+プロジェクトの `package.json` に追加済みなので、初期セットアップの `npm install` コマンドで自動的にインストールされます。
+（個別に `npm install axios` を実行する必要はありません）
 
 ---
 
-## 🛠 2. APIクライアントの作成
+## 🛠 2. APIクライアントの作成 (※設定済みのため作業不要)
 
 毎回 `http://localhost:8000/...` と書くのは大変なので、**設定済みの「専用の通信窓口（APIクライアント）」** を作ります。
 
@@ -37,8 +34,6 @@ const client = axios.create({
 export default client;
 ```
 
----
-
 ## 📡 3. データを送信する (POSTリクエスト)
 
 ユーザー登録やログインなど、データをサーバーに送る場合に使います。
@@ -49,10 +44,14 @@ export default client;
 import { useState } from "react";
 import client from "../api/client"; // 作成したクライアントを読み込む
 
+// コンポーネント（画面の部品）の定義
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  // ---------------------------------------------
+  // ▼ ロジック部分：ボタンが押された時の動作
+  // ---------------------------------------------
   const handleLogin = async () => {
     try {
       // client.post("エンドポイント", { 送りたいデータ })
@@ -60,9 +59,7 @@ const LoginPage = () => {
         username: username,
         password: password,
       }, {
-        // FastAPIのOAuth2は Formデータ(x-www-form-urlencoded) を期待するため
-        // 通常のJSONではなく以下のように送る必要がある場合がありますが、
-        // 今回はとりあえず基本の形を説明します。
+        // Formデータとして送信する場合の設定
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         }
@@ -76,8 +73,14 @@ const LoginPage = () => {
     }
   };
 
+  // ---------------------------------------------
+  // ▼ UI部分：画面の見た目
+  // ---------------------------------------------
   return (
-    <button onClick={handleLogin}>ログイン</button>
+    <div>
+      {/* このボタンを押すと、上の handleLogin が実行されます */}
+      <button onClick={handleLogin}>ログイン</button>
+    </div>
   );
 };
 ```
