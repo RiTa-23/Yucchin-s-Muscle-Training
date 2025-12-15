@@ -97,7 +97,12 @@ SECURE_COOKIE=false # Set to true in production (requires HTTPS)
 > `openssl rand -hex 32`
 
 
+
 2. **データベースの起動**: Dockerを使ってPostgreSQLを起動します。
+
+> [!IMPORTANT]
+> **Windowsユーザーの方へ**:
+> コマンドを実行する前に、**Docker Desktop** アプリケーションを起動しておく必要があります。起動していない場合、データベースに接続できずエラーになります。
 
 ```bash
 # プロジェクトルートで実行
