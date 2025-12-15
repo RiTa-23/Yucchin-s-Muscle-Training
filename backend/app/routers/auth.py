@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -64,6 +65,7 @@ async def login_for_access_token(response: Response, form_data: UserLogin, db: A
     )
     
     # Set HttpOnly Cookie
+    secure_cookie = os.getenv("SECURE_COOKIE", "false").lower() == "true"
     response.set_cookie(
         key="access_token",
         value=access_token,
@@ -71,7 +73,7 @@ async def login_for_access_token(response: Response, form_data: UserLogin, db: A
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         expires=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         samesite="lax",
-        secure=False, # Set True in production with HTTPS
+        secure=secure_cookie,
     )
     
     return {"message": "Login successful"}

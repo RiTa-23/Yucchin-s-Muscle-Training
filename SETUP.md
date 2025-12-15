@@ -83,12 +83,13 @@ uv sync
 
 1. **環境変数の作成**: `backend` ディレクトリに `.env` ファイルを作成します。
 
-```bash
+```
 # backend/.env
 POSTGRES_USER=user
 POSTGRES_PASSWORD=password
 DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/muscle_training_db
 SECRET_KEY=your_super_secret_key_change_this_in_production
+SECURE_COOKIE=false # Set to true in production (requires HTTPS)
 ```
 
 > [!TIP]
