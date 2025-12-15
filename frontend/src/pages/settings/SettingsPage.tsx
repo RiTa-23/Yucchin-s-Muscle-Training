@@ -142,7 +142,7 @@ export default function SettingsPage() {
 
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <div className="font-medium">BGM</div>
+                                    <div className="font-medium">音量</div>
                                     <div className="text-sm text-muted-foreground">
                                         アプリの音量設定
                                     </div>
