@@ -52,7 +52,7 @@ export default function AuthPage() {
                 .map((d: any) => {
                     const msg = d.msg;
                     if (msg.includes("valid email")) return "有効なメールアドレスを入力してください。";
-                    if (msg.includes("at least")) return "文字数が足りません（8文字以上）。";
+                    if (msg.includes("at least")) return "パスワードの文字数が足りません（8文字以上）。";
                     if (msg.includes("Field required")) return "入力は必須です。";
                     return msg;
                 })

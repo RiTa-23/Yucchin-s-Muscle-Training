@@ -33,7 +33,7 @@ async def signup(user: UserCreate, db: AsyncSession = Depends(get_db)):
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Signup failed: {str(e)}"
+            detail="サインアップ処理中にエラーが発生しました"
         )
 
 @router.get("/users")
