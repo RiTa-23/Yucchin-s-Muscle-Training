@@ -4,6 +4,7 @@ from app.database import get_db
 from app.routers.auth import get_current_user
 from app.schemas.user import UserCreate, UserResponse, UserUpdate
 from app.crud import create_user, get_user_by_email, get_user_by_username, update_user
+from app.models.user import User
 
 router = APIRouter()
 
@@ -44,7 +45,7 @@ async def users_root():
 @router.put("/users/me", response_model=UserResponse)
 async def update_user_me(
     user_update: UserUpdate,
-    current_user: UserResponse = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     try:
