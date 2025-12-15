@@ -88,7 +88,13 @@ uv sync
 POSTGRES_USER=user
 POSTGRES_PASSWORD=password
 DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/muscle_training_db
+SECRET_KEY=your_super_secret_key_change_this_in_production
 ```
+
+> [!TIP]
+> `SECRET_KEY` はセキュリティ上重要です。以下のコマンドで安全なキーを生成できます（本番環境では必須）：
+> `openssl rand -hex 32`
+
 
 2. **データベースの起動**: Dockerを使ってPostgreSQLを起動します。
 
