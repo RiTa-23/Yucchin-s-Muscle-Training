@@ -1,20 +1,32 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import client from "@/api/client";
 
 export default function SettingsPage() {
     const navigate = useNavigate();
-    const { logout } = useAuth();
-    const [notify, setNotify] = React.useState<boolean>(() => {
-        try {
-            const v = localStorage.getItem("settings_notify");
-            return v === null ? true : v === "true";
-        } catch {
-            return true;
+    const { logout, user } = useAuth();
+    const [username, setUsername] = React.useState<string>(user?.username || "");
+
+    // Update local state when user context updates (e.g. on initial load)
+    React.useEffect(() => {
+        if (user?.username) {
+            setUsername(user.username);
         }
-    });
+    }, [user]);
+
+    const handleUsernameChange = async () => {
+        try {
+            await client.put("/users/me", { username });
+            alert(`ユーザーネームを「${username}」に変更しました`);
+        } catch (error) {
+            console.error("Failed to update username", error);
+            alert("ユーザーネームの変更に失敗しました");
+        }
+    };
 
     const [yucchinSound, setYucchinSound] = React.useState<boolean>(() => {
         try {
@@ -34,16 +46,60 @@ export default function SettingsPage() {
         }
     });
 
+    const [bgmVolume, setBgmVolume] = React.useState<number>(() => {
+        try {
+            const v = localStorage.getItem("settings_bgmVolume");
+            return v === null ? 50 : Number(v);
+        } catch {
+            return 50;
+        }
+    });
+
+    const updateSettings = async (data: any) => {
+        try {
+            await client.put("/settings/me", data);
+        } catch (e) {
+            console.error("Failed to update settings", e);
+        }
+    };
+
+    // Fetch settings from DB on mount
+    React.useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await client.get("/settings/me");
+                const data = res.data;
+                setYucchinSound(data.yucchin_sound);
+                setYucchinHidden(data.yucchin_hidden);
+                setBgmVolume(data.bgm_volume);
+            } catch (e) {
+                console.error("Failed to fetch settings", e);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    // Sync to LocalStorage (Cache)
     React.useEffect(() => {
         try {
-            localStorage.setItem("settings_notify", String(notify));
             localStorage.setItem("settings_yucchinSound", String(yucchinSound));
             localStorage.setItem("settings_yucchinHidden", String(yucchinHidden));
+            localStorage.setItem("settings_bgmVolume", String(bgmVolume));
         } catch {
-            // ignore storage errors (e.g. private mode)
+            // ignore storage errors
         }
-    }, [notify, yucchinSound, yucchinHidden]);
-    const [bgmVolume, setBgmVolume] = React.useState<number>(50);
+    }, [yucchinSound, yucchinHidden, bgmVolume]);
+
+    const handleYucchinSoundChange = (checked: boolean) => {
+        setYucchinSound(checked);
+        updateSettings({ yucchin_sound: checked });
+    };
+
+    const handleYucchinHiddenChange = (checked: boolean) => {
+        setYucchinHidden(checked);
+        updateSettings({ yucchin_hidden: checked });
+    };
+
     const handleLogout = () => {
         logout();
         navigate("/");
@@ -67,43 +123,26 @@ export default function SettingsPage() {
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <div className="font-medium">通知</div>
+                                    <div className="font-medium">ユーザーネーム</div>
                                     <div className="text-sm text-muted-foreground">
-                                        トレーニング通知の受信
+                                        表示名の設定
                                     </div>
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        className="sr-only"
-                                        checked={notify}
-                                        onChange={(e) => setNotify(e.target.checked)}
-                                        aria-label="通知トグル"
-                                    />
-                                    <div
-                                        className={`w-11 h-6 rounded-full transition-colors ${notify ? "bg-black" : "bg-gray-200"
-                                            }`}
-                                    />
-                                    <div
-                                        className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${notify ? "translate-x-5" : "translate-x-0"
-                                            }`}
-                                    />
-                                </label>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-48">
+                                        <Input
+                                            value={username}
+                                            onChange={(e) => setUsername(e.target.value)}
+                                            placeholder="ユーザーネーム"
+                                        />
+                                    </div>
+                                    <Button size="sm" onClick={handleUsernameChange}>変更</Button>
+                                </div>
                             </div>
 
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <div className="font-medium">アカウント</div>
-                                    <div className="text-sm text-muted-foreground">
-                                        プロフィールとログイン情報
-                                    </div>
-                                </div>
-                                <Button size="sm">編集</Button>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="font-medium">BGM</div>
+                                    <div className="font-medium">音量</div>
                                     <div className="text-sm text-muted-foreground">
                                         アプリの音量設定
                                     </div>
@@ -115,6 +154,8 @@ export default function SettingsPage() {
                                         max={100}
                                         value={bgmVolume}
                                         onChange={(e) => setBgmVolume(Number(e.target.value))}
+                                        onMouseUp={() => updateSettings({ bgm_volume: bgmVolume })}
+                                        onTouchEnd={() => updateSettings({ bgm_volume: bgmVolume })}
                                         className="w-full accent-black"
                                     />
                                     <div className="text-xs text-right text-muted-foreground mt-1">
@@ -162,7 +203,7 @@ export default function SettingsPage() {
                                         type="checkbox"
                                         className="sr-only"
                                         checked={yucchinSound}
-                                        onChange={(e) => setYucchinSound(e.target.checked)}
+                                        onChange={(e) => handleYucchinSoundChange(e.target.checked)}
                                         aria-label="ゆっちんの音トグル"
                                     />
                                     <div
@@ -188,7 +229,7 @@ export default function SettingsPage() {
                                         type="checkbox"
                                         className="sr-only"
                                         checked={yucchinHidden}
-                                        onChange={(e) => setYucchinHidden(e.target.checked)}
+                                        onChange={(e) => handleYucchinHiddenChange(e.target.checked)}
                                         aria-label="ゆっちん非表示トグル"
                                     />
                                     <div
