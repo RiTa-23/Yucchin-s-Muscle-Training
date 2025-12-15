@@ -124,7 +124,7 @@ export default function AuthPage() {
                                     <Input
                                         id="email"
                                         type="email"
-                                        placeholder="m@example.com"
+                                        placeholder="yucchin@example.com"
                                         value={loginEmail}
                                         onChange={(e: ChangeEvent<HTMLInputElement>) =>
                                             setLoginEmail(e.target.value)
