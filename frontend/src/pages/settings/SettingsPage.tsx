@@ -1,20 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 
 export default function SettingsPage() {
     const navigate = useNavigate();
-    const { logout } = useAuth();
-    const [notify, setNotify] = React.useState<boolean>(() => {
-        try {
-            const v = localStorage.getItem("settings_notify");
-            return v === null ? true : v === "true";
-        } catch {
-            return true;
+    const { logout, user } = useAuth();
+    const [username, setUsername] = React.useState<string>(user?.username || "");
+
+    // Update local state when user context updates (e.g. on initial load)
+    React.useEffect(() => {
+        if (user?.username) {
+            setUsername(user.username);
         }
-    });
+    }, [user]);
+
+    const handleUsernameChange = () => {
+        // TODO: Implement actual API call to update username
+        console.log("Change username to:", username);
+        alert(`ユーザーネームを「${username}」に変更しました（UIのみ）`);
+    };
 
     const [yucchinSound, setYucchinSound] = React.useState<boolean>(() => {
         try {
@@ -36,13 +43,12 @@ export default function SettingsPage() {
 
     React.useEffect(() => {
         try {
-            localStorage.setItem("settings_notify", String(notify));
             localStorage.setItem("settings_yucchinSound", String(yucchinSound));
             localStorage.setItem("settings_yucchinHidden", String(yucchinHidden));
         } catch {
             // ignore storage errors (e.g. private mode)
         }
-    }, [notify, yucchinSound, yucchinHidden]);
+    }, [yucchinSound, yucchinHidden]);
     const [bgmVolume, setBgmVolume] = React.useState<number>(50);
     const handleLogout = () => {
         logout();
@@ -67,38 +73,21 @@ export default function SettingsPage() {
                         <div className="space-y-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <div className="font-medium">通知</div>
+                                    <div className="font-medium">ユーザーネーム</div>
                                     <div className="text-sm text-muted-foreground">
-                                        トレーニング通知の受信
+                                        表示名の設定
                                     </div>
                                 </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        className="sr-only"
-                                        checked={notify}
-                                        onChange={(e) => setNotify(e.target.checked)}
-                                        aria-label="通知トグル"
-                                    />
-                                    <div
-                                        className={`w-11 h-6 rounded-full transition-colors ${notify ? "bg-black" : "bg-gray-200"
-                                            }`}
-                                    />
-                                    <div
-                                        className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${notify ? "translate-x-5" : "translate-x-0"
-                                            }`}
-                                    />
-                                </label>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="font-medium">アカウント</div>
-                                    <div className="text-sm text-muted-foreground">
-                                        プロフィールとログイン情報
+                                <div className="flex items-center gap-2">
+                                    <div className="w-48">
+                                        <Input
+                                            value={username}
+                                            onChange={(e) => setUsername(e.target.value)}
+                                            placeholder="ユーザーネーム"
+                                        />
                                     </div>
+                                    <Button size="sm" onClick={handleUsernameChange}>変更</Button>
                                 </div>
-                                <Button size="sm">編集</Button>
                             </div>
 
                             <div className="flex items-center justify-between">
