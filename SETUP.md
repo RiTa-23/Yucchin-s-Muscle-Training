@@ -83,7 +83,7 @@ uv sync
 
 1. **環境変数の作成**: `backend` ディレクトリに `.env` ファイルを作成します。
 
-```
+```bash
 # backend/.env
 POSTGRES_USER=user
 POSTGRES_PASSWORD=password
