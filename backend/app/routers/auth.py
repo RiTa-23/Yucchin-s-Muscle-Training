@@ -74,7 +74,7 @@ async def login_for_access_token(response: Response, form_data: UserLogin, db: A
         secure=False, # Set True in production with HTTPS
     )
     
-    return {"message": "Login successful", "access_token": access_token} # Return token for debug/optional use, but cookie is primary
+    return {"message": "Login successful"}
 
 @router.post("/logout")
 async def logout(response: Response):
