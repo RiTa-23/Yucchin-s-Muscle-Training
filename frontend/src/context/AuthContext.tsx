@@ -9,7 +9,6 @@ interface User {
 
 interface AuthContextType {
     user: User | null;
-    token: string | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<void>;
     signup: (username: string, email: string, password: string) => Promise<void>;
@@ -20,34 +19,28 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
     const [loading, setLoading] = useState<boolean>(true);
 
-    // Initial user fetch if token exists
+    // Check auth status on mount
     useEffect(() => {
         const fetchUser = async () => {
-            if (token) {
-                try {
-                    const response = await client.get("/users/me");
-                    setUser(response.data);
-                } catch (error) {
-                    console.error("Failed to fetch user", error);
-                    logout();
-                }
+            try {
+                const response = await client.get("/users/me");
+                setUser(response.data);
+            } catch {
+                setUser(null);
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
         };
 
         fetchUser();
-    }, [token]);
+    }, []);
 
     const login = async (email: string, password: string) => {
         // Send email/password as JSON body
-        const response = await client.post("/token", { email, password });
-        const { access_token } = response.data;
-
-        localStorage.setItem("token", access_token);
-        setToken(access_token);
+        // Cookie is set by backend automatically
+        await client.post("/token", { email, password });
 
         // Fetch user immediately after login
         const userResponse = await client.get("/users/me");
@@ -60,14 +53,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await login(email, password);
     };
 
-    const logout = () => {
-        localStorage.removeItem("token");
-        setToken(null);
-        setUser(null);
+    const logout = async () => {
+        try {
+            await client.post("/logout");
+        } catch (error) {
+            console.error("Logout failed", error);
+        } finally {
+            setUser(null);
+            // No need to clear localStorage
+        }
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, loading, login, signup, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
             {children}
         </AuthContext.Provider>
     );
