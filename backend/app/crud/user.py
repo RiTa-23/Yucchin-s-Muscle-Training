@@ -24,9 +24,7 @@ async def create_user(db: AsyncSession, user: UserCreate):
     await db.refresh(db_user)
 
     # Create default settings
-    from app.models.settings import UserSettings
-    db_settings = UserSettings(user_id=db_user.id)
-    db.add(db_settings)
-    await db.commit()
+    from app.crud.settings import create_default_settings
+    await create_default_settings(db, db_user.id)
 
     return db_user
