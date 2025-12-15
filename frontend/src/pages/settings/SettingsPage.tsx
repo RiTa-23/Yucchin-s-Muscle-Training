@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import client from "@/api/client";
 
 export default function SettingsPage() {
     const navigate = useNavigate();
@@ -17,10 +18,14 @@ export default function SettingsPage() {
         }
     }, [user]);
 
-    const handleUsernameChange = () => {
-        // TODO: Implement actual API call to update username
-        console.log("Change username to:", username);
-        alert(`ユーザーネームを「${username}」に変更しました（UIのみ）`);
+    const handleUsernameChange = async () => {
+        try {
+            await client.put("/users/me", { username });
+            alert(`ユーザーネームを「${username}」に変更しました`);
+        } catch (error) {
+            console.error("Failed to update username", error);
+            alert("ユーザーネームの変更に失敗しました");
+        }
     };
 
     const [yucchinSound, setYucchinSound] = React.useState<boolean>(() => {
@@ -41,15 +46,60 @@ export default function SettingsPage() {
         }
     });
 
+    const [bgmVolume, setBgmVolume] = React.useState<number>(() => {
+        try {
+            const v = localStorage.getItem("settings_bgmVolume");
+            return v === null ? 50 : Number(v);
+        } catch {
+            return 50;
+        }
+    });
+
+    const updateSettings = async (data: any) => {
+        try {
+            await client.put("/settings/me", data);
+        } catch (e) {
+            console.error("Failed to update settings", e);
+        }
+    };
+
+    // Fetch settings from DB on mount
+    React.useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await client.get("/settings/me");
+                const data = res.data;
+                setYucchinSound(data.yucchin_sound);
+                setYucchinHidden(data.yucchin_hidden);
+                setBgmVolume(data.bgm_volume);
+            } catch (e) {
+                console.error("Failed to fetch settings", e);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    // Sync to LocalStorage (Cache)
     React.useEffect(() => {
         try {
             localStorage.setItem("settings_yucchinSound", String(yucchinSound));
             localStorage.setItem("settings_yucchinHidden", String(yucchinHidden));
+            localStorage.setItem("settings_bgmVolume", String(bgmVolume));
         } catch {
-            // ignore storage errors (e.g. private mode)
+            // ignore storage errors
         }
-    }, [yucchinSound, yucchinHidden]);
-    const [bgmVolume, setBgmVolume] = React.useState<number>(50);
+    }, [yucchinSound, yucchinHidden, bgmVolume]);
+
+    const handleYucchinSoundChange = (checked: boolean) => {
+        setYucchinSound(checked);
+        updateSettings({ yucchin_sound: checked });
+    };
+
+    const handleYucchinHiddenChange = (checked: boolean) => {
+        setYucchinHidden(checked);
+        updateSettings({ yucchin_hidden: checked });
+    };
+
     const handleLogout = () => {
         logout();
         navigate("/");
@@ -104,6 +154,8 @@ export default function SettingsPage() {
                                         max={100}
                                         value={bgmVolume}
                                         onChange={(e) => setBgmVolume(Number(e.target.value))}
+                                        onMouseUp={() => updateSettings({ bgm_volume: bgmVolume })}
+                                        onTouchEnd={() => updateSettings({ bgm_volume: bgmVolume })}
                                         className="w-full accent-black"
                                     />
                                     <div className="text-xs text-right text-muted-foreground mt-1">
@@ -151,7 +203,7 @@ export default function SettingsPage() {
                                         type="checkbox"
                                         className="sr-only"
                                         checked={yucchinSound}
-                                        onChange={(e) => setYucchinSound(e.target.checked)}
+                                        onChange={(e) => handleYucchinSoundChange(e.target.checked)}
                                         aria-label="ゆっちんの音トグル"
                                     />
                                     <div
@@ -177,7 +229,7 @@ export default function SettingsPage() {
                                         type="checkbox"
                                         className="sr-only"
                                         checked={yucchinHidden}
-                                        onChange={(e) => setYucchinHidden(e.target.checked)}
+                                        onChange={(e) => handleYucchinHiddenChange(e.target.checked)}
                                         aria-label="ゆっちん非表示トグル"
                                     />
                                     <div
