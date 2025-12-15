@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from app.routers import auth, users, pose
+from app.routers import auth, users, pose, settings
 
 from contextlib import asynccontextmanager
 from app.database import engine, Base
 # Import all models to ensure they are registered with Base.metadata
-from app.models import user
+from app.models import user, settings as settings_model
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -37,6 +37,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(pose.router)
+app.include_router(settings.router, prefix="/settings", tags=["settings"])
 
 @app.get("/")
 async def get():
