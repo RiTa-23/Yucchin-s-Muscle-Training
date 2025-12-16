@@ -65,8 +65,8 @@ export default function PlankPage() {
         // Horizontal Check: Calculate angle of the body (Shoulder to Ankle) relative to horizontal
         const dy = ankle.y - shoulder.y;
         const dx = ankle.x - shoulder.x;
-        const bodyAngleBytes = Math.atan2(dy, dx) * (180 / Math.PI);
-        const bodyInclination = Math.abs(bodyAngleBytes);
+        const bodyAngleDegrees = Math.atan2(dy, dx) * (180 / Math.PI);
+        const bodyInclination = Math.abs(bodyAngleDegrees);
 
         // Accept if angle is within 0-30 degrees (Right facing) or 150-180 degrees (Left facing)
         const isHorizontal = bodyInclination < 30 || bodyInclination > 150;
