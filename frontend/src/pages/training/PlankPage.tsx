@@ -18,7 +18,8 @@ export default function PlankPage() {
     const [lastResults, setLastResults] = useState<Results | null>(null);
     const [message, setMessage] = useState<string>("");
     const [isGood, setIsGood] = useState<boolean>(false);
-    const [timeLeft, setTimeLeft] = useState<number>(30); // 30 seconds plank
+    const [targetDuration, setTargetDuration] = useState<number>(30);
+    const [timeLeft, setTimeLeft] = useState<number>(30); // Default 30s
 
     // Timer ref
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -93,26 +94,39 @@ export default function PlankPage() {
         };
     }, [gameState, isGood, timeLeft]);
 
+    const handleStart = (duration?: number) => {
+        if (duration) {
+            setTargetDuration(duration);
+            setTimeLeft(duration);
+        }
+        setGameState("ACTIVE");
+    };
+
 
     // --- Renders ---
 
     if (gameState === "GUIDE") {
         return (
             <TrainingGuide
-                title="プランクチャレンジ"
+                title="プランク"
                 description={
                     <>
-                        <p>カメラに向かって<strong>横向き</strong>になり、頭から足先までを一直線に保ちましょう。</p>
-                        <p>正しい姿勢を計<strong>30秒</strong>キープできればクリアです！</p>
+                        両肘とつま先を床につき、体を一直線に保ちます。<br />
+                        お尻が上がったり下がったりしないように注意しましょう！
                     </>
                 }
-                onStart={() => setGameState("ACTIVE")}
+                onStart={handleStart}
                 illustration={
-                    <div className="text-gray-400">
-                        {/* Replace with actual SVG or Image */}
-                        (プランクのイラスト)
-                    </div>
+                    <div className="text-6xl">🧘</div>
                 }
+                goalConfig={{
+                    type: "time",
+                    min: 10,
+                    max: 120,
+                    default: 30,
+                    step: 10,
+                    unit: "秒"
+                }}
             />
         );
     }
@@ -120,10 +134,10 @@ export default function PlankPage() {
     if (gameState === "FINISHED") {
         return (
             <TrainingResult
-                score="30秒"
+                score={`${targetDuration}秒`}
                 scoreLabel="記録"
                 onRetry={() => {
-                    setTimeLeft(30);
+                    setTimeLeft(targetDuration);
                     setGameState("ACTIVE");
                 }}
             />

@@ -1,16 +1,28 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
+export interface GoalConfig {
+    type: "time" | "count";
+    min: number;
+    max: number;
+    default: number;
+    step?: number;
+    unit: string;
+}
+
 interface TrainingGuideProps {
     title: string;
     description: React.ReactNode;
-    onStart: () => void;
-    illustration?: React.ReactNode; // Can be an image URL or an SVG component
+    onStart: (goalValue?: number) => void;
+    illustration?: React.ReactNode;
+    goalConfig?: GoalConfig;
 }
 
-export const TrainingGuide = ({ title, description, onStart, illustration }: TrainingGuideProps) => {
+export const TrainingGuide = ({ title, description, onStart, illustration, goalConfig }: TrainingGuideProps) => {
     const navigate = useNavigate();
+    const [currentGoal, setCurrentGoal] = useState<number>(goalConfig?.default || 0);
 
     return (
         <div className="fixed inset-0 z-50 bg-gray-50 flex items-center justify-center p-4">
@@ -41,10 +53,41 @@ export const TrainingGuide = ({ title, description, onStart, illustration }: Tra
                         {description}
                     </div>
 
+                    {/* Goal Setting */}
+                    {goalConfig && (
+                        <div className="w-full max-w-sm mb-8 bg-gray-50 p-6 rounded-xl border border-gray-100">
+                            <label className="block text-center font-bold text-gray-700 mb-4">
+                                目標設定
+                            </label>
+                            <div className="flex items-center justify-center gap-4 mb-4">
+                                <span className="text-4xl font-bold text-blue-600">
+                                    {currentGoal}
+                                </span>
+                                <span className="text-xl text-gray-500 pt-2">
+                                    {goalConfig.unit}
+                                </span>
+                            </div>
+
+                            <input
+                                type="range"
+                                min={goalConfig.min}
+                                max={goalConfig.max}
+                                step={goalConfig.step || 1}
+                                value={currentGoal}
+                                onChange={(e) => setCurrentGoal(Number(e.target.value))}
+                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                            />
+                            <div className="flex justify-between text-xs text-gray-400 mt-2">
+                                <span>{goalConfig.min}{goalConfig.unit}</span>
+                                <span>{goalConfig.max}{goalConfig.unit}</span>
+                            </div>
+                        </div>
+                    )}
+
                     <Button
                         size="lg"
-                        className="w-full max-w-xs text-xl py-8 rounded-full shadow-lg hover:shadow-xl transition-all"
-                        onClick={onStart}
+                        className="w-full max-w-xs text-xl py-8 rounded-full shadow-lg hover:shadow-xl transition-all bg-blue-600 hover:bg-blue-700 text-white"
+                        onClick={() => onStart(goalConfig ? currentGoal : undefined)}
                     >
                         スタート！
                     </Button>
