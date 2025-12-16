@@ -31,7 +31,7 @@ export const TrainingResult = ({
                 <h1 className="text-3xl font-bold mb-2 text-gray-900">{title}</h1>
                 <p className="text-gray-600 mb-8">{subTitle}</p>
 
-                {score && (
+                {(score !== undefined && score !== null) && (
                     <div className="bg-gray-50 p-6 rounded-2xl mb-8 border border-gray-100">
                         <p className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-1">{scoreLabel}</p>
                         <p className="text-5xl font-black text-blue-600">{score}</p>
