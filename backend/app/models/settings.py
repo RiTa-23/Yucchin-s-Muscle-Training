@@ -11,7 +11,6 @@ class UserSettings(Base):
     bgm_volume = Column(Integer, default=50)
     yucchin_sound = Column(Boolean, default=True)
     yucchin_hidden = Column(Boolean, default=False)
-    yucchin_hidden = Column(Boolean, default=False)
     yucchin_id = Column(Integer, default=1)
     fps = Column(Integer, default=20)
     
