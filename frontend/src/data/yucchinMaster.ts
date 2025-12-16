@@ -1,15 +1,15 @@
-import yucchin1 from '../assets/img/yucchins/type_1.jpg';
-import yucchin101 from '../assets/img/yucchins/type_101.png';
-import yucchin102 from '../assets/img/yucchins/type_102.png';
+import yucchin1 from '../assets/img/yucchins/type_1.png';
+import yucchin101 from '../assets/img/yucchins/type_1.png';
+import yucchin102 from '../assets/img/yucchins/type_1.png';
 // Import downloaded placeholders
-import yucchin2 from '../assets/img/yucchins/type_2.png';
-import yucchin3 from '../assets/img/yucchins/type_3.png';
-import yucchin4 from '../assets/img/yucchins/type_4.png';
-import yucchin5 from '../assets/img/yucchins/type_5.png';
-import yucchin6 from '../assets/img/yucchins/type_6.png';
-import yucchin103 from '../assets/img/yucchins/type_103.png';
-import yucchin104 from '../assets/img/yucchins/type_104.png';
-import yucchin105 from '../assets/img/yucchins/type_105.png';
+import yucchin2 from '../assets/img/yucchins/type_1.png';
+import yucchin3 from '../assets/img/yucchins/type_1.png';
+import yucchin4 from '../assets/img/yucchins/type_1.png';
+import yucchin5 from '../assets/img/yucchins/type_1.png';
+import yucchin6 from '../assets/img/yucchins/type_1.png';
+import yucchin103 from '../assets/img/yucchins/type_1.png';
+import yucchin104 from '../assets/img/yucchins/type_1.png';
+import yucchin105 from '../assets/img/yucchins/type_1.png';
 
 export interface YucchinMaster {
     type: number;
