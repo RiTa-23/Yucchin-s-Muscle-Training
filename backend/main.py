@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from app.routers import auth, users, pose, settings, yucchin
+from app.routers import auth, users, pose, settings, yucchin, training
 
 from contextlib import asynccontextmanager
 from app.database import engine, Base
@@ -39,6 +39,7 @@ app.include_router(users.router)
 app.include_router(pose.router)
 app.include_router(settings.router, prefix="/settings", tags=["settings"])
 app.include_router(yucchin.router, tags=["yucchins"])
+app.include_router(training.router, tags=["training"])
 
 @app.get("/")
 async def get():

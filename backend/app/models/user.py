@@ -16,3 +16,4 @@ class User(Base):
 
     settings = relationship("UserSettings", back_populates="user", uselist=False, cascade="all, delete-orphan")
     yucchins = relationship("UserYucchin", back_populates="user", cascade="all, delete-orphan")
+    training_logs = relationship("TrainingLog", back_populates="user", cascade="all, delete-orphan")
