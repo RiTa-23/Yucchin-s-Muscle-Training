@@ -48,13 +48,22 @@ export const CollectionPage: React.FC = () => {
         fetchData();
     }, []);
 
-    // Pagination Logic (Simple slicing for now)
-    const totalPages = Math.ceil(displayList.length / ITEMS_PER_PAGE) || 1;
-    const currentItems = displayList.slice(
+    // Pagination Logic
+    // 1. Separate all items by rarity first
+    const allNormals = displayList.filter(i => i.rarity === 'NORMAL');
+    const allRares = displayList.filter(i => i.rarity === 'RARE');
+    
+    // 2. Combine them to ensure specific order (Normal -> Rare)
+    const allSortedItems = [...allNormals, ...allRares];
+
+    // 3. Paginate the sorted list
+    const totalPages = Math.ceil(allSortedItems.length / ITEMS_PER_PAGE) || 1;
+    const currentItems = allSortedItems.slice(
         (currentPage - 1) * ITEMS_PER_PAGE,
         currentPage * ITEMS_PER_PAGE
     );
 
+    // 4. Split current page items for rendering
     const normalItems = currentItems.filter(i => i.rarity === 'NORMAL');
     const rareItems = currentItems.filter(i => i.rarity === 'RARE');
 
