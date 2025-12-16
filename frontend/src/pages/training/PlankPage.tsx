@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { PoseDetector } from "@/components/camera/PoseDetector";
@@ -13,8 +13,8 @@ type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 export default function PlankPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const fps = user?.settings?.fps || 20;
-    const interval = Math.floor(1000 / fps);
+    const fps = useMemo(() => user?.settings?.fps || 20, [user?.settings?.fps]);
+    const interval = useMemo(() => Math.floor(1000 / fps), [fps]);
 
     const [gameState, setGameState] = useState<GameState>("GUIDE");
     const [lastResults, setLastResults] = useState<Results | null>(null);
