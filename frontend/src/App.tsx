@@ -4,6 +4,7 @@ import AuthPage from "./pages/auth/AuthPage";
 import HomePage from "./pages/dashboard/HomePage";
 import CameraPage from "./pages/camera/CameraPage";
 import SettingsPage from "./pages/settings/SettingsPage";
+import CollectionPage from "./pages/collection/CollectionPage";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -35,6 +36,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CameraPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/collection"
+            element={
+              <ProtectedRoute>
+                <CollectionPage />
               </ProtectedRoute>
             }
           />
