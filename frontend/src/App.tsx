@@ -5,6 +5,7 @@ import HomePage from "./pages/dashboard/HomePage";
 import CameraPage from "./pages/camera/CameraPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import CollectionPage from "./pages/collection/CollectionPage";
+import GanbarinorekisiPage from "./pages/gannbarinorekisi/GanbarinorekisiPage";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -47,7 +48,16 @@ function App() {
               </ProtectedRoute>
             }
           />
+           <Route
+            path="/gannbarinorekisi"
+            element={
+              <ProtectedRoute>
+                <GanbarinorekisiPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
+        
       </BrowserRouter>
     </AuthProvider>
   );
