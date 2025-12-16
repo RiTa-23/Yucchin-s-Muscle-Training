@@ -55,6 +55,15 @@ export default function SettingsPage() {
         }
     });
 
+    const [fps, setFps] = React.useState<number>(() => {
+        try {
+            const v = localStorage.getItem("settings_fps");
+            return v === null ? 15 : Number(v);
+        } catch {
+            return 15;
+        }
+    });
+
     const updateSettings = async (data: any) => {
         try {
             await client.put("/settings/me", data);
@@ -72,6 +81,7 @@ export default function SettingsPage() {
                 setYucchinSound(data.yucchin_sound);
                 setYucchinHidden(data.yucchin_hidden);
                 setBgmVolume(data.bgm_volume);
+                setFps(data.fps);
             } catch (e) {
                 console.error("Failed to fetch settings", e);
             }
@@ -85,10 +95,11 @@ export default function SettingsPage() {
             localStorage.setItem("settings_yucchinSound", String(yucchinSound));
             localStorage.setItem("settings_yucchinHidden", String(yucchinHidden));
             localStorage.setItem("settings_bgmVolume", String(bgmVolume));
+            localStorage.setItem("settings_fps", String(fps));
         } catch {
             // ignore storage errors
         }
-    }, [yucchinSound, yucchinHidden, bgmVolume]);
+    }, [yucchinSound, yucchinHidden, bgmVolume, fps]);
 
     const handleYucchinSoundChange = (checked: boolean) => {
         setYucchinSound(checked);
@@ -98,6 +109,11 @@ export default function SettingsPage() {
     const handleYucchinHiddenChange = (checked: boolean) => {
         setYucchinHidden(checked);
         updateSettings({ yucchin_hidden: checked });
+    };
+
+    const handleFpsChange = (value: number) => {
+        setFps(value);
+        updateSettings({ fps: value });
     };
 
     const handleLogout = () => {
@@ -251,6 +267,39 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
                                 <Button size="sm">変更</Button>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="w-full">
+                    <CardHeader>
+                        <CardTitle>【カメラ設定】</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <div className="font-medium">パフォーマンス (FPS)</div>
+                                <div className="text-sm text-muted-foreground">
+                                    解析の滑らかさを調整します
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                {[
+                                    { label: "高 (30fps)", value: 30 },
+                                    { label: "中 (15fps)", value: 15 },
+                                    { label: "低 (5fps)", value: 5 },
+                                ].map((option) => (
+                                    <Button
+                                        key={option.value}
+                                        variant={fps === option.value ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={() => handleFpsChange(option.value)}
+                                        className={fps === option.value ? "bg-blue-600 hover:bg-blue-700" : ""}
+                                    >
+                                        {option.label}
+                                    </Button>
+                                ))}
                             </div>
                         </div>
                     </CardContent>

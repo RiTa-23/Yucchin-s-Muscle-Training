@@ -5,6 +5,9 @@ interface User {
     id: number;
     username: string;
     email: string;
+    settings?: {
+        fps: number;
+    };
 }
 
 interface AuthContextType {

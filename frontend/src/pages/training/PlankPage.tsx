@@ -5,10 +5,15 @@ import { PoseOverlay } from "@/components/camera/PoseOverlay";
 import { TrainingGuide } from "@/components/training/TrainingGuide";
 import { TrainingResult } from "@/components/training/TrainingResult";
 import { type Results, type NormalizedLandmark } from "@mediapipe/pose";
+import { useAuth } from "@/context/AuthContext";
 
 type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 
 export default function PlankPage() {
+    const { user } = useAuth();
+    const fps = user?.settings?.fps || 15;
+    const interval = Math.floor(1000 / fps);
+
     const [gameState, setGameState] = useState<GameState>("GUIDE");
     const [lastResults, setLastResults] = useState<Results | null>(null);
     const [message, setMessage] = useState<string>("");
@@ -128,7 +133,7 @@ export default function PlankPage() {
     return (
         <div className="relative w-full h-screen bg-black overflow-hidden">
             {/* Camera Layer */}
-            <PoseDetector onPoseDetected={onPoseDetected} interval={100} />
+            <PoseDetector onPoseDetected={onPoseDetected} interval={interval} />
 
             {/* Overlay Layer */}
             <PoseOverlay
