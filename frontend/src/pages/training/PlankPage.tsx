@@ -81,6 +81,19 @@ export default function PlankPage() {
             }
         }
 
+        // Knee Check: Ensure knees are straight (not on ground/bent)
+        const leftKnee = landmarks[25];
+        if ((leftKnee.visibility || 0) > 0.5) {
+            const kneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+            const THRESHOLD_KNEE_STRAIGHT = 150;
+
+            if (kneeAngle < THRESHOLD_KNEE_STRAIGHT) {
+                setMessage("膝を伸ばしてください！");
+                setIsGood(false);
+                return;
+            }
+        }
+
         const hipAngle = calculateAngle(leftShoulder, leftHip, leftAnkle);
 
         // Plank Thresholds
