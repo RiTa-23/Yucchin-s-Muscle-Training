@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from sqlalchemy import select
 from sqlalchemy import func, desc, cast, Date
 from datetime import datetime, date, timedelta
 from typing import List, Dict
