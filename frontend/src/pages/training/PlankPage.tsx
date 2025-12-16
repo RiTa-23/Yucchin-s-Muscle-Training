@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { PoseDetector } from "@/components/camera/PoseDetector";
 import { PoseOverlay } from "@/components/camera/PoseOverlay";
 import { TrainingGuide } from "@/components/training/TrainingGuide";
@@ -10,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 
 export default function PlankPage() {
+    const navigate = useNavigate();
     const { user } = useAuth();
     const fps = user?.settings?.fps || 20;
     const interval = Math.floor(1000 / fps);
@@ -226,7 +228,7 @@ export default function PlankPage() {
             <Button
                 variant="outline"
                 className="absolute top-4 left-4 z-20 bg-white/80 hover:bg-white"
-                onClick={() => window.location.href = '/home'}
+                onClick={() => navigate('/home')}
             >
                 終了
             </Button>
