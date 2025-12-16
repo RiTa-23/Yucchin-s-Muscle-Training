@@ -67,6 +67,20 @@ export default function PlankPage() {
             return;
         }
 
+        // Elbow Check: Ensure elbows are bent (on the ground)
+        const leftElbow = landmarks[13];
+        const leftWrist = landmarks[15];
+
+        if ((leftElbow.visibility || 0) > 0.5 && (leftWrist.visibility || 0) > 0.5) {
+            const elbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+            // If arm is too straight (> 135 degrees), user is likely doing a high plank (push-up pos)
+            if (elbowAngle > 135) {
+                setMessage("肘を床につけてください！");
+                setIsGood(false);
+                return;
+            }
+        }
+
         const hipAngle = calculateAngle(leftShoulder, leftHip, leftAnkle);
 
         // Plank Thresholds
