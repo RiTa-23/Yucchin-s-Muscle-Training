@@ -50,6 +50,23 @@ export default function PlankPage() {
             return;
         }
 
+        // Horizontal Check: Calculate angle of the body (Shoulder to Ankle) relative to horizontal
+        // atan2(dy, dx) gives angle in radians. 0 is horizontal right, PI is horizontal left.
+        // We check if the angle is close to 0 or 180 (horizontal).
+        const dy = leftAnkle.y - leftShoulder.y;
+        const dx = leftAnkle.x - leftShoulder.x;
+        const bodyAngleBytes = Math.atan2(dy, dx) * (180 / Math.PI);
+        const bodyInclination = Math.abs(bodyAngleBytes);
+
+        // Accept if angle is within 0-30 degrees (Right facing) or 150-180 degrees (Left facing)
+        const isHorizontal = bodyInclination < 30 || bodyInclination > 150;
+
+        if (!isHorizontal) {
+            setMessage("プランクの姿勢をとってください");
+            setIsGood(false);
+            return;
+        }
+
         const hipAngle = calculateAngle(leftShoulder, leftHip, leftAnkle);
 
         // Plank Thresholds
