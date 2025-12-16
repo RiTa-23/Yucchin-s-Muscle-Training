@@ -38,23 +38,33 @@ export default function PlankPage() {
         if (!results.poseLandmarks) return;
         const landmarks = results.poseLandmarks;
 
-        // Use left side (11, 23, 27)
-        const leftShoulder = landmarks[11];
-        const leftHip = landmarks[23];
-        const leftAnkle = landmarks[27];
+        // Define landmarks for both sides
+        // Left: 11(Shoulder), 13(Elbow), 15(Wrist), 23(Hip), 25(Knee), 27(Ankle)
+        // Right: 12(Shoulder), 14(Elbow), 16(Wrist), 24(Hip), 26(Knee), 28(Ankle)
 
-        // Visibility Check
-        if ((leftShoulder.visibility || 0) < 0.5 || (leftHip.visibility || 0) < 0.5 || (leftAnkle.visibility || 0) < 0.5) {
+        // Calculate average visibility to decide which side to use
+        const leftVisibility = (landmarks[11].visibility || 0) + (landmarks[23].visibility || 0) + (landmarks[27].visibility || 0);
+        const rightVisibility = (landmarks[12].visibility || 0) + (landmarks[24].visibility || 0) + (landmarks[28].visibility || 0);
+
+        const isLeft = leftVisibility > rightVisibility;
+
+        const shoulder = isLeft ? landmarks[11] : landmarks[12];
+        const elbow = isLeft ? landmarks[13] : landmarks[14];
+        const wrist = isLeft ? landmarks[15] : landmarks[16];
+        const hip = isLeft ? landmarks[23] : landmarks[24];
+        const knee = isLeft ? landmarks[25] : landmarks[26];
+        const ankle = isLeft ? landmarks[27] : landmarks[28];
+
+        // Visibility Check (Shoulder, Hip, Ankle)
+        if ((shoulder.visibility || 0) < 0.5 || (hip.visibility || 0) < 0.5 || (ankle.visibility || 0) < 0.5) {
             setMessage("体がカメラに収まっていません");
             setIsGood(false);
             return;
         }
 
         // Horizontal Check: Calculate angle of the body (Shoulder to Ankle) relative to horizontal
-        // atan2(dy, dx) gives angle in radians. 0 is horizontal right, PI is horizontal left.
-        // We check if the angle is close to 0 or 180 (horizontal).
-        const dy = leftAnkle.y - leftShoulder.y;
-        const dx = leftAnkle.x - leftShoulder.x;
+        const dy = ankle.y - shoulder.y;
+        const dx = ankle.x - shoulder.x;
         const bodyAngleBytes = Math.atan2(dy, dx) * (180 / Math.PI);
         const bodyInclination = Math.abs(bodyAngleBytes);
 
@@ -68,11 +78,8 @@ export default function PlankPage() {
         }
 
         // Elbow Check: Ensure elbows are bent (on the ground)
-        const leftElbow = landmarks[13];
-        const leftWrist = landmarks[15];
-
-        if ((leftElbow.visibility || 0) > 0.5 && (leftWrist.visibility || 0) > 0.5) {
-            const elbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist);
+        if ((elbow.visibility || 0) > 0.5 && (wrist.visibility || 0) > 0.5) {
+            const elbowAngle = calculateAngle(shoulder, elbow, wrist);
             // If arm is too straight (> 135 degrees), user is likely doing a high plank (push-up pos)
             if (elbowAngle > 135) {
                 setMessage("肘を床につけてください！");
@@ -82,9 +89,8 @@ export default function PlankPage() {
         }
 
         // Knee Check: Ensure knees are straight (not on ground/bent)
-        const leftKnee = landmarks[25];
-        if ((leftKnee.visibility || 0) > 0.5) {
-            const kneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        if ((knee.visibility || 0) > 0.5) {
+            const kneeAngle = calculateAngle(hip, knee, ankle);
             const THRESHOLD_KNEE_STRAIGHT = 150;
 
             if (kneeAngle < THRESHOLD_KNEE_STRAIGHT) {
@@ -94,7 +100,7 @@ export default function PlankPage() {
             }
         }
 
-        const hipAngle = calculateAngle(leftShoulder, leftHip, leftAnkle);
+        const hipAngle = calculateAngle(shoulder, hip, ankle);
 
         // Plank Thresholds
         const THRESHOLD_GOOD_MIN = 165;
