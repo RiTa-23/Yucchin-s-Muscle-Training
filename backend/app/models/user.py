@@ -15,3 +15,5 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
     settings = relationship("UserSettings", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    yucchins = relationship("UserYucchin", back_populates="user", cascade="all, delete-orphan")
+    training_logs = relationship("TrainingLog", back_populates="user", cascade="all, delete-orphan")

@@ -1,2 +1,4 @@
 from .user import create_user, get_user_by_email, get_user_by_username, update_user
 from .settings import get_settings_by_user_id, create_default_settings, update_settings
+from .yucchin import get_yucchins, create_user_yucchin
+from .training import get_training_logs, create_training_log, get_training_stats
