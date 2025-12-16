@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/landing/LandingPage";
 import AuthPage from "./pages/auth/AuthPage";
 import HomePage from "./pages/dashboard/HomePage";
-import CameraPage from "./pages/camera/CameraPage";
+import PlankPage from "./pages/training/PlankPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -31,10 +31,10 @@ function App() {
             }
           />
           <Route
-            path="/camera"
+            path="/training/plank"
             element={
               <ProtectedRoute>
-                <CameraPage />
+                <PlankPage />
               </ProtectedRoute>
             }
           />
