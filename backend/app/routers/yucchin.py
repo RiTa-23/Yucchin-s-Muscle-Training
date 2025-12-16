@@ -10,14 +10,14 @@ from app.crud import get_yucchins, create_user_yucchin
 
 router = APIRouter()
 
-@router.get("/", response_model=List[UserYucchinResponse])
+@router.get("/yucchins", response_model=List[UserYucchinResponse])
 async def read_yucchins(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     return await get_yucchins(db, user_id=current_user.id)
 
-@router.post("/", response_model=UserYucchinResponse)
+@router.post("/yucchins", response_model=UserYucchinResponse)
 async def create_new_yucchin(
     yucchin: UserYucchinCreate,
     current_user: User = Depends(get_current_user),

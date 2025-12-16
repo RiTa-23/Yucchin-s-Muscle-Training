@@ -38,7 +38,7 @@ app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(pose.router)
 app.include_router(settings.router, prefix="/settings", tags=["settings"])
-app.include_router(yucchin.router, prefix="/yucchins", tags=["yucchins"])
+app.include_router(yucchin.router, tags=["yucchins"])
 
 @app.get("/")
 async def get():
