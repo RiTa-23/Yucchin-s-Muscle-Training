@@ -77,16 +77,6 @@ async def get_training_stats(db: AsyncSession, user_id: int) -> TrainingStatsRes
         # Check if performed today or yesterday to keep streak alive
         last_date = performed_dates[0]
         if last_date == today or last_date == today - timedelta(days=1):
-            current_check = today
-            # If not performed today, start checking from yesterday for streak
-            if last_date != today:
-                current_check = today - timedelta(days=1)
-            
-            streak_days = 0 
-            # We need to iterate the actual dates. 
-            # Logic: list is [today, yesterday, 2 days ago...] (if no gaps)
-            # Actually simplest is: iterate dates, check if it matches expected `current_check`
-            
             # Reset check to the most recent performed date to start counting backwards
             current_checking_date = last_date
             streak_days = 1 # We know at least one day (last_date) exists
