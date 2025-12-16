@@ -109,7 +109,18 @@ export default function PlankPage() {
             setMessage("いいね！その調子！");
             setIsGood(true);
         } else {
-            setMessage("腰が曲がっています！まっすぐに！");
+            // Check if hips are too high or too low
+            // Calculate expected Y of hip if it were on the line between shoulder and ankle
+            // Linear interpolation: y = y1 + (x - x1) * (y2 - y1) / (x2 - x1)
+            const expectedHipY = shoulder.y + (hip.x - shoulder.x) * (ankle.y - shoulder.y) / (ankle.x - shoulder.x);
+
+            // In image coordinates, Y increases downwards.
+            // If actual hip.y < expectedHipY, the hip is "above" the line (visually higher).
+            if (hip.y < expectedHipY) {
+                setMessage("お尻が上がっています！下げて！");
+            } else {
+                setMessage("腰が下がっています！上げて！");
+            }
             setIsGood(false);
         }
     };
