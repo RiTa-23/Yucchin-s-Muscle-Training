@@ -8,26 +8,12 @@ import client from "@/api/client";
 
 export default function SettingsPage() {
     const navigate = useNavigate();
-    const { logout, user } = useAuth();
+    const { logout, user, refreshUser } = useAuth();
     const [username, setUsername] = React.useState<string>(user?.username || "");
 
-    // Update local state when user context updates (e.g. on initial load)
-    React.useEffect(() => {
-        if (user?.username) {
-            setUsername(user.username);
-        }
-    }, [user]);
+    // ...
 
-    const handleUsernameChange = async () => {
-        try {
-            await client.put("/users/me", { username });
-            alert(`ユーザーネームを「${username}」に変更しました`);
-        } catch (error) {
-            console.error("Failed to update username", error);
-            alert("ユーザーネームの変更に失敗しました");
-        }
-    };
-
+    // State Definitions
     const [yucchinSound, setYucchinSound] = React.useState<boolean>(() => {
         try {
             const v = localStorage.getItem("settings_yucchinSound");
@@ -58,17 +44,29 @@ export default function SettingsPage() {
     const [fps, setFps] = React.useState<number>(() => {
         try {
             const v = localStorage.getItem("settings_fps");
-            return v === null ? 15 : Number(v);
+            return v === null ? 20 : Number(v);
         } catch {
-            return 15;
+            return 20;
         }
     });
 
     const updateSettings = async (data: any) => {
         try {
             await client.put("/settings/me", data);
+            await refreshUser(); // Update global user context via AuthContext
         } catch (e) {
             console.error("Failed to update settings", e);
+        }
+    };
+
+    const handleUsernameChange = async () => {
+        try {
+            await client.put("/users/me", { username });
+            alert(`ユーザーネームを「${username}」に変更しました`);
+            await refreshUser();
+        } catch (error) {
+            console.error("Failed to update username", error);
+            alert("ユーザーネームの変更に失敗しました");
         }
     };
 
@@ -287,8 +285,8 @@ export default function SettingsPage() {
                             <div className="flex gap-2">
                                 {[
                                     { label: "高 (30fps)", value: 30 },
-                                    { label: "中 (15fps)", value: 15 },
-                                    { label: "低 (5fps)", value: 5 },
+                                    { label: "中 (20fps)", value: 20 },
+                                    { label: "低 (10fps)", value: 10 },
                                 ].map((option) => (
                                     <Button
                                         key={option.value}

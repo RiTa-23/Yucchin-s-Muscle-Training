@@ -7,7 +7,7 @@ class UserSettingsBase(BaseModel):
     yucchin_sound: bool = True
     yucchin_hidden: bool = False
     yucchin_id: int = 1
-    fps: int = Field(15, ge=1, le=60)
+    fps: int = Field(20, ge=1, le=60)
 
 class UserSettingsUpdate(BaseModel):
     bgm_volume: Optional[int] = Field(None, ge=0, le=100)

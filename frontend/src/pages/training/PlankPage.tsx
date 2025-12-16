@@ -11,7 +11,7 @@ type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 
 export default function PlankPage() {
     const { user } = useAuth();
-    const fps = user?.settings?.fps || 15;
+    const fps = user?.settings?.fps || 20;
     const interval = Math.floor(1000 / fps);
 
     const [gameState, setGameState] = useState<GameState>("GUIDE");

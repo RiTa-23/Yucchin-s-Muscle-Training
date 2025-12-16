@@ -46,16 +46,24 @@ export const PoseDetector = ({ onPoseDetected, interval = 100 }: PoseDetectorPro
         };
     }, []); // Run only once
 
+    const isProcessingRef = useRef(false);
+
     // Detection Loop
     const detect = useCallback(async () => {
         if (
             webcamRef.current &&
             webcamRef.current.video &&
             webcamRef.current.video.readyState === 4 &&
-            poseRef.current
+            poseRef.current &&
+            !isProcessingRef.current
         ) {
-            const video = webcamRef.current.video;
-            await poseRef.current.send({ image: video });
+            isProcessingRef.current = true;
+            try {
+                const video = webcamRef.current.video;
+                await poseRef.current.send({ image: video });
+            } finally {
+                isProcessingRef.current = false;
+            }
         }
     }, []);
 
