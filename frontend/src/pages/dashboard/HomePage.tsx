@@ -36,7 +36,7 @@ export default function HomePage() {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button className="w-full text-lg py-6" onClick={() => navigate("/camera")}>カメラを起動</Button>
+                            <Button className="w-full text-lg py-6" onClick={() => navigate("/training/plank")}>カメラを起動</Button>
                         </CardFooter>
                     </Card>
                 </div>

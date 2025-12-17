@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 from typing import Optional
+from .settings import UserSettingsResponse
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -22,6 +23,7 @@ class UserResponse(UserBase):
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
+    settings: Optional["UserSettingsResponse"] = None
 
     class Config:
         from_attributes = True
