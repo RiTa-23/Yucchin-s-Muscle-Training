@@ -89,10 +89,11 @@ export default function RecordHistoryPage() {
 
     const dailyItems = sortedLogs.length > 0
         ? sortedLogs.map(log => ({
-            label: `${formatTime(log.performed_at)} ${getExerciseLabel(log.exercise_name)}`,
+            time: formatTime(log.performed_at),
+            exercise: getExerciseLabel(log.exercise_name),
             value: log.count ? `${log.count}回` : formatDuration(log.duration)
         }))
-        : [{ label: `${formattedDate}の記録`, value: "記録なし" }];
+        : [];
 
     return (
         <div className="min-h-screen bg-yellow-200 p-8 flex flex-col items-center pt-20 relative">
@@ -128,11 +129,23 @@ export default function RecordHistoryPage() {
                         </button>
                     </div>
 
-                    {dailyItems.map((item, index) => (
-                        <div key={index} className="bg-white border-2 border-black rounded-lg p-6 text-center shadow-lg">
-                            <p className="text-lg font-semibold">{item.label}：{item.value}</p>
+                    {dailyItems.length > 0 ? (
+                        dailyItems.map((item, index) => (
+                            <div key={index} className="bg-white border-2 border-black rounded-lg p-4 shadow-lg flex items-center justify-between">
+                                <div className="text-lg font-bold text-gray-500 w-16 text-center border-r-2 border-gray-200 mr-4">
+                                    {item.time}
+                                </div>
+                                <div className="flex-1 flex justify-between items-center">
+                                    <p className="text-lg font-bold">{item.exercise}</p>
+                                    <p className="text-xl font-bold text-blue-600">{item.value}</p>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="bg-white border-2 border-black rounded-lg p-6 text-center shadow-lg">
+                            <p className="text-lg font-semibold">記録なし</p>
                         </div>
-                    ))}
+                    )}
                 </div>
             </div>
         </div>
