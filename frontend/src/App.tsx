@@ -5,8 +5,9 @@ import HomePage from "./pages/dashboard/HomePage";
 import PlankPage from "./pages/training/PlankPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import CollectionPage from "./pages/collection/CollectionPage";
+import RecordPage from "./pages/record/RecordPage";
+import RecordHistoryPage from "./pages/record/RecordHistoryPage";
 import GetPage from "./pages/get/GetPage";
-import GanbarinorekisiPage from "./pages/gannbarinorekisi/GanbarinorekisiPage";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -49,7 +50,22 @@ function App() {
               </ProtectedRoute>
             }
           />
-          
+          <Route
+            path="/record"
+            element={
+              <ProtectedRoute>
+                <RecordPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/record/history"
+            element={
+              <ProtectedRoute>
+                <RecordHistoryPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/get"
             element={
@@ -58,18 +74,8 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-           <Route
-            path="/gannbarinorekisi"
-            element={
-              <ProtectedRoute>
-                <GanbarinorekisiPage />
-                      
-              </ProtectedRoute>
-            }
-          />
         </Routes>
-        
+
       </BrowserRouter>
     </AuthProvider>
   );
