@@ -36,7 +36,6 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(users.router)
-app.include_router(pose.router)
 app.include_router(settings.router, prefix="/settings", tags=["settings"])
 app.include_router(yucchin.router, tags=["yucchins"])
 app.include_router(training.router, tags=["training"])
