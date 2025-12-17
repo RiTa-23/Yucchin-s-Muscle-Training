@@ -362,6 +362,25 @@ export default function LandingPage() {
         .animate-spin-reverse {
           animation: spin-reverse 6s linear infinite;
         }
+
+        /* アクセシビリティ：モーション感度への配慮 */
+        @media (prefers-reduced-motion: reduce) {
+          .animate-pulse,
+          .animate-bounce,
+          .animate-ping,
+          .animate-spin-slow,
+          .animate-spin-reverse,
+          .animate-shimmer,
+          .animate-fade-in {
+            animation: none !important;
+          }
+          
+          * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
       `}</style>
     </div>
   );
