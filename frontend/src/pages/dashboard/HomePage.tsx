@@ -35,10 +35,11 @@ export default function HomePage() {
                 className="fixed right-0 bottom-0 w-[510px] h-auto z-50 opacity-100 transform scale-x-[-1] translate-x-1/4"
             />
             <div className="max-none mx-auto space-y-8 relative z-10">
-                <div className="flex justify-between items-center border-4 border-black p-4">
+                <div className="flex justify-between items-center border-4 border-black p-4 gap-4">
                     <Button variant="outline" onClick={handleLogout}>設定</Button>
-                    <Button variant="outline" onClick={handleLogout}><h1 className="text-[#000000]">頑張りの歴史</h1></Button>
-                    <Button variant="outline" onClick={handleLogout}>ログアウト</Button>
+                    <Button variant="outline" onClick={handleLogout} className="w-[400px]"><h1 className="text-[#000000]">頑張りの歴史</h1></Button>
+                    <Button variant="outline" onClick={handleLogout} className="w-[400px]"><h1 className="text-[#000000]">集めたゆっちん</h1></Button>
+                    <div className="w-[100px]"></div>
                 </div>
                 <div className="flex flex-col items-center justify-center min-h-[60vh]">
                     <Card className="border-4 border-black rounded-none p-4 w-full max-w-4xl h-[30rem] flex flex-col ">
@@ -47,28 +48,25 @@ export default function HomePage() {
                                 どれにするぅ？
                             </div>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="py-[60px]">
                             <div className="grid grid-cols-3 gap-4 w-full">
                                 {/* スクワット */}
-                                <div className="border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video">
-                                    <span className="text-lg" onClick={() => navigate("/camera")}>スクワット</span>
+                                <div onClick={() => navigate("/camera")} className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video">
+                                    <span className="text-lg" >スクワット</span>
                                 </div>
                                 {/* プランク */}
-                                <div className="border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video">
-                                    <span className="text-lg" onClick={() => navigate("/camera")}>プランク</span>
+                                <div onClick={() => navigate("/camera")} className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video">
+                                    <span className="text-lg" >プランク</span>
                                 </div>
                                 {/* 腕立て */}
-                                <div className="border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video">
-                                    <span className="text-lg" onClick={() => navigate("/camera")}>腕立て</span>
+                                <div onClick={() => navigate("/camera")} className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video">
+                                    <span className="text-lg" >腕立て</span>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
                 </div>
-                <div className="flex flex-col justify-center items-center border-4 border-black p-4 mx-auto max-w-2xl">
-                    <Button variant="outline" onClick={handleLogout}><h1 className="text-[#000000]">集めたゆっちん</h1></Button>
-                </div>
             </div>
         </div>
     );
-}
+}   
