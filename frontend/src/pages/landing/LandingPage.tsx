@@ -11,12 +11,7 @@ import {
   Star,
   Sparkles,
 } from "lucide-react";
-
-// 音を再生する関数
-const playSound = (audioFile: string) => {
-  const audio = new Audio(audioFile);
-  audio.play();
-};
+import { playSound } from "@/utils/audio";
 
 export default function LandingPage() {
   const features = [

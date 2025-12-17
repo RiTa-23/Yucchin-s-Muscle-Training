@@ -16,12 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-
-// 音を再生する関数
-const playSound = (audioFile: string) => {
-  const audio = new Audio(audioFile);
-  audio.play();
-};
+import { playSound } from "@/utils/audio";
 
 export default function AuthPage() {
   const navigate = useNavigate();
