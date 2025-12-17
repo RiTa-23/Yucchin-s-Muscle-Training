@@ -1,11 +1,16 @@
 
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import { trainingApi, type TrainingLogResponse, type TrainingStatsResponse } from "@/api/training";
 
 export default function RecordPage() {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<TrainingStatsResponse | null>(null);
   const [todayLogs, setTodayLogs] = useState<TrainingLogResponse[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // ... (existing useEffect and helpers)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,8 +43,6 @@ export default function RecordPage() {
     const s = seconds % 60;
     return m > 0 ? `${m}分${s}秒` : `${s}秒`;
   };
-
-
 
   const getExerciseLabel = (name: string) => {
     switch (name) {
@@ -87,8 +90,16 @@ export default function RecordPage() {
     : [{ label: "今日の記録", value: "まだありません" }];
 
   return (
-    <div className="min-h-screen bg-yellow-200 p-8 flex items-center justify-center">
-      <div className="w-full max-w-md space-y-8">
+    <div className="min-h-screen bg-yellow-200 p-8 flex items-center justify-center relative">
+      <button
+        onClick={() => navigate('/home')}
+        className="absolute top-4 left-4 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
+        aria-label="ホームに戻る"
+      >
+        <ArrowLeft className="w-6 h-6 text-gray-700" />
+      </button>
+
+      <div className="w-full max-w-md space-y-8 mt-12">
 
         {/* Total Section */}
         <div className="space-y-4">
