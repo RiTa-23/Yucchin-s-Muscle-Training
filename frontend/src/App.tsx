@@ -1,78 +1,83 @@
-import { useEffect, useRef, useState } from 'react';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LandingPage from "./pages/landing/LandingPage";
+import AuthPage from "./pages/auth/AuthPage";
+import HomePage from "./pages/dashboard/HomePage";
+import PlankPage from "./pages/training/PlankPage";
+import SettingsPage from "./pages/settings/SettingsPage";
+import CollectionPage from "./pages/collection/CollectionPage";
+import RecordPage from "./pages/record/RecordPage";
+import RecordHistoryPage from "./pages/record/RecordHistoryPage";
+import GetPage from "./pages/get/GetPage";
+import { AuthProvider } from "./context/AuthContext";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 function App() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [status, setStatus] = useState<string>('Disconnected');
-  const [messages, setMessages] = useState<string[]>([]);
-  const socketRef = useRef<WebSocket | null>(null);
-
-  useEffect(() => {
-    // カメラアクセス
-    const startCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (err) {
-        console.error("Camera access error:", err);
-      }
-    };
-    startCamera();
-
-    // WebSocket接続
-    const ws = new WebSocket('ws://localhost:8000/pose');
-    socketRef.current = ws;
-
-    ws.onopen = () => {
-      setStatus('Connected');
-      ws.send('Hello from React!');
-    };
-
-    ws.onmessage = (event) => {
-      setMessages((prev) => [...prev, event.data]);
-    };
-
-    ws.onclose = () => {
-      setStatus('Disconnected');
-    };
-
-    return () => {
-      ws.close();
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gray-100 p-8 flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-6 text-blue-600">筋トレ AI トレーナー</h1>
-
-      <div className="bg-white p-4 rounded-xl shadow-lg mb-6 w-full max-w-2xl">
-        <h2 className="text-xl font-semibold mb-2">ステータス: <span className={status === 'Connected' ? 'text-green-500' : 'text-red-500'}>{status}</span></h2>
-
-        <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            playsInline
-            className="w-full h-full object-cover transform scale-x-[-1]" // ミラーリング
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
           />
-        </div>
-      </div>
+          <Route
+            path="/home"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/training/plank"
+            element={
+              <ProtectedRoute>
+                <PlankPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/collection"
+            element={
+              <ProtectedRoute>
+                <CollectionPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/record"
+            element={
+              <ProtectedRoute>
+                <RecordPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/record/history"
+            element={
+              <ProtectedRoute>
+                <RecordHistoryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/get"
+            element={
+              <ProtectedRoute>
+                <GetPage />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
 
-      <div className="bg-white p-4 rounded-xl shadow-lg w-full max-w-2xl">
-        <h3 className="font-semibold mb-2">サーバーからのメッセージ:</h3>
-        <div className="h-32 overflow-y-auto border border-gray-200 p-2 rounded bg-gray-50 text-sm">
-          {messages.map((msg, i) => (
-            <div key={i}>{msg}</div>
-          ))}
-        </div>
-      </div>
-    </div>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
