@@ -21,31 +21,50 @@ export const PoseDetector = ({ onPoseDetected, onError, interval = 100 }: PoseDe
 
     // Initialize MediaPipe Pose
     useEffect(() => {
-        const pose = new Pose({
-            locateFile: (file) => {
-                return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
-            },
-        });
+        let mounted = true;
 
-        pose.setOptions({
-            modelComplexity: 1,
-            smoothLandmarks: true,
-            enableSegmentation: false,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5,
-        });
+        const initializePose = async () => {
+            try {
+                const pose = new Pose({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+                    },
+                });
 
-        pose.onResults((results) => {
-            if (onPoseDetectedRef.current) {
-                onPoseDetectedRef.current(results);
+                await pose.setOptions({
+                    modelComplexity: 1,
+                    smoothLandmarks: true,
+                    enableSegmentation: false,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5,
+                });
+
+                pose.onResults((results) => {
+                    if (mounted && onPoseDetectedRef.current) {
+                        onPoseDetectedRef.current(results);
+                    }
+                });
+
+                if (mounted) {
+                    poseRef.current = pose;
+                }
+            } catch (err) {
+                console.error("Failed to initialize MediaPipe Pose:", err);
+                if (mounted && onError) {
+                    onError(err);
+                }
             }
-        });
-        poseRef.current = pose;
+        };
+
+        initializePose();
 
         return () => {
-            pose.close();
+            mounted = false;
+            if (poseRef.current) {
+                poseRef.current.close();
+            }
         };
-    }, []);
+    }, [onError]);
 
     const isProcessingRef = useRef(false);
 
