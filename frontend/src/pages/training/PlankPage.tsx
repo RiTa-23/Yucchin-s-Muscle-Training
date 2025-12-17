@@ -7,6 +7,7 @@ import { TrainingGuide } from "@/components/training/TrainingGuide";
 import { TrainingResult } from "@/components/training/TrainingResult";
 import { type Results, type NormalizedLandmark } from "@mediapipe/pose";
 import { useAuth } from "@/context/AuthContext";
+import { trainingApi } from "@/api/training";
 
 type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 
@@ -152,6 +153,27 @@ export default function PlankPage() {
         }
         setGameState("ACTIVE");
     };
+
+    // Save result when game finishes
+    useEffect(() => {
+        if (gameState === "FINISHED") {
+            const saveResult = async () => {
+                try {
+                    await trainingApi.createLog({
+                        performed_at: new Date().toISOString(),
+                        exercise_name: "plank",
+                        duration: targetDuration,
+                        count: 0
+                    });
+                    console.log("Training log saved!");
+                } catch (err) {
+                    console.error("Failed to save training log:", err);
+                    // Optionally show error toast here
+                }
+            };
+            saveResult();
+        }
+    }, [gameState, targetDuration]);
 
     const handleError = useCallback((err: any) => {
         setError(typeof err === 'string' ? err : err.message || "Unknown Camera Error");
