@@ -47,7 +47,7 @@ const GetPage: React.FC = () => {
             {/* Outer glow effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-300 rounded-full blur-md opacity-75 animate-pulse"></div>
             {/* Outer golden border */}
-            <div className="relative bg-gradient-to-br from-yellow-200 via-amber-100 to-yellow-200 border-4 border-amber-600 rounded-full p-1 shadow-[0_0_20px_rgba(251,191,36,0.6),4px_4px_0px_0px_rgba(0,0,0,1)] animate-[bounce_1s_ease-out_1]">
+            <div className="relative bg-gradient-to-br from-yellow-200 via-amber-100 to-yellow-200 border-4 border-amber-600 rounded-full p-1 shadow-[0_0_20px_rgba(251,191,36,0.6),4px_4px_0px_0px_rgba(0,0,0,1)]">
               {/* Inner white background for contrast */}
               <div className="bg-white rounded-full px-14 py-3">
                 <div className="flex items-center gap-3">
