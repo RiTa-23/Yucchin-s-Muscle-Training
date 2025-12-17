@@ -69,22 +69,23 @@ export default function RecordPage() {
     { label: "腕立て伏せ総計", value: `${findStat("pushup")?.total_count || 0}回` },
   ];
 
-  // Group 2: Today's Logs (Aggregated)
-  const todayAggregated = todayLogs.reduce((acc, log) => {
-    if (!acc[log.exercise_name]) {
-      acc[log.exercise_name] = { count: 0, duration: 0, name: log.exercise_name };
-    }
-    acc[log.exercise_name].count += (log.count || 0);
-    acc[log.exercise_name].duration += (log.duration || 0);
-    return acc;
-  }, {} as Record<string, { count: number, duration: number, name: string }>);
+  const formatTime = (isoString: string) => {
+    return new Date(isoString).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+  };
 
-  const todayItems = Object.keys(todayAggregated).length > 0
-    ? Object.values(todayAggregated).map(stat => ({
-      label: `${getExerciseLabel(stat.name)}合計`,
-      value: stat.count > 0 ? `${stat.count}回` : formatDuration(stat.duration)
+  // Group 2: Today's Logs (Chronological)
+  // Sort logs by time (ascending) just in case
+  const sortedTodayLogs = [...todayLogs].sort((a, b) =>
+    new Date(a.performed_at).getTime() - new Date(b.performed_at).getTime()
+  );
+
+  const todayItems = sortedTodayLogs.length > 0
+    ? sortedTodayLogs.map(log => ({
+      time: formatTime(log.performed_at),
+      exercise: getExerciseLabel(log.exercise_name),
+      value: log.count ? `${log.count}回` : formatDuration(log.duration)
     }))
-    : [{ label: "今日の記録", value: "まだありません" }];
+    : [];
 
   return (
     <div className="min-h-screen bg-yellow-200 p-8 flex items-center justify-center relative">
@@ -111,11 +112,23 @@ export default function RecordPage() {
         {/* Today Section */}
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-center mb-4">Today</h2>
-          {todayItems.map((item, index) => (
-            <div key={index} className="bg-white border-2 border-black rounded-lg p-6 text-center shadow-lg">
-              <p className="text-lg font-semibold">{item.label}：{item.value}</p>
+          {todayItems.length > 0 ? (
+            todayItems.map((item, index) => (
+              <div key={index} className="bg-white border-2 border-black rounded-lg p-4 shadow-lg flex items-center justify-between">
+                <div className="text-lg font-bold text-gray-500 w-16 text-center border-r-2 border-gray-200 mr-4">
+                  {item.time}
+                </div>
+                <div className="flex-1 flex justify-between items-center">
+                  <p className="text-lg font-bold">{item.exercise}</p>
+                  <p className="text-xl font-bold text-blue-600">{item.value}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="bg-white border-2 border-black rounded-lg p-6 text-center shadow-lg">
+              <p className="text-lg font-semibold">記録なし</p>
             </div>
-          ))}
+          )}
         </div>
 
         {/* History Link */}
