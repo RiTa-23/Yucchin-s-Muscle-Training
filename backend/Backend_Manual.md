@@ -84,12 +84,30 @@ async def create_item(item: Item):
 
 ---
 
-## 🗄 データベース接続 (今後の予定)
+## 🗄 データベース接続
 
-今後データベース (PostgreSQL) を導入する場合は、非同期対応のドライバ (`asyncpg`) と ORM (`SQLAlchemy`) を使用するのが一般的です。
+PostgreSQLを導入済みです。
+非同期処理のために `SQLAlchemy` (ORM) と `asyncpg` (ドライバ) を使用しています。
 
-```bash
-uv add sqlalchemy asyncpg
+### 設定ファイル (.env)
+
+`backend/.env` ファイルに以下の設定が必要です。
+
+```env
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password
+DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/muscle_training_db
+```
+
+### 接続の仕組み (`app/database.py`)
+
+- `AsyncSession` を使用して非同期にDBアクセスを行います。
+- APIエンドポイントでは `get_db` 依存関係を使用します。
+
+```python
+@router.get("/users/")
+async def read_users(db: AsyncSession = Depends(get_db)):
+    ...
 ```
 
 ---
