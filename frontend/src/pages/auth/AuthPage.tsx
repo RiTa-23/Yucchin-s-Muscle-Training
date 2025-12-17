@@ -136,7 +136,7 @@ export default function AuthPage() {
 
       {/* 背景画像 */}
       <div
-        className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat opacity-99"
+        className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat opacity-100"
         style={{ backgroundImage: `url(${bgImage})` }}
       ></div>
 
