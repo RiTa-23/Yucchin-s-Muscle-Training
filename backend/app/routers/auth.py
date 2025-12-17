@@ -65,14 +65,18 @@ async def login_for_access_token(response: Response, form_data: UserLogin, db: A
     )
     
     # Set HttpOnly Cookie
-    secure_cookie = os.getenv("SECURE_COOKIE", "false").lower() == "true"
+    # Auto-detect Production (Railway) or explicit SECURE_COOKIE var
+    is_production = os.getenv("RAILWAY_ENVIRONMENT_NAME") is not None
+    secure_cookie = is_production or os.getenv("SECURE_COOKIE", "false").lower() == "true"
+    samesite_mode = "none" if secure_cookie else "lax"
+
     response.set_cookie(
         key="access_token",
         value=access_token,
         httponly=True,
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         expires=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        samesite="lax",
+        samesite=samesite_mode,
         secure=secure_cookie,
     )
     
