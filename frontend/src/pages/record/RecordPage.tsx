@@ -7,7 +7,7 @@ const stats = [
   { label: "ログイン数", value: "○日" },
 ];
 
-export default function GanbarinorekisiPage() {
+export default function RecordPage() {
   return (
     <div className="min-h-screen bg-yellow-200 p-8 flex items-center justify-center">
       <div className="w-full max-w-md space-y-4">
