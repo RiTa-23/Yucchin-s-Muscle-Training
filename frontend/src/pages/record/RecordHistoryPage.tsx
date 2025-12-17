@@ -93,7 +93,7 @@ export default function RecordHistoryPage() {
             label: `${getExerciseLabel(stat.name)}合計`,
             value: stat.count > 0 ? `${stat.count}回` : formatDuration(stat.duration)
         }))
-        : [{ label: `${formattedDate}の記録`, value: "まだありません" }];
+        : [{ label: `${formattedDate}の記録`, value: "記録なし" }];
 
     return (
         <div className="min-h-screen bg-yellow-200 p-8 flex flex-col items-center pt-20 relative">
