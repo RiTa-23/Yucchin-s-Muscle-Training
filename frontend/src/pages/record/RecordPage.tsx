@@ -63,65 +63,46 @@ export default function RecordPage() {
   // Helper to find stat by name
   const findStat = (name: string) => stats?.total_stats.find(s => s.exercise_name === name);
 
-  // Build the list of items to display
-  const displayItems = [
-    // 1. Streak
-    {
-      label: "筋トレ継続日数",
-      value: `${stats?.streak_days || 0}日`
-    },
-
-    // 2. Total Records (Explicitly listing known exercises or mapping all)
-    // Let's list the main ones to ensure order
-    {
-      label: "プランク合計",
-      value: formatDuration(findStat("plank")?.total_duration || 0)
-    },
-    {
-      label: "スクワット合計",
-      value: `${findStat("squat")?.total_count || 0}回`
-    },
-    {
-      label: "腕立て伏せ合計",
-      value: `${findStat("pushup")?.total_count || 0}回`
-    },
+  // Group 1: Total & Streak
+  const totalItems = [
+    { label: "筋トレ継続日数", value: `${stats?.streak_days || 0}日` },
+    { label: "プランク合計", value: formatDuration(findStat("plank")?.total_duration || 0) },
+    { label: "スクワット合計", value: `${findStat("squat")?.total_count || 0}回` },
+    { label: "腕立て伏せ合計", value: `${findStat("pushup")?.total_count || 0}回` },
   ];
 
-  // 3. Today's Records
-  // Append today's logs to the list
-  if (todayLogs.length > 0) {
-    // Add a separator or header-like item? 
-    // The user asked to "output" them. Let's just add them as cards nicely labeled.
-    todayLogs.forEach(log => {
-      const time = formatTime(log.performed_at);
-      const name = getExerciseLabel(log.exercise_name);
-      const result = log.count ? `${log.count}回` : formatDuration(log.duration);
-
-      displayItems.push({
-        label: `今日 ${time} ${name}`,
-        value: result
-      });
-    });
-  } else {
-    displayItems.push({
-      label: "今日の記録",
-      value: "まだありません"
-    });
-  }
+  // Group 2: Today's Logs
+  const todayItems = todayLogs.length > 0
+    ? todayLogs.map(log => ({
+      label: `${formatTime(log.performed_at)} ${getExerciseLabel(log.exercise_name)}`,
+      value: log.count ? `${log.count}回` : formatDuration(log.duration)
+    }))
+    : [{ label: "今日の記録", value: "まだありません" }];
 
   return (
     <div className="min-h-screen bg-yellow-200 p-8 flex items-center justify-center">
-      <div className="w-full max-w-md space-y-4">
-        {displayItems.map((item, index) => (
-          <div
-            key={index}
-            className="bg-white border-2 border-black rounded-lg p-6 text-center shadow-lg"
-          >
-            <p className="text-lg font-semibold">
-              {item.label}：{item.value}
-            </p>
-          </div>
-        ))}
+      <div className="w-full max-w-md space-y-8">
+
+        {/* Total Section */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-center mb-4">Total</h2>
+          {totalItems.map((item, index) => (
+            <div key={index} className="bg-white border-2 border-black rounded-lg p-6 text-center shadow-lg">
+              <p className="text-lg font-semibold">{item.label}：{item.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Today Section */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-bold text-center mb-4">Today</h2>
+          {todayItems.map((item, index) => (
+            <div key={index} className="bg-white border-2 border-black rounded-lg p-6 text-center shadow-lg">
+              <p className="text-lg font-semibold">{item.label}：{item.value}</p>
+            </div>
+          ))}
+        </div>
+
       </div>
     </div>
   );
