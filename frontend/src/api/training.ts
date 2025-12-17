@@ -17,6 +17,18 @@ export interface TrainingLogResponse {
     created_at: string;
 }
 
+export interface ExerciseStats {
+    exercise_name: string;
+    total_count: number;
+    total_duration: number;
+}
+
+export interface TrainingStatsResponse {
+    streak_days: number;
+    today_stats: ExerciseStats[];
+    total_stats: ExerciseStats[];
+}
+
 export const trainingApi = {
     createLog: async (log: TrainingLogCreate): Promise<TrainingLogResponse> => {
         const response = await client.post<TrainingLogResponse>("/training-logs", log);
@@ -28,8 +40,8 @@ export const trainingApi = {
         return response.data;
     },
 
-    getStats: async () => {
-        const response = await client.get("/training-logs/stats");
+    getStats: async (): Promise<TrainingStatsResponse> => {
+        const response = await client.get<TrainingStatsResponse>("/training-logs/stats");
         return response.data;
     }
 };
