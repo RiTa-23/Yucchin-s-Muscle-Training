@@ -78,20 +78,19 @@ export default function RecordHistoryPage() {
         );
     }
 
-    // Group 2: Daily Logs (Aggregated based on selectedDate)
-    const dailyAggregated = filteredLogs.reduce((acc, log) => {
-        if (!acc[log.exercise_name]) {
-            acc[log.exercise_name] = { count: 0, duration: 0, name: log.exercise_name };
-        }
-        acc[log.exercise_name].count += (log.count || 0);
-        acc[log.exercise_name].duration += (log.duration || 0);
-        return acc;
-    }, {} as Record<string, { count: number, duration: number, name: string }>);
+    const formatTime = (isoString: string) => {
+        return new Date(isoString).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
+    };
 
-    const dailyItems = Object.keys(dailyAggregated).length > 0
-        ? Object.values(dailyAggregated).map(stat => ({
-            label: `${getExerciseLabel(stat.name)}合計`,
-            value: stat.count > 0 ? `${stat.count}回` : formatDuration(stat.duration)
+    // Sort logs by time (ascending) just in case
+    const sortedLogs = [...filteredLogs].sort((a, b) =>
+        new Date(a.performed_at).getTime() - new Date(b.performed_at).getTime()
+    );
+
+    const dailyItems = sortedLogs.length > 0
+        ? sortedLogs.map(log => ({
+            label: `${formatTime(log.performed_at)} ${getExerciseLabel(log.exercise_name)}`,
+            value: log.count ? `${log.count}回` : formatDuration(log.duration)
         }))
         : [{ label: `${formattedDate}の記録`, value: "記録なし" }];
 
