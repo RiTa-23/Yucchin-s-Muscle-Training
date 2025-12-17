@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import bgImage from "@/assets/img/kiriyuttin.png";
+import soundFile from "@/assets/sounds/これであなたも！ムキムキよ！_T01.wav";
+
+// 音を再生する関数
+const playSound = (audioFile: string) => {
+  const audio = new Audio(audioFile);
+  audio.play();
+};
 
 export default function LandingPage() {
   return (
@@ -16,6 +23,8 @@ export default function LandingPage() {
           <h1
             className="text-4xl md:text-6xl font-bold tracking-tighter text-right relative translate-x-[6rem] md:translate-x-[16rem]"
             style={{
+              fontFamily:
+                '"RocknRoll One", ui-sans-serif, system-ui, sans-serif',
               textShadow:
                 "2px 2px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white, 1px 1px 0 white, -1px -1px 0 white, 1px -1px 0 white, -1px 1px 0 white",
             }}
@@ -35,7 +44,9 @@ export default function LandingPage() {
         </p>
         <div className="flex justify-end gap-4 -translate-x-6 md:-translate-x-8">
           <Button asChild size="lg">
-            <Link to="/auth">はじめる</Link>
+            <Link to="/auth" onClick={() => playSound(soundFile)}>
+              はじめる
+            </Link>
           </Button>
         </div>
       </div>
