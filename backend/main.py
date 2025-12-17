@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
-from app.routers import auth, users, pose, settings, yucchin, training
+from app.routers import auth, users, settings, yucchin, training
 
 from contextlib import asynccontextmanager
 from app.database import engine, Base
