@@ -66,17 +66,29 @@ export default function HomePage() {
                         <CardContent className="py-[60px]">
                             <div className="grid grid-cols-3 gap-4 w-full">
                                 {/* スクワット */}
-                                <div onClick={() => navigate("/camera")} className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video">
-                                    <span className="text-lg" >スクワット</span>
-                                </div>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => navigate("/camera")}
+                                    className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video h-auto"
+                                >
+                                    <span className="text-lg">スクワット</span>
+                                </Button>
                                 {/* プランク */}
-                                <div onClick={() => navigate("/camera")} className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video">
-                                    <span className="text-lg" >プランク</span>
-                                </div>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => navigate("/camera")}
+                                    className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video h-auto"
+                                >
+                                    <span className="text-lg">プランク</span>
+                                </Button>
                                 {/* 腕立て */}
-                                <div onClick={() => navigate("/camera")} className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video">
-                                    <span className="text-lg" >腕立て</span>
-                                </div>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => navigate("/camera")}
+                                    className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video h-auto"
+                                >
+                                    <span className="text-lg">腕立て</span>
+                                </Button>
                             </div>
                         </CardContent>
                     </Card>
