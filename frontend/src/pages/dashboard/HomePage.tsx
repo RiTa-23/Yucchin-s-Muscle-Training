@@ -14,8 +14,8 @@ import mukiyuchiImg from '@/assets/mukiyuchiBK.png';
 export default function HomePage() {
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        // TODO: Implement actual logout  消したの→transform hover:scale-[1.01] transition-all aspect-video
+    const handleNavigateToRoot = () => {
+        // TODO: Implement actual logout logic
         navigate("/");
     };
 
