@@ -55,7 +55,9 @@ function App() {
             element={
               <ProtectedRoute>
                 <GetPage />
-              <ProtectedRoute>
+              </ProtectedRoute>
+            }
+          />
 
            <Route
             path="/gannbarinorekisi"
