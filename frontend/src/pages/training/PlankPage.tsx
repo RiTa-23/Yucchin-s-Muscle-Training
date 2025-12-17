@@ -96,7 +96,14 @@ export default function PlankPage() {
             setMessage("いいね！その調子！");
             setIsGood(true);
         } else {
-            const expectedHipY = shoulder.y + (hip.x - shoulder.x) * (ankle.y - shoulder.y) / (ankle.x - shoulder.x);
+            const deltaX = ankle.x - shoulder.x;
+            if (Math.abs(deltaX) < 0.01) {
+                setMessage("体がカメラに対して垂直すぎます");
+                setIsGood(false);
+                return;
+            }
+
+            const expectedHipY = shoulder.y + (hip.x - shoulder.x) * (ankle.y - shoulder.y) / deltaX;
             if (hip.y < expectedHipY) {
                 setMessage("お尻が上がっています！下げて！");
             } else {
