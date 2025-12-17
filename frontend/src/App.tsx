@@ -5,6 +5,7 @@ import HomePage from "./pages/dashboard/HomePage";
 import PlankPage from "./pages/training/PlankPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import CollectionPage from "./pages/collection/CollectionPage";
+import GetPage from "./pages/get/GetPage";
 import GanbarinorekisiPage from "./pages/gannbarinorekisi/GanbarinorekisiPage";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -48,11 +49,20 @@ function App() {
               </ProtectedRoute>
             }
           />
+          
+          <Route
+            path="/get"
+            element={
+              <ProtectedRoute>
+                <GetPage />
+              <ProtectedRoute>
+
            <Route
             path="/gannbarinorekisi"
             element={
               <ProtectedRoute>
                 <GanbarinorekisiPage />
+                      
               </ProtectedRoute>
             }
           />
