@@ -16,17 +16,15 @@ export default function PlankPage() {
     const fps = useMemo(() => user?.settings?.fps || 20, [user?.settings?.fps]);
     const interval = useMemo(() => Math.floor(1000 / fps), [fps]);
 
+    const [error, setError] = useState<string | null>(null);
     const [gameState, setGameState] = useState<GameState>("GUIDE");
     const [lastResults, setLastResults] = useState<Results | null>(null);
     const [message, setMessage] = useState<string>("");
     const [isGood, setIsGood] = useState<boolean>(false);
     const [targetDuration, setTargetDuration] = useState<number>(30);
-    const [timeLeft, setTimeLeft] = useState<number>(30); // Default 30s
+    const [timeLeft, setTimeLeft] = useState<number>(30);
 
-    // Timer ref
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-    // --- Logic ---
 
     // Calculate angle at B (A-B-C)
     const calculateAngle = (a: NormalizedLandmark, b: NormalizedLandmark, c: NormalizedLandmark) => {
@@ -40,11 +38,6 @@ export default function PlankPage() {
         if (!results.poseLandmarks) return;
         const landmarks = results.poseLandmarks;
 
-        // Define landmarks for both sides
-        // Left: 11(Shoulder), 13(Elbow), 15(Wrist), 23(Hip), 25(Knee), 27(Ankle)
-        // Right: 12(Shoulder), 14(Elbow), 16(Wrist), 24(Hip), 26(Knee), 28(Ankle)
-
-        // Calculate average visibility to decide which side to use
         const leftVisibility = (landmarks[11].visibility || 0) + (landmarks[23].visibility || 0) + (landmarks[27].visibility || 0);
         const rightVisibility = (landmarks[12].visibility || 0) + (landmarks[24].visibility || 0) + (landmarks[28].visibility || 0);
 
@@ -57,20 +50,17 @@ export default function PlankPage() {
         const knee = isLeft ? landmarks[25] : landmarks[26];
         const ankle = isLeft ? landmarks[27] : landmarks[28];
 
-        // Visibility Check (Shoulder, Hip, Ankle)
         if ((shoulder.visibility || 0) < 0.5 || (hip.visibility || 0) < 0.5 || (ankle.visibility || 0) < 0.5) {
             setMessage("体がカメラに収まっていません");
             setIsGood(false);
             return;
         }
 
-        // Horizontal Check: Calculate angle of the body (Shoulder to Ankle) relative to horizontal
         const dy = ankle.y - shoulder.y;
         const dx = ankle.x - shoulder.x;
         const bodyAngleDegrees = Math.atan2(dy, dx) * (180 / Math.PI);
         const bodyInclination = Math.abs(bodyAngleDegrees);
 
-        // Accept if angle is within 0-30 degrees (Right facing) or 150-180 degrees (Left facing)
         const isHorizontal = bodyInclination < 30 || bodyInclination > 150;
 
         if (!isHorizontal) {
@@ -79,10 +69,8 @@ export default function PlankPage() {
             return;
         }
 
-        // Elbow Check: Ensure elbows are bent (on the ground)
         if ((elbow.visibility || 0) > 0.5 && (wrist.visibility || 0) > 0.5) {
             const elbowAngle = calculateAngle(shoulder, elbow, wrist);
-            // If arm is too straight (> 135 degrees), user is likely doing a high plank (push-up pos)
             if (elbowAngle > 135) {
                 setMessage("肘を床につけてください！");
                 setIsGood(false);
@@ -90,7 +78,6 @@ export default function PlankPage() {
             }
         }
 
-        // Knee Check: Ensure knees are straight (not on ground/bent)
         if ((knee.visibility || 0) > 0.5) {
             const kneeAngle = calculateAngle(hip, knee, ankle);
             const THRESHOLD_KNEE_STRAIGHT = 150;
@@ -103,21 +90,13 @@ export default function PlankPage() {
         }
 
         const hipAngle = calculateAngle(shoulder, hip, ankle);
-
-        // Plank Thresholds
         const THRESHOLD_GOOD_MIN = 165;
 
         if (hipAngle >= THRESHOLD_GOOD_MIN) {
             setMessage("いいね！その調子！");
             setIsGood(true);
         } else {
-            // Check if hips are too high or too low
-            // Calculate expected Y of hip if it were on the line between shoulder and ankle
-            // Linear interpolation: y = y1 + (x - x1) * (y2 - y1) / (x2 - x1)
             const expectedHipY = shoulder.y + (hip.x - shoulder.x) * (ankle.y - shoulder.y) / (ankle.x - shoulder.x);
-
-            // In image coordinates, Y increases downwards.
-            // If actual hip.y < expectedHipY, the hip is "above" the line (visually higher).
             if (hip.y < expectedHipY) {
                 setMessage("お尻が上がっています！下げて！");
             } else {
@@ -134,7 +113,6 @@ export default function PlankPage() {
         }
     };
 
-    // Timer Logic
     useEffect(() => {
         if (gameState === "ACTIVE" && isGood && timeLeft > 0) {
             timerRef.current = setInterval(() => {
@@ -165,8 +143,19 @@ export default function PlankPage() {
         setGameState("ACTIVE");
     };
 
-
     // --- Renders ---
+
+    if (error) {
+        return (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-30">
+                <div className="bg-white p-8 rounded-lg max-w-md text-center">
+                    <p className="text-red-600 mb-4 font-bold">カメラエラーが発生しました</p>
+                    <p className="text-gray-700 mb-6">{error}</p>
+                    <Button onClick={() => navigate('/home')}>ホームに戻る</Button>
+                </div>
+            </div>
+        );
+    }
 
     if (gameState === "GUIDE") {
         return (
@@ -210,7 +199,11 @@ export default function PlankPage() {
     return (
         <div className="relative w-full h-screen bg-black overflow-hidden">
             {/* Camera Layer */}
-            <PoseDetector onPoseDetected={onPoseDetected} interval={interval} />
+            <PoseDetector
+                onPoseDetected={onPoseDetected}
+                interval={interval}
+                onError={(err) => setError(typeof err === 'string' ? err : err.message || "Unknown Camera Error")}
+            />
 
             {/* Overlay Layer */}
             <PoseOverlay

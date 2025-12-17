@@ -4,10 +4,11 @@ import { Pose, type Results } from "@mediapipe/pose";
 
 interface PoseDetectorProps {
     onPoseDetected: (results: Results) => void;
-    interval?: number; // Detection interval in ms (default 100ms = 10fps)
+    onError?: (error: any) => void; // Add onError prop
+    interval?: number;
 }
 
-export const PoseDetector = ({ onPoseDetected, interval = 100 }: PoseDetectorProps) => {
+export const PoseDetector = ({ onPoseDetected, onError, interval = 100 }: PoseDetectorProps) => {
     const webcamRef = useRef<Webcam>(null);
     const poseRef = useRef<Pose | null>(null);
     const intervalIdRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -44,7 +45,7 @@ export const PoseDetector = ({ onPoseDetected, interval = 100 }: PoseDetectorPro
         return () => {
             pose.close();
         };
-    }, []); // Run only once
+    }, []);
 
     const isProcessingRef = useRef(false);
 
@@ -61,11 +62,14 @@ export const PoseDetector = ({ onPoseDetected, interval = 100 }: PoseDetectorPro
             try {
                 const video = webcamRef.current.video;
                 await poseRef.current.send({ image: video });
+            } catch (err) {
+                console.error("MediaPipe Error:", err);
+                if (onError) onError(err);
             } finally {
                 isProcessingRef.current = false;
             }
         }
-    }, []);
+    }, [onError]);
 
     useEffect(() => {
         intervalIdRef.current = setInterval(detect, interval);
@@ -86,6 +90,7 @@ export const PoseDetector = ({ onPoseDetected, interval = 100 }: PoseDetectorPro
                     width: 1280,
                     height: 720,
                 }}
+                onUserMediaError={onError} // Pass to Webcam
             />
         </div>
     );
