@@ -63,10 +63,10 @@ export default function RecordPage() {
 
   // Group 1: Total & Streak
   const totalItems = [
-    { label: "筋トレ継続日数", value: `${stats?.streak_days || 0}日` },
-    { label: "プランク総計", value: formatDuration(findStat("plank")?.total_duration || 0) },
-    { label: "スクワット総計", value: `${findStat("squat")?.total_count || 0}回` },
-    { label: "腕立て伏せ総計", value: `${findStat("pushup")?.total_count || 0}回` },
+    { label: "継続日数", value: `${stats?.streak_days || 0}日` },
+    { label: "プランク", value: formatDuration(findStat("plank")?.total_duration || 0) },
+    { label: "スクワット", value: `${findStat("squat")?.total_count || 0}回` },
+    { label: "腕立て伏せ", value: `${findStat("pushup")?.total_count || 0}回` },
   ];
 
   const formatTime = (isoString: string) => {
@@ -103,8 +103,9 @@ export default function RecordPage() {
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-center mb-4">Total</h2>
           {totalItems.map((item, index) => (
-            <div key={index} className="bg-white border-2 border-black rounded-lg p-6 text-center shadow-lg">
-              <p className="text-lg font-semibold">{item.label}：{item.value}</p>
+            <div key={index} className="bg-white border-2 border-black rounded-lg p-4 shadow-lg flex items-center justify-center">
+              <span className="text-lg font-bold text-gray-700 w-32 text-left">{item.label}</span>
+              <span className="text-xl font-extrabold text-blue-600 w-32 text-right">{item.value}</span>
             </div>
           ))}
         </div>
