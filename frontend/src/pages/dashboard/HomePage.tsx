@@ -82,7 +82,7 @@ export default function HomePage() {
                 {/* スクワット */}
                 <Button
                   variant="outline"
-                  onClick={() => navigate("/camera")}
+                  onClick={() => navigate("/training/plank")}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video h-auto"
                 >
                   <span className="text-lg">スクワット</span>
@@ -90,7 +90,7 @@ export default function HomePage() {
                 {/* プランク */}
                 <Button
                   variant="outline"
-                  onClick={() => navigate("/camera")}
+                  onClick={() => navigate("/training/plank")}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video h-auto"
                 >
                   <span className="text-lg">プランク</span>
@@ -98,7 +98,7 @@ export default function HomePage() {
                 {/* 腕立て */}
                 <Button
                   variant="outline"
-                  onClick={() => navigate("/camera")}
+                  onClick={() => navigate("/training/plank")}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video h-auto"
                 >
                   <span className="text-lg">腕立て</span>
