@@ -14,7 +14,7 @@ import mukiyuchiImg from '@/assets/mukiyuchiBK.png';
 export default function HomePage() {
     const navigate = useNavigate();
 
-    const handleNavigateToRoot = () => {
+    const handleLogout = () => {
         // TODO: Implement actual logout logic
         navigate("/");
     };
@@ -34,7 +34,7 @@ export default function HomePage() {
                 alt="mukiyuchi right" 
                 className="fixed right-0 bottom-0 w-[510px] h-auto z-50 opacity-100 transform scale-x-[-1] translate-x-1/4"
             />
-            <div className="max-none mx-auto space-y-8 relative z-10">
+            <div className="max-w-none mx-auto space-y-8 relative z-10">
                 <div className="flex justify-between items-center border-4 border-black p-4 gap-4">
                     <Button variant="outline" onClick={handleLogout}>設定</Button>
                     <Button variant="outline" onClick={handleLogout} className="w-[400px]"><h1 className="text-[#000000]">頑張りの歴史</h1></Button>
@@ -44,7 +44,7 @@ export default function HomePage() {
                 <div className="flex flex-col items-center justify-center min-h-[60vh]">
                     <Card className="border-4 border-black rounded-none p-4 w-full max-w-4xl h-[30rem] flex flex-col ">
                         <CardHeader>
-                            <div className="flex flex-col justify-center items-center border border-black p-4 mx-auto max-w-xl rounded-8">
+                            <div className="flex flex-col justify-center items-center border border-black p-4 mx-auto max-w-xl rounded-lg">
                                 どれにするぅ？
                             </div>
                         </CardHeader>
