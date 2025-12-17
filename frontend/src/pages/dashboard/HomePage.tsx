@@ -20,8 +20,8 @@ export default function HomePage() {
     };
 
     const handleHistory = () => {
-        // TODO: Navigate to history page
-        navigate("/history");
+        // TODO: Navigate to history page (mapped to existing route)
+        navigate("/gannbarinorekisi");
     };
 
     const handleCollection = () => {
