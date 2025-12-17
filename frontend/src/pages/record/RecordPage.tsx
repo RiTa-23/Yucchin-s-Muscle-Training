@@ -39,9 +39,7 @@ export default function RecordPage() {
     return m > 0 ? `${m}分${s}秒` : `${s}秒`;
   };
 
-  const formatTime = (isoString: string) => {
-    return new Date(isoString).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
-  };
+
 
   const getExerciseLabel = (name: string) => {
     switch (name) {
@@ -66,16 +64,25 @@ export default function RecordPage() {
   // Group 1: Total & Streak
   const totalItems = [
     { label: "筋トレ継続日数", value: `${stats?.streak_days || 0}日` },
-    { label: "プランク合計", value: formatDuration(findStat("plank")?.total_duration || 0) },
-    { label: "スクワット合計", value: `${findStat("squat")?.total_count || 0}回` },
-    { label: "腕立て伏せ合計", value: `${findStat("pushup")?.total_count || 0}回` },
+    { label: "プランク総計", value: formatDuration(findStat("plank")?.total_duration || 0) },
+    { label: "スクワット総計", value: `${findStat("squat")?.total_count || 0}回` },
+    { label: "腕立て伏せ総計", value: `${findStat("pushup")?.total_count || 0}回` },
   ];
 
-  // Group 2: Today's Logs
-  const todayItems = todayLogs.length > 0
-    ? todayLogs.map(log => ({
-      label: `${formatTime(log.performed_at)} ${getExerciseLabel(log.exercise_name)}`,
-      value: log.count ? `${log.count}回` : formatDuration(log.duration)
+  // Group 2: Today's Logs (Aggregated)
+  const todayAggregated = todayLogs.reduce((acc, log) => {
+    if (!acc[log.exercise_name]) {
+      acc[log.exercise_name] = { count: 0, duration: 0, name: log.exercise_name };
+    }
+    acc[log.exercise_name].count += (log.count || 0);
+    acc[log.exercise_name].duration += (log.duration || 0);
+    return acc;
+  }, {} as Record<string, { count: number, duration: number, name: string }>);
+
+  const todayItems = Object.keys(todayAggregated).length > 0
+    ? Object.values(todayAggregated).map(stat => ({
+      label: `${getExerciseLabel(stat.name)}合計`,
+      value: stat.count > 0 ? `${stat.count}回` : formatDuration(stat.duration)
     }))
     : [{ label: "今日の記録", value: "まだありません" }];
 
