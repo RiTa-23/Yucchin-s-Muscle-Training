@@ -52,8 +52,8 @@ export default function HomePage() {
             <div className="max-w-none mx-auto space-y-8 relative z-10">
                 <div className="flex justify-between items-center border-4 border-black p-4 gap-4">
                     <Button variant="outline" onClick={handleSettings}>設定</Button>
-                    <Button variant="outline" onClick={handleHistory} className="w-[400px]"><h1 className="text-[#000000]">頑張りの歴史</h1></Button>
-                    <Button variant="outline" onClick={handleCollection} className="w-[400px]"><h1 className="text-[#000000]">集めたゆっちん</h1></Button>
+                    <Button variant="outline" onClick={handleHistory} className="w-[400px] text-black">頑張りの歴史</Button>
+                    <Button variant="outline" onClick={handleCollection} className="w-[400px] text-black">集めたゆっちん</Button>
                     <div className="w-[100px]"></div>
                 </div>
                 <div className="flex flex-col items-center justify-center min-h-[60vh]">
