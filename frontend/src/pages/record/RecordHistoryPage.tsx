@@ -37,7 +37,11 @@ export default function RecordHistoryPage() {
         setSelectedDate(newDate);
     };
 
+    // Check if next day is in the future
+    const isToday = selectedDate.toDateString() === new Date().toDateString();
+
     const handleNextDay = () => {
+        if (isToday) return; // Prevent going to future
         const newDate = new Date(selectedDate);
         newDate.setDate(selectedDate.getDate() + 1);
         setSelectedDate(newDate);
@@ -92,7 +96,7 @@ export default function RecordHistoryPage() {
         : [{ label: `${formattedDate}の記録`, value: "まだありません" }];
 
     return (
-        <div className="min-h-screen bg-yellow-200 p-8 flex items-center justify-center relative">
+        <div className="min-h-screen bg-yellow-200 p-8 flex flex-col items-center pt-20 relative">
             <button
                 onClick={() => navigate('/record')}
                 className="absolute top-4 left-4 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 transition-colors"
@@ -101,7 +105,7 @@ export default function RecordHistoryPage() {
                 <ArrowLeft className="w-6 h-6 text-gray-700" />
             </button>
 
-            <div className="w-full max-w-md space-y-8 mt-12">
+            <div className="w-full max-w-md space-y-8">
                 <h1 className="text-3xl font-bold text-center mb-8">過去の記録</h1>
 
                 {/* Daily Section */}
@@ -117,7 +121,8 @@ export default function RecordHistoryPage() {
                         <h2 className="text-2xl font-bold text-center">{formattedDate}</h2>
                         <button
                             onClick={handleNextDay}
-                            className="p-1 rounded-full hover:bg-white/50 transition-colors"
+                            className={`p-1 rounded-full transition-colors ${isToday ? 'opacity-30 cursor-not-allowed' : 'hover:bg-white/50'}`}
+                            disabled={isToday}
                             aria-label="翌日"
                         >
                             <ChevronRight className="w-8 h-8" />
