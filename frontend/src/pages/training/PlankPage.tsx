@@ -157,12 +157,14 @@ export default function PlankPage() {
     // Save result when game finishes
     useEffect(() => {
         if (gameState === "FINISHED") {
+            // targetDuration is captured at the time of finishing
+            const duration = targetDuration;
             const saveResult = async () => {
                 try {
                     await trainingApi.createLog({
                         performed_at: new Date().toISOString(),
                         exercise_name: "plank",
-                        duration: targetDuration,
+                        duration: duration,
                         count: 0
                     });
                     console.log("Training log saved!");
@@ -173,7 +175,7 @@ export default function PlankPage() {
             };
             saveResult();
         }
-    }, [gameState, targetDuration]);
+    }, [gameState]);
 
     const handleError = useCallback((err: any) => {
         setError(typeof err === 'string' ? err : err.message || "Unknown Camera Error");
