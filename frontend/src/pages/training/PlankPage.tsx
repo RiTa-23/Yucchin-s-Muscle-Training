@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { PoseDetector } from "@/components/camera/PoseDetector";
@@ -26,15 +26,18 @@ export default function PlankPage() {
 
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    // Calculate angle at B (A-B-C)
-    const calculateAngle = (a: NormalizedLandmark, b: NormalizedLandmark, c: NormalizedLandmark) => {
+    // --- Logic ---
+
+    // Calculate angle at B (A-B-C) - static logic, can be inside or outside. 
+    // If inside, wrap in useCallback to make it stable for checkForm dependency.
+    const calculateAngle = useCallback((a: NormalizedLandmark, b: NormalizedLandmark, c: NormalizedLandmark) => {
         const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
         let angle = Math.abs((radians * 180.0) / Math.PI);
         if (angle > 180.0) angle = 360 - angle;
         return angle;
-    };
+    }, []);
 
-    const checkForm = (results: Results) => {
+    const checkForm = useCallback((results: Results) => {
         if (!results.poseLandmarks) return;
         const landmarks = results.poseLandmarks;
 
@@ -111,14 +114,14 @@ export default function PlankPage() {
             }
             setIsGood(false);
         }
-    };
+    }, [calculateAngle, setMessage, setIsGood]);
 
-    const onPoseDetected = (results: Results) => {
+    const onPoseDetected = useCallback((results: Results) => {
         setLastResults(results);
         if (gameState === "ACTIVE") {
             checkForm(results);
         }
-    };
+    }, [gameState, checkForm]);
 
     useEffect(() => {
         if (gameState === "ACTIVE" && isGood && timeLeft > 0) {
@@ -149,6 +152,10 @@ export default function PlankPage() {
         }
         setGameState("ACTIVE");
     };
+
+    const handleError = useCallback((err: any) => {
+        setError(typeof err === 'string' ? err : err.message || "Unknown Camera Error");
+    }, []);
 
     // --- Renders ---
 
@@ -209,7 +216,7 @@ export default function PlankPage() {
             <PoseDetector
                 onPoseDetected={onPoseDetected}
                 interval={interval}
-                onError={(err) => setError(typeof err === 'string' ? err : err.message || "Unknown Camera Error")}
+                onError={handleError}
             />
 
             {/* Overlay Layer */}
