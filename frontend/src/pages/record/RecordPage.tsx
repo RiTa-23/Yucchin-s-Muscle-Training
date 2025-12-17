@@ -1,7 +1,6 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Calendar } from "lucide-react";
 import { trainingApi, type TrainingLogResponse, type TrainingStatsResponse } from "@/api/training";
 
 export default function RecordPage() {
@@ -9,8 +8,6 @@ export default function RecordPage() {
   const [stats, setStats] = useState<TrainingStatsResponse | null>(null);
   const [todayLogs, setTodayLogs] = useState<TrainingLogResponse[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // ... (existing useEffect and helpers)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -99,7 +96,7 @@ export default function RecordPage() {
         <ArrowLeft className="w-6 h-6 text-gray-700" />
       </button>
 
-      <div className="w-full max-w-md space-y-8 mt-12">
+      <div className="w-full max-w-md space-y-8 mt-12 pb-20">
 
         {/* Total Section */}
         <div className="space-y-4">
@@ -121,8 +118,18 @@ export default function RecordPage() {
           ))}
         </div>
 
+        {/* History Link */}
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={() => navigate('/record/history')}
+            className="flex items-center gap-2 bg-white border-2 border-black rounded-full px-6 py-3 shadow-lg hover:bg-gray-50 transition-colors"
+          >
+            <Calendar className="w-5 h-5" />
+            <span className="font-bold">過去の記録を見る</span>
+          </button>
+        </div>
+
       </div>
     </div>
   );
 }
-

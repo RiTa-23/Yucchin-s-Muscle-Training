@@ -6,6 +6,7 @@ import PlankPage from "./pages/training/PlankPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import CollectionPage from "./pages/collection/CollectionPage";
 import RecordPage from "./pages/record/RecordPage";
+import RecordHistoryPage from "./pages/record/RecordHistoryPage";
 import { AuthProvider } from "./context/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -56,7 +57,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-
+          <Route
+            path="/record/history"
+            element={
+              <ProtectedRoute>
+                <RecordHistoryPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
 
       </BrowserRouter>
