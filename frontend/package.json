@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "vite preview --host 0.0.0.0 --port $PORT"
+    "start": "npx serve -s dist -l ${PORT:-8080}"
   },
   "dependencies": {
     "@mediapipe/camera_utils": "^0.3.1675466862",
