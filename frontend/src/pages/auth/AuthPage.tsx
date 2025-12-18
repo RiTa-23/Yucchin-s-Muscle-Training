@@ -348,8 +348,8 @@ export default function AuthPage() {
         </TabsContent>
         <div className="mt-6 space-y-3">
           <div className="flex items-center justify-center gap-3">
-            <p className="text-sm text-orange-300/80 font-semibold flex items-center gap-1">
-              <span className="text-yellow-400">※</span>
+            <p className="text-sm text-yellow-300 font-bold flex items-center gap-1">
+              <span className="text-yellow-300">※</span>
               このサイトは音声が流れます
             </p>
             <button
