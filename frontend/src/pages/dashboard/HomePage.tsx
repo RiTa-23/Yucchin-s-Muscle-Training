@@ -111,6 +111,7 @@ export default function HomePage() {
             <CardContent className="py-[60px]">
               <div className="grid grid-cols-3 gap-4 w-full">
                 {/* スクワット */}
+                {/* TODO: /training/squat ページを実装後、遷移先を変更 */}
                 <Button
                   variant="outline"
                   onClick={() => navigate("/training/plank")}
@@ -131,6 +132,7 @@ export default function HomePage() {
                   </span>
                 </Button>
                 {/* 腕立て */}
+                {/* TODO: /training/pushup ページを実装後、遷移先を変更 */}
                 <Button
                   variant="outline"
                   onClick={() => navigate("/training/plank")}
