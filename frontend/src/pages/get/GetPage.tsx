@@ -3,41 +3,34 @@ import { useLocation, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
 import { YUCCHIN_MASTER, type YucchinMaster } from '../../data/yucchinMaster';
 
-// レアリティごとのスタイル定義
+
+// レアリティごとのスタイル定義（ダークテーマベースのアクセント）
 const RARITY_THEMES = {
   NORMAL: {
-    bgColor: 'bg-[#fef08a]', // イエロー
-    sunburst: 'white',
-    badgeGlow: 'from-yellow-300 via-amber-200 to-yellow-300',
-    badgeBorder: 'border-amber-600',
-    textColor: 'text-gray-900',
-    particleColor: '#ffffff',
+    accentColor: 'from-yellow-400 to-orange-500',
+    glowColor: 'rgba(251, 191, 36, 0.4)', 
+    sunburst: '#fbbf24',
+    particleColor: '#fbbf24',
     confettiColors: ['#fef08a', '#ffffff', '#fbbf24'],
   },
   RARE: {
-    bgColor: 'bg-blue-100', // 薄い青
-    sunburst: '#60a5fa', // blue-400 (鮮やかに変更)
-    badgeGlow: 'from-blue-400 via-cyan-300 to-blue-400',
-    badgeBorder: 'border-blue-600',
-    textColor: 'text-blue-950',
+    accentColor: 'from-blue-400 to-cyan-500',
+    glowColor: 'rgba(96, 165, 250, 0.4)', 
+    sunburst: '#60a5fa',
     particleColor: '#60a5fa',
     confettiColors: ['#93c5fd', '#ffffff', '#2563eb', '#22d3ee'],
   },
   SR: {
-    bgColor: 'bg-orange-100', // オレンジ
-    sunburst: '#fbbf24', // amber-400
-    badgeGlow: 'from-orange-400 via-yellow-300 to-orange-400',
-    badgeBorder: 'border-orange-600',
-    textColor: 'text-orange-950',
-    particleColor: '#f59e0b',
+    accentColor: 'from-orange-500 to-red-600',
+    glowColor: 'rgba(234, 88, 12, 0.4)', 
+    sunburst: '#ea580c',
+    particleColor: '#f97316',
     confettiColors: ['#fbbf24', '#ffffff', '#ea580c', '#fde68a'],
   },
   UR: {
-    bgColor: 'bg-purple-100', // パープル系
+    accentColor: 'from-purple-500 via-pink-500 to-red-500',
+    glowColor: 'rgba(168, 85, 247, 0.4)', 
     sunburst: 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
-    badgeGlow: 'from-purple-500 via-pink-400 via-blue-400 to-purple-500',
-    badgeBorder: 'border-purple-700',
-    textColor: 'text-purple-950',
     particleColor: '#a855f7',
     confettiColors: ['#ff0000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#ff00ff'],
   },
@@ -115,23 +108,55 @@ const GetPage: React.FC = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [yucchin, setYucchin] = useState<YucchinMaster | null>(null);
-  const [isRevealed, setIsRevealed] = useState(false);
+  
+  // 演出フェーズのステート
+  const [revealStart, setRevealStart] = useState(false); // フラッシュ除去・背景開始
+  const [revealBadge, setRevealBadge] = useState(false); // 名前バッジ
+  const [revealQuote, setRevealQuote] = useState(false); // セリフ
+  const [revealImage, setRevealImage] = useState(false); // キャラクター画像
+  const [revealText, setRevealText] = useState(false);   // GET!!テキスト
 
   useEffect(() => {
-    const stateYucchin = location.state?.yucchin as YucchinMaster | undefined;
+    const stateYucchin = (location as any).state?.yucchin as YucchinMaster | undefined;
     const typeParam = searchParams.get('type');
     const paramYucchin = typeParam 
       ? YUCCHIN_MASTER.find(y => y.type === parseInt(typeParam))
       : undefined;
     const randomYucchin = YUCCHIN_MASTER[Math.floor(Math.random() * YUCCHIN_MASTER.length)];
+    const targetYucchin = stateYucchin || paramYucchin || randomYucchin;
 
-    setYucchin(stateYucchin || paramYucchin || randomYucchin);
+    setYucchin(targetYucchin);
 
-    const timer = setTimeout(() => {
-      setIsRevealed(true);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [location.state, searchParams]);
+    // 演出タイマーの設定
+    if (targetYucchin) {
+      const isHighRarity = targetYucchin.rarity === 'SR' || targetYucchin.rarity === 'UR';
+      
+      // 1. 最初のアクション: フラッシュ除去 (500ms)
+      setTimeout(() => setRevealStart(true), 500);
+
+      if (isHighRarity && targetYucchin.quote) {
+        // SR/UR の場合: セリフあり演出
+        // 2. セリフ表示 (1500ms)
+        setTimeout(() => setRevealQuote(true), 1500);
+        // 3. 画像 ＆ 名前バッジ 表示 (3500ms) - セリフを2秒見せる
+        setTimeout(() => {
+          setRevealImage(true);
+          setRevealBadge(true);
+        }, 3500);
+        // 4. テキスト表示 (4500ms)
+        setTimeout(() => setRevealText(true), 4500);
+      } else {
+        // NORMAL/RARE の場合: 従来通りのテンポ
+        // 2. 画像 ＆ 名前バッジ 表示 (1500ms)
+        setTimeout(() => {
+          setRevealImage(true);
+          setRevealBadge(true);
+        }, 1500);
+        // 3. テキスト表示 (2500ms)
+        setTimeout(() => setRevealText(true), 2500);
+      }
+    }
+  }, [location, searchParams]);
 
   const theme = useMemo(() => {
     if (!yucchin) return RARITY_THEMES.NORMAL;
@@ -139,18 +164,21 @@ const GetPage: React.FC = () => {
   }, [yucchin]);
 
   if (!yucchin) {
-    return <div className="w-full h-screen bg-[#fef08a] flex items-center justify-center">
-      <p className="text-2xl font-bold">読み込み中...</p>
+    return <div className="w-full h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <p className="text-2xl font-bold text-white">読み込み中...</p>
     </div>;
   }
 
   return (
-    <div className={`w-full h-screen ${theme.bgColor} flex items-center justify-center overflow-hidden relative transition-colors duration-1000 uppercase`}>
+    <div className={`w-full h-screen bg-[#0a0a0a] flex items-center justify-center overflow-hidden relative transition-colors duration-1000 uppercase`}>
       
-      {/* Background Layer 1: Sunburst (Standard) */}
-      <div className="fixed inset-0 flex items-center justify-center pointer-events-none opacity-30 z-0 overflow-hidden">
+      {/* Subtle Background Inner Glow to match screenshots */}
+      <div className="fixed inset-0 bg-gradient-to-t from-orange-900/10 via-transparent to-transparent pointer-events-none z-1 overflow-hidden" />
+
+      {/* Rarity-specific Sunburst (Subtle Glow) */}
+      <div className="fixed inset-0 flex items-center justify-center pointer-events-none opacity-20 z-0 overflow-hidden">
         <div 
-          className="w-[300vmax] h-[300vmax] rounded-full animate-[spin_30s_linear_infinite] flex-shrink-0"
+          className="w-[300vmax] h-[300vmax] rounded-full animate-[spin_40s_linear_infinite] flex-shrink-0"
           style={{
             background: yucchin.rarity === 'UR' 
               ? theme.sunburst 
@@ -159,18 +187,8 @@ const GetPage: React.FC = () => {
         />
       </div>
 
-      {/* Background Layer 2: Reverse Sunburst (Subtle) */}
-      <div className="fixed inset-0 flex items-center justify-center pointer-events-none opacity-20 z-0 overflow-hidden">
-        <div 
-          className="w-[300vmax] h-[300vmax] rounded-full animate-[spin_60s_linear_infinite_reverse] flex-shrink-0"
-          style={{
-            background: `conic-gradient(from 10deg, rgba(255,255,255,0.8) 0deg, transparent 15deg, rgba(255,255,255,0.8) 30deg, transparent 45deg)`
-          }}
-        />
-      </div>
-
       {/* Floating Particles & Twinkle Stars */}
-      {isRevealed && (
+      {revealStart && (
         <>
           <FloatingParticles color={theme.particleColor} count={yucchin.rarity === 'UR' ? 40 : 20} />
           <TwinkleStars count={yucchin.rarity === 'UR' ? 30 : 15} />
@@ -178,77 +196,83 @@ const GetPage: React.FC = () => {
       )}
 
       {/* Confetti */}
-      {(yucchin.rarity === 'UR' || yucchin.rarity === 'SR' || yucchin.rarity === 'RARE') && isRevealed && (
+      {(yucchin.rarity === 'UR' || yucchin.rarity === 'SR' || yucchin.rarity === 'RARE') && revealImage && (
         <Confetti colors={theme.confettiColors} count={yucchin.rarity === 'RARE' ? 40 : 80} />
       )}
 
       {/* Screen Flash Overlay */}
       <div 
-        className={`fixed inset-0 z-50 pointer-events-none transition-opacity duration-1000 ${isRevealed ? 'opacity-0' : 'opacity-100'} ${yucchin.rarity === 'UR' ? 'bg-gradient-to-br from-purple-400 via-white to-pink-400' : 'bg-white'}`}
+        className={`fixed inset-0 z-50 pointer-events-none transition-opacity duration-1000 ${revealStart ? 'opacity-0' : 'opacity-100'} ${yucchin.rarity === 'UR' ? 'bg-gradient-to-br from-purple-400 via-white to-pink-400' : 'bg-white'}`}
       />
 
-      <Card className={`w-full h-full border-none bg-transparent shadow-none rounded-none overflow-hidden relative z-10 ${yucchin.rarity === 'UR' && isRevealed ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}>
+      {/* Main Container - Removed square frame/border as requested */}
+      <Card className={`w-full h-full border-none bg-transparent shadow-none rounded-none overflow-visible relative z-10 transition-all duration-1000 ${revealStart ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} ${yucchin.rarity === 'UR' && revealStart ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}>
         <CardContent className="h-full relative flex flex-col items-center py-12 justify-between">
         
-          {/* Name Badge */}
-          <div className={`relative z-20 transition-all duration-1000 transform ${isRevealed ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-50 -translate-y-12'}`}>
-            <div className={`absolute inset-0 bg-gradient-to-r ${theme.badgeGlow} rounded-full blur-[60px] opacity-80 animate-pulse`}></div>
-            <div className={`relative bg-gradient-to-br ${theme.badgeGlow} opacity-95 border-4 ${theme.badgeBorder} rounded-full p-1 shadow-[0_0_50px_rgba(255,255,255,0.6),10px_10px_0px_0px_rgba(0,0,0,1)]`}>
-              <div className="bg-white rounded-full px-16 py-4">
-                <div className="flex items-center gap-4">
-                  <span className="text-4xl animate-bounce">{yucchin.rarity === 'UR' ? '👑' : yucchin.rarity === 'SR' ? '💎' : yucchin.rarity === 'RARE' ? '🌟' : '✨'}</span>
-                  <span className={`text-3xl font-black ${theme.textColor} tracking-widest`} style={{ fontFamily: '"Inter", "Helvetica Neue", sans-serif' }}>
-                    {yucchin.name}
-                  </span>
-                  <span className="text-4xl animate-bounce">{yucchin.rarity === 'UR' ? '👑' : yucchin.rarity === 'SR' ? '💎' : yucchin.rarity === 'RARE' ? '🌟' : '✨'}</span>
-                </div>
+          {/* Unified Muscle Name Badge */}
+          <div className={`relative z-20 transition-all duration-1000 transform ${revealBadge ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
+            <div className={`absolute inset-0 bg-orange-500 rounded-full blur-[40px] opacity-60 animate-pulse`}></div>
+            <div className="relative bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 border-2 border-orange-300 rounded-full px-12 py-4 shadow-[0_0_30px_rgba(251,146,60,0.8)]">
+              <div className="flex items-center gap-6">
+                <span className="text-3xl filter drop-shadow-md">💪</span>
+                <span className="text-3xl md:text-4xl font-black text-white tracking-widest drop-shadow-lg" style={{ fontFamily: '"Montserrat", sans-serif' }}>
+                  {yucchin.name}
+                </span>
+                <span className="text-3xl filter drop-shadow-md">💪</span>
               </div>
             </div>
           </div>
 
           {/* Character Image Area */}
           <div className="flex-1 flex items-center justify-center w-full relative mt-4">
-              {/* Massive Multi-layer Aura */}
-              <div className={`absolute inset-0 flex items-center justify-center transition-all duration-1500 ${isRevealed ? 'scale-125 opacity-70' : 'scale-0 opacity-0'}`}>
-                 <div className={`absolute w-[30rem] h-[30rem] ${
-                   yucchin.rarity === 'UR' ? 'bg-gradient-to-r from-red-300 via-green-300 to-blue-300' : 
-                   yucchin.rarity === 'RARE' ? 'bg-gradient-to-r from-blue-300 via-cyan-200 to-blue-300' :
-                   'bg-white'
-                 } rounded-full blur-[100px] animate-pulse`}></div>
-                 <div className="absolute w-[15rem] h-[15rem] bg-white rounded-full blur-[60px] opacity-60"></div>
+              {/* Quote Reveal (SR/UR Only) */}
+              {revealQuote && !revealImage && yucchin.quote && (
+                <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center z-30 px-4">
+                  <div className="max-w-[90vw] animate-[fadeIn_0.5s_ease-out]">
+                    <p className="text-4xl sm:text-5xl font-black text-white italic drop-shadow-[0_4px_12px_rgba(251,146,60,0.8)] text-center leading-none whitespace-nowrap" style={{ fontFamily: '"Inter", sans-serif' }}>
+                      「{yucchin.quote}」
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Rarity Aura */}
+              <div className={`absolute inset-0 flex items-center justify-center transition-all duration-1500 ${revealImage ? 'scale-125 opacity-70' : 'scale-0 opacity-0'}`}>
+                 <div className={`absolute w-[30rem] h-[30rem] rounded-full blur-[100px] animate-pulse`}
+                      style={{ backgroundColor: theme.glowColor }}></div>
+                 <div className="absolute w-[15rem] h-[15rem] bg-white rounded-full blur-[60px] opacity-40"></div>
               </div>
 
               <div 
-                className={`relative transition-all duration-1000 cubic-bezier(0.175, 0.885, 0.32, 1.275) transform ${isRevealed ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-0 rotate-12'}`}
+                className={`relative transition-all duration-1000 cubic-bezier(0.175, 0.885, 0.32, 1.275) transform ${revealImage ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}
                 style={{
-                  animation: isRevealed ? 'subtleBounce 3s ease-in-out infinite' : 'none'
+                  animation: revealImage ? 'subtleBounce 3s ease-in-out infinite' : 'none'
                 }}
               >
                   <img 
                       src={yucchin.imageUrl} 
                       alt={yucchin.name}
-                      className={`w-72 h-72 object-contain drop-shadow-[0_35px_35px_rgba(0,0,0,0.5)] ${yucchin.rarity === 'UR' ? 'animate-pulse' : ''}`}
+                      className={`w-72 h-72 object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)] ${yucchin.rarity === 'UR' ? 'animate-pulse' : ''}`}
                   />
                   
                   {/* UR Glow Ring */}
-                  {yucchin.rarity === 'UR' && isRevealed && (
+                  {yucchin.rarity === 'UR' && revealImage && (
                     <div className="absolute inset-0 border-[10px] border-white/20 rounded-full animate-ping scale-110 pointer-events-none" />
                   )}
               </div>
           </div>
 
-          {/* GET Text with Background-only Shine (No square artifact) */}
-          <div className={`mt-4 mb-12 transition-all duration-1000 delay-500 transform ${isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-150'} drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)]`}>
-            <div className="relative group text-center">
+          {/* GET Text with Unified Muscle Style */}
+          <div className={`mt-4 mb-20 transition-all duration-1000 delay-500 transform ${revealText ? 'opacity-100 scale-100' : 'opacity-0 scale-150'}`}>
+            <div className="relative text-center">
+              {/* Outer Glow for GET!! */}
+              <div className={`absolute inset-0 bg-orange-600 blur-[40px] opacity-40 animate-pulse`}></div>
               <h1 
-                className={`text-8xl font-black tracking-tighter inline-block bg-clip-text text-transparent relative z-10 animate-[shineText_3s_linear_infinite]`}
+                className={`text-8xl md:text-9xl font-black tracking-tighter inline-block bg-clip-text text-transparent bg-gradient-to-b from-yellow-300 via-orange-500 to-red-700 relative z-10`}
                 style={{ 
-                    fontFamily: '"Inter", "Helvetica Neue", sans-serif',
-                    textShadow: '8px 8px 0px rgba(255,255,255,1), 16px 16px 0px rgba(0,0,0,0.4)',
-                    backgroundImage: yucchin.rarity === 'UR' 
-                      ? 'linear-gradient(110deg, #dc2626, #eab308 20%, #fff 50%, #22c55e 80%, #9333ea)' 
-                      : 'linear-gradient(110deg, #1e3a8a, #6b21a8 20%, #fff 50%, #be185d 80%, #1e3a8a)',
-                    backgroundSize: '200% 100%',
+                    fontFamily: '"Montserrat", sans-serif',
+                    filter: 'drop-shadow(0 0 20px rgba(251,146,60,0.8))',
+                    WebkitTextStroke: '1px rgba(255,255,255,0.2)'
                 }}
               >
                 GET!!
@@ -259,6 +283,10 @@ const GetPage: React.FC = () => {
       </Card>
 
       <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         @keyframes subtleBounce {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-15px); }

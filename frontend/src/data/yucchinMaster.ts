@@ -15,7 +15,8 @@ export interface YucchinMaster {
     type: number;
     name: string;
     rarity: 'NORMAL' | 'RARE' | 'SR' | 'UR';
-    imageUrl: string; // Path to image (e.g., '/assets/yucchins/type_1.png')
+    imageUrl: string; 
+    quote?: string; // キャラクター登場時のセリフ
 }
 
 // Temporary placeholder data based on the design intuition
@@ -35,10 +36,10 @@ export const YUCCHIN_MASTER: YucchinMaster[] = [
     { type: 104, name: "レアゆっちん4", rarity: 'RARE', imageUrl: yucchin104 },
     { type: 105, name: "レアゆっちん5", rarity: 'RARE', imageUrl: yucchin105 },
     // SR
-    { type: 201, name: "リスカゆっちん", rarity: 'SR', imageUrl: yucchin104 },
-    { type: 202, name: "たまごゆっちん", rarity: 'SR', imageUrl: yucchin103 },
-    { type: 203, name: "しかゆっちん", rarity: 'SR', imageUrl: yucchin6 },
-    { type: 204, name: "イワンコフゆっちん", rarity: 'SR', imageUrl: yucchin5 },
+    { type: 201, name: "リスカゆっちん", rarity: 'SR', imageUrl: yucchin104, quote: "もうマジ無理…リスカしよ" },
+    { type: 202, name: "たまごゆっちん", rarity: 'SR', imageUrl: yucchin103, quote: "オムライスを食べたいと思いませんか？" },
+    { type: 203, name: "しかゆっちん", rarity: 'SR', imageUrl: yucchin6, quote: "森の王者は、いつだってスクワットを欠かさない。" },
+    { type: 204, name: "イワンコフゆっちん", rarity: 'SR', imageUrl: yucchin5, quote: "ヒーハー！パンプアップが止まらないわ！" },
     // UR
-    { type: 301, name: "エンジェルゆっちん", rarity: 'UR', imageUrl: yucchin105 },
+    { type: 301, name: "エンジェルゆっちん", rarity: 'UR', imageUrl: yucchin105, quote: "聖なる筋肉が、あなたを勝利へと導くでしょう。" },
 ];
