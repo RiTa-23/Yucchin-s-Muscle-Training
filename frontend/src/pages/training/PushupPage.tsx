@@ -61,8 +61,8 @@ export default function PushupPage() {
         const wrist = isLeft ? landmarks[15] : landmarks[16];
 
         // Basic visibility check
-        if ((shoulder.visibility || 0) < 0.3 || (elbow.visibility || 0) < 0.3 || (wrist.visibility || 0) < 0.3) {
-            safeSetMessage("上半身（肩・肘・手首）が映るようにしてください");
+        if ((shoulder.visibility || 0) < 0.5 || (elbow.visibility || 0) < 0.5 || (wrist.visibility || 0) < 0.5) {
+            safeSetMessage("上半身（肩・肘・手首）がはっきり映るようにしてください");
             setIsGood(false);
             return;
         }
@@ -73,7 +73,7 @@ export default function PushupPage() {
         // UP: Arms straight, elbow angle > 160
         // DOWN: Arms bent, elbow angle < 90
 
-        const UP_THRESHOLD = 160;
+        const UP_THRESHOLD = 150;
         const DOWN_THRESHOLD = 90;
 
         if (pushupState === "UP") {
