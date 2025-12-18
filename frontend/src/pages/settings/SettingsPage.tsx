@@ -7,302 +7,367 @@ import { useAuth } from "@/context/AuthContext";
 import client from "@/api/client";
 
 export default function SettingsPage() {
-    const navigate = useNavigate();
-    const { logout, user, refreshUser } = useAuth();
-    const [username, setUsername] = React.useState<string>(user?.username || "");
+  const navigate = useNavigate();
+  const { logout, user, refreshUser } = useAuth();
+  const [username, setUsername] = React.useState<string>(user?.username || "");
 
-    // ...
+  // ...
 
-    // State Definitions
-    const [yucchinSound, setYucchinSound] = React.useState<boolean>(() => {
-        try {
-            const v = localStorage.getItem("settings_yucchinSound");
-            return v === null ? true : v === "true";
-        } catch {
-            return true;
-        }
-    });
+  // State Definitions
+  const [yucchinSound, setYucchinSound] = React.useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem("settings_yucchinSound");
+      return v === null ? true : v === "true";
+    } catch {
+      return true;
+    }
+  });
 
-    const [yucchinHidden, setYucchinHidden] = React.useState<boolean>(() => {
-        try {
-            const v = localStorage.getItem("settings_yucchinHidden");
-            return v === null ? false : v === "true";
-        } catch {
-            return false;
-        }
-    });
+  const [yucchinHidden, setYucchinHidden] = React.useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem("settings_yucchinHidden");
+      return v === null ? false : v === "true";
+    } catch {
+      return false;
+    }
+  });
 
-    const [bgmVolume, setBgmVolume] = React.useState<number>(() => {
-        try {
-            const v = localStorage.getItem("settings_bgmVolume");
-            return v === null ? 50 : Number(v);
-        } catch {
-            return 50;
-        }
-    });
+  const [bgmVolume, setBgmVolume] = React.useState<number>(() => {
+    try {
+      const v = localStorage.getItem("settings_bgmVolume");
+      return v === null ? 50 : Number(v);
+    } catch {
+      return 50;
+    }
+  });
 
-    const [fps, setFps] = React.useState<number>(() => {
-        try {
-            const v = localStorage.getItem("settings_fps");
-            return v === null ? 20 : Number(v);
-        } catch {
-            return 20;
-        }
-    });
+  const [fps, setFps] = React.useState<number>(() => {
+    try {
+      const v = localStorage.getItem("settings_fps");
+      return v === null ? 20 : Number(v);
+    } catch {
+      return 20;
+    }
+  });
 
-    const updateSettings = async (data: any) => {
-        try {
-            await client.put("/settings/me", data);
-            await refreshUser(); // Update global user context via AuthContext
-        } catch (e) {
-            console.error("Failed to update settings", e);
-        }
+  const updateSettings = async (data: any) => {
+    try {
+      await client.put("/settings/me", data);
+      await refreshUser(); // Update global user context via AuthContext
+    } catch (e) {
+      console.error("Failed to update settings", e);
+    }
+  };
+
+  const handleUsernameChange = async () => {
+    try {
+      await client.put("/users/me", { username });
+      alert(`ユーザーネームを「${username}」に変更しました`);
+      await refreshUser();
+    } catch (error) {
+      console.error("Failed to update username", error);
+      alert("ユーザーネームの変更に失敗しました");
+    }
+  };
+
+  // Fetch settings from DB on mount
+  React.useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await client.get("/settings/me");
+        const data = res.data;
+        setYucchinSound(data.yucchin_sound);
+        setYucchinHidden(data.yucchin_hidden);
+        setBgmVolume(data.bgm_volume);
+        setFps(data.fps);
+      } catch (e) {
+        console.error("Failed to fetch settings", e);
+      }
     };
+    fetchSettings();
+  }, []);
 
-    const handleUsernameChange = async () => {
-        try {
-            await client.put("/users/me", { username });
-            alert(`ユーザーネームを「${username}」に変更しました`);
-            await refreshUser();
-        } catch (error) {
-            console.error("Failed to update username", error);
-            alert("ユーザーネームの変更に失敗しました");
-        }
-    };
+  // Sync to LocalStorage (Cache)
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("settings_yucchinSound", String(yucchinSound));
+      localStorage.setItem("settings_yucchinHidden", String(yucchinHidden));
+      localStorage.setItem("settings_bgmVolume", String(bgmVolume));
+      localStorage.setItem("settings_fps", String(fps));
+    } catch {
+      // ignore storage errors
+    }
+  }, [yucchinSound, yucchinHidden, bgmVolume, fps]);
 
-    // Fetch settings from DB on mount
-    React.useEffect(() => {
-        const fetchSettings = async () => {
-            try {
-                const res = await client.get("/settings/me");
-                const data = res.data;
-                setYucchinSound(data.yucchin_sound);
-                setYucchinHidden(data.yucchin_hidden);
-                setBgmVolume(data.bgm_volume);
-                setFps(data.fps);
-            } catch (e) {
-                console.error("Failed to fetch settings", e);
-            }
-        };
-        fetchSettings();
-    }, []);
+  const handleYucchinSoundChange = (checked: boolean) => {
+    setYucchinSound(checked);
+    updateSettings({ yucchin_sound: checked });
+  };
 
-    // Sync to LocalStorage (Cache)
-    React.useEffect(() => {
-        try {
-            localStorage.setItem("settings_yucchinSound", String(yucchinSound));
-            localStorage.setItem("settings_yucchinHidden", String(yucchinHidden));
-            localStorage.setItem("settings_bgmVolume", String(bgmVolume));
-            localStorage.setItem("settings_fps", String(fps));
-        } catch {
-            // ignore storage errors
-        }
-    }, [yucchinSound, yucchinHidden, bgmVolume, fps]);
+  const handleYucchinHiddenChange = (checked: boolean) => {
+    setYucchinHidden(checked);
+    updateSettings({ yucchin_hidden: checked });
+  };
 
-    const handleYucchinSoundChange = (checked: boolean) => {
-        setYucchinSound(checked);
-        updateSettings({ yucchin_sound: checked });
-    };
+  const handleFpsChange = (value: number) => {
+    setFps(value);
+    updateSettings({ fps: value });
+  };
 
-    const handleYucchinHiddenChange = (checked: boolean) => {
-        setYucchinHidden(checked);
-        updateSettings({ yucchin_hidden: checked });
-    };
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
 
-    const handleFpsChange = (value: number) => {
-        setFps(value);
-        updateSettings({ fps: value });
-    };
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 relative overflow-hidden">
+      {/* 背景の装飾（発光の円） */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="absolute top-20 left-20 w-96 h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
+        <div
+          className="absolute bottom-20 right-20 w-[500px] h-[500px] bg-red-600 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
+        <div
+          className="absolute top-1/2 left-1/2 w-96 h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1.5s" }}
+        ></div>
+      </div>
 
-    const handleLogout = () => {
-        logout();
-        navigate("/");
-    };
+      {/* グリッド背景 */}
+      <div
+        className="absolute inset-0 opacity-5"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,165,0,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,165,0,0.3) 1px, transparent 1px)",
+          backgroundSize: "50px 50px",
+        }}
+      ></div>
 
-    return (
-        <div className="min-h-screen bg-yellow-100 p-8">
-            <div className="max-w-4xl mx-auto space-y-8">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-3xl font-bold tracking-tight">設定</h1>
-                    <Button variant="outline" onClick={() => navigate(-1)}>
-                        戻る
-                    </Button>
-                </div>
-
-                <Card className="w-full">
-                    <CardHeader>
-                        <CardTitle>【アプリ設定】</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="font-medium">ユーザーネーム</div>
-                                    <div className="text-sm text-muted-foreground">
-                                        表示名の設定
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-48">
-                                        <Input
-                                            value={username}
-                                            onChange={(e) => setUsername(e.target.value)}
-                                            placeholder="ユーザーネーム"
-                                        />
-                                    </div>
-                                    <Button size="sm" onClick={handleUsernameChange}>変更</Button>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="font-medium">音量</div>
-                                    <div className="text-sm text-muted-foreground">
-                                        アプリの音量設定
-                                    </div>
-                                </div>
-                                <div className="w-40">
-                                    <input
-                                        type="range"
-                                        min={0}
-                                        max={100}
-                                        value={bgmVolume}
-                                        onChange={(e) => setBgmVolume(Number(e.target.value))}
-                                        onMouseUp={() => updateSettings({ bgm_volume: bgmVolume })}
-                                        onTouchEnd={() => updateSettings({ bgm_volume: bgmVolume })}
-                                        className="w-full accent-black"
-                                    />
-                                    <div className="text-xs text-right text-muted-foreground mt-1">
-                                        {bgmVolume}%
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="font-medium">ログアウト</div>
-                                    <div className="text-sm text-muted-foreground">
-                                        アカウントからログアウトします
-                                    </div>
-                                </div>
-                                <div className="pt-4 border-t">
-                                    <Button
-                                        variant="outline"
-                                        className="text-red-600 border-gray-700 hover:bg-red-50 hover:text-red-700"
-                                        onClick={handleLogout}
-                                    >
-                                        ログアウト
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="w-full">
-                    <CardHeader>
-                        <CardTitle>【ゆっちん設定】</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="font-medium">ゆっちんの音</div>
-                                    <div className="text-sm text-muted-foreground">
-                                        ゆっちんの声のオン/オフ
-                                    </div>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        className="sr-only"
-                                        checked={yucchinSound}
-                                        onChange={(e) => handleYucchinSoundChange(e.target.checked)}
-                                        aria-label="ゆっちんの音トグル"
-                                    />
-                                    <div
-                                        className={`w-11 h-6 rounded-full transition-colors ${yucchinSound ? "bg-black" : "bg-gray-200"
-                                            }`}
-                                    />
-                                    <div
-                                        className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${yucchinSound ? "translate-x-5" : "translate-x-0"
-                                            }`}
-                                    />
-                                </label>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="font-medium">ゆっちんを非表示</div>
-                                    <div className="text-sm text-muted-foreground">
-                                        ゆっちんの画像を非表示にします
-                                    </div>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        className="sr-only"
-                                        checked={yucchinHidden}
-                                        onChange={(e) => handleYucchinHiddenChange(e.target.checked)}
-                                        aria-label="ゆっちん非表示トグル"
-                                    />
-                                    <div
-                                        className={`w-11 h-6 rounded-full transition-colors ${yucchinHidden ? "bg-black" : "bg-gray-200"
-                                            }`}
-                                    />
-                                    <div
-                                        className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${yucchinHidden ? "translate-x-5" : "translate-x-0"
-                                            }`}
-                                    />
-                                </label>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <div className="font-medium">ゆっちんを変更</div>
-                                    <div className="text-sm text-muted-foreground">
-                                        別のゆっちんに変更します
-                                    </div>
-                                </div>
-                                <Button size="sm">変更</Button>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="w-full">
-                    <CardHeader>
-                        <CardTitle>【カメラ設定】</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <div className="font-medium">パフォーマンス (FPS)</div>
-                                <div className="text-sm text-muted-foreground">
-                                    解析の滑らかさを調整します
-                                </div>
-                            </div>
-                            <div className="flex gap-2">
-                                {[
-                                    { label: "高 (30fps)", value: 30 },
-                                    { label: "中 (20fps)", value: 20 },
-                                    { label: "低 (10fps)", value: 10 },
-                                ].map((option) => (
-                                    <Button
-                                        key={option.value}
-                                        variant={fps === option.value ? "default" : "outline"}
-                                        size="sm"
-                                        onClick={() => handleFpsChange(option.value)}
-                                        className={fps === option.value ? "bg-blue-600 hover:bg-blue-700" : ""}
-                                    >
-                                        {option.label}
-                                    </Button>
-                                ))}
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+      <div className="max-w-4xl mx-auto space-y-8 relative z-10">
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+            設定
+          </h1>
+          <Button
+            variant="outline"
+            onClick={() => navigate(-1)}
+            className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+          >
+            戻る
+          </Button>
         </div>
-    );
+
+        <Card className="w-full bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-yellow-300">【アプリ設定】</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-yellow-300">
+                    ユーザーネーム
+                  </div>
+                  <div className="text-sm text-orange-200">表示名の設定</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-48">
+                    <Input
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="ユーザーネーム"
+                      className="bg-gray-700/50 border-orange-500/50 text-white placeholder:text-gray-400"
+                    />
+                  </div>
+                  <Button
+                    size="sm"
+                    onClick={handleUsernameChange}
+                    className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-white font-bold"
+                  >
+                    変更
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-yellow-300">音量</div>
+                  <div className="text-sm text-orange-200">
+                    アプリの音量設定
+                  </div>
+                </div>
+                <div className="w-40">
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={bgmVolume}
+                    onChange={(e) => setBgmVolume(Number(e.target.value))}
+                    onMouseUp={() => updateSettings({ bgm_volume: bgmVolume })}
+                    onTouchEnd={() => updateSettings({ bgm_volume: bgmVolume })}
+                    onKeyUp={() => updateSettings({ bgm_volume: bgmVolume })}
+                    className="w-full accent-orange-500"
+                  />
+                  <div className="text-xs text-right text-orange-300 mt-1">
+                    {bgmVolume}%
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-yellow-300">ログアウト</div>
+                  <div className="text-sm text-orange-200">
+                    アカウントからログアウトします
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-orange-500/50">
+                  <Button
+                    variant="outline"
+                    className="text-red-600 border-red-500/50 hover:bg-red-900/20 hover:text-red-500 hover:border-red-400 font-semibold"
+                    onClick={handleLogout}
+                  >
+                    ログアウト
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="w-full bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-yellow-300">【ゆっちん設定】</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-yellow-300">
+                    ゆっちんの音
+                  </div>
+                  <div className="text-sm text-orange-200">
+                    ゆっちんの声のオン/オフ
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={yucchinSound}
+                    onChange={(e) => handleYucchinSoundChange(e.target.checked)}
+                    aria-label="ゆっちんの音トグル"
+                  />
+                  <div
+                    className={`w-11 h-6 rounded-full transition-colors ${
+                      yucchinSound
+                        ? "bg-gradient-to-r from-yellow-400 to-orange-500"
+                        : "bg-gray-600"
+                    }`}
+                  />
+                  <div
+                    className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
+                      yucchinSound ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </label>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-yellow-300">
+                    ゆっちんを非表示
+                  </div>
+                  <div className="text-sm text-orange-200">
+                    ゆっちんの画像を非表示にします
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={yucchinHidden}
+                    onChange={(e) =>
+                      handleYucchinHiddenChange(e.target.checked)
+                    }
+                    aria-label="ゆっちん非表示トグル"
+                  />
+                  <div
+                    className={`w-11 h-6 rounded-full transition-colors ${
+                      yucchinHidden
+                        ? "bg-gradient-to-r from-yellow-400 to-orange-500"
+                        : "bg-gray-600"
+                    }`}
+                  />
+                  <div
+                    className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
+                      yucchinHidden ? "translate-x-5" : "translate-x-0"
+                    }`}
+                  />
+                </label>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-yellow-300">
+                    ゆっちんを変更
+                  </div>
+                  <div className="text-sm text-orange-200">
+                    別のゆっちんに変更します（準備中）
+                  </div>
+                </div>
+                <Button
+                  size="sm"
+                  disabled
+                  className="bg-gradient-to-r from-gray-500 to-gray-600 text-gray-300 font-bold cursor-not-allowed opacity-60"
+                >
+                  準備中
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="w-full bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
+          <CardHeader>
+            <CardTitle className="text-yellow-300">【カメラ設定】</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="font-medium text-yellow-300">
+                  パフォーマンス (FPS)
+                </div>
+                <div className="text-sm text-orange-200">
+                  解析の滑らかさを調整します
+                </div>
+              </div>
+              <div className="flex gap-2">
+                {[
+                  { label: "高 (30fps)", value: 30 },
+                  { label: "中 (20fps)", value: 20 },
+                  { label: "低 (10fps)", value: 10 },
+                ].map((option) => (
+                  <Button
+                    key={option.value}
+                    variant={fps === option.value ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handleFpsChange(option.value)}
+                    className={
+                      fps === option.value
+                        ? "bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-white font-bold"
+                        : "border-orange-500/50 text-orange-700 hover:bg-orange-500/20 hover:text-orange-600 font-semibold"
+                    }
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 }
