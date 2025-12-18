@@ -5,6 +5,10 @@ import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import client from "@/api/client";
+import { playSound } from "@/utils/audio";
+import testSound from "@/assets/sounds/これくらいの音量でどうですかぁああ！？_T01.wav";
+import clickSound from "@/assets/sounds/へへっ_T01.wav";
+import backSound from "@/assets/sounds/ﾍｪッ！！_T01.wav";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -119,6 +123,12 @@ export default function SettingsPage() {
     navigate("/");
   };
 
+  const handlePlayTestSound = async () => {
+    // スライダーは0-100なので0-1に正規化
+    const vol = Math.max(0, Math.min(1, bgmVolume / 100));
+    await playSound(testSound, vol);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 relative overflow-hidden">
       {/* 背景の装飾（発光の円） */}
@@ -151,7 +161,10 @@ export default function SettingsPage() {
           </h1>
           <Button
             variant="outline"
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              playSound(backSound);
+              navigate(-1);
+            }}
             className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
           >
             戻る
@@ -182,7 +195,10 @@ export default function SettingsPage() {
                   </div>
                   <Button
                     size="sm"
-                    onClick={handleUsernameChange}
+                    onClick={() => {
+                      playSound(clickSound);
+                      handleUsernameChange();
+                    }}
                     className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-white font-bold"
                   >
                     変更
@@ -197,21 +213,34 @@ export default function SettingsPage() {
                     アプリの音量設定
                   </div>
                 </div>
-                <div className="w-40">
-                  <input
-                    type="range"
-                    min={0}
-                    max={100}
-                    value={bgmVolume}
-                    onChange={(e) => setBgmVolume(Number(e.target.value))}
-                    onMouseUp={() => updateSettings({ bgm_volume: bgmVolume })}
-                    onTouchEnd={() => updateSettings({ bgm_volume: bgmVolume })}
-                    onKeyUp={() => updateSettings({ bgm_volume: bgmVolume })}
-                    className="w-full accent-orange-500"
-                  />
-                  <div className="text-xs text-right text-orange-300 mt-1">
-                    {bgmVolume}%
+                <div className="flex items-center gap-2">
+                  <div className="w-40">
+                    <input
+                      type="range"
+                      min={0}
+                      max={100}
+                      value={bgmVolume}
+                      onChange={(e) => setBgmVolume(Number(e.target.value))}
+                      onMouseUp={() =>
+                        updateSettings({ bgm_volume: bgmVolume })
+                      }
+                      onTouchEnd={() =>
+                        updateSettings({ bgm_volume: bgmVolume })
+                      }
+                      onKeyUp={() => updateSettings({ bgm_volume: bgmVolume })}
+                      className="w-full accent-orange-500"
+                    />
+                    <div className="text-xs text-right text-orange-300 mt-1">
+                      {bgmVolume}%
+                    </div>
                   </div>
+                  <Button
+                    size="sm"
+                    onClick={handlePlayTestSound}
+                    className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-white font-bold"
+                  >
+                    テスト音声
+                  </Button>
                 </div>
               </div>
 
@@ -226,7 +255,10 @@ export default function SettingsPage() {
                   <Button
                     variant="outline"
                     className="text-red-600 border-red-500/50 hover:bg-red-900/20 hover:text-red-500 hover:border-red-400 font-semibold"
-                    onClick={handleLogout}
+                    onClick={() => {
+                      playSound(clickSound);
+                      handleLogout();
+                    }}
                   >
                     ログアウト
                   </Button>
@@ -353,7 +385,10 @@ export default function SettingsPage() {
                     key={option.value}
                     variant={fps === option.value ? "default" : "outline"}
                     size="sm"
-                    onClick={() => handleFpsChange(option.value)}
+                    onClick={() => {
+                      playSound(clickSound);
+                      handleFpsChange(option.value);
+                    }}
                     className={
                       fps === option.value
                         ? "bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-white font-bold"
