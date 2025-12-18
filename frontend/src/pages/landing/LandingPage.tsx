@@ -35,11 +35,13 @@ export default function LandingPage() {
         // ignore
       }
     };
+    // 別タブでの変更を検知
     window.addEventListener("storage", checkSoundStatus);
-    const interval = setInterval(checkSoundStatus, 500);
+    // 同一タブ内での変更を検知（カスタムイベント）
+    window.addEventListener("soundSettingChanged", checkSoundStatus);
     return () => {
       window.removeEventListener("storage", checkSoundStatus);
-      clearInterval(interval);
+      window.removeEventListener("soundSettingChanged", checkSoundStatus);
     };
   }, []);
 
@@ -48,6 +50,8 @@ export default function LandingPage() {
     setSoundEnabled(newValue);
     try {
       localStorage.setItem("settings_yucchinSound", String(newValue));
+      // 同一タブ内の他のコンポーネントに通知
+      window.dispatchEvent(new Event("soundSettingChanged"));
     } catch {
       // ignore
     }

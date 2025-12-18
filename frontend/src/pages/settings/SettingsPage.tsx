@@ -142,6 +142,8 @@ export default function SettingsPage() {
       localStorage.setItem("settings_yucchinHidden", String(yucchinHidden));
       localStorage.setItem("settings_bgmVolume", String(bgmVolume));
       localStorage.setItem("settings_fps", String(fps));
+      // 同一タブ内の他のコンポーネントに通知
+      window.dispatchEvent(new Event("soundSettingChanged"));
     } catch {
       // ignore storage errors
     }
