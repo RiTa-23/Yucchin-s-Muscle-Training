@@ -1,46 +1,114 @@
 import { Button } from "@/components/ui/button";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
 } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
+import mukiyuchiImg from "@/assets/mukiyuchiBK.png";
+// import bgImage from '@/assets/img/kiriyuttin.png';
 
 export default function HomePage() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const handleLogout = () => {
-        // TODO: Implement actual logout
-        navigate("/");
-    };
+  const handleSettings = () => {
+    // TODO: Navigate to settings page
+    navigate("/settings");
+  };
 
-    return (
-        <div className="min-h-screen bg-muted/20 p-8">
-            <div className="max-w-4xl mx-auto space-y-8">
-                <div className="flex justify-between items-center">
-                    <h1 className="text-3xl font-bold tracking-tight">ホーム</h1>
-                    <Button variant="outline" onClick={handleLogout}>ログアウト</Button>
-                </div>
-                <div className="flex flex-col items-center justify-center min-h-[60vh]">
-                    <Card className="hover:shadow-md transition-shadow border-primary/20 w-full max-w-2xl transform hover:scale-[1.01] transition-all">
-                        <CardHeader>
-                            <CardTitle className="text-2xl text-center">トレーニングを開始</CardTitle>
-                            <CardDescription className="text-center text-lg">AIによるリアルタイムフォーム矯正</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="aspect-video bg-muted rounded-md flex items-center justify-center text-muted-foreground">
-                                <span className="text-lg">カメラプレビュー</span>
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button className="w-full text-lg py-6" onClick={() => navigate("/training/plank")}>カメラを起動</Button>
-                        </CardFooter>
-                    </Card>
-                </div>
-            </div>
+  const handleHistory = () => {
+    // TODO: Navigate to history page (mapped to existing route)
+    navigate("/gannbarinorekisi");
+  };
+
+  const handleCollection = () => {
+    // TODO: Navigate to collection page
+    navigate("/collection");
+  };
+
+  return (
+    <div className="min-h-screen bg-yellow-200 p-8 relative">
+      {/* 左側の画像 */}
+      <img
+        src={mukiyuchiImg}
+        alt="mukiyuchi left"
+        className="fixed left-0 bottom-0 w-[510px] h-auto z-50 opacity-100 -translate-x-1/4"
+      />
+
+      {/* 右側の画像 */}
+      <img
+        src={mukiyuchiImg}
+        alt="mukiyuchi right"
+        className="fixed right-0 bottom-0 w-[510px] h-auto z-50 opacity-100 transform scale-x-[-1] translate-x-1/4"
+      />
+      <div className="max-w-none mx-auto space-y-8 relative z-10">
+        <div className="flex justify-between items-center border-4 border-black p-4 gap-4">
+          <Button variant="outline" onClick={handleSettings}>
+            設定
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleHistory}
+            className="w-[400px] text-black"
+          >
+            頑張りの歴史
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handleCollection}
+            className="w-[400px] text-black"
+          >
+            集めたゆっちん
+          </Button>
+          <div className="w-[100px]"></div>
         </div>
-    );
+        <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <Card className="border-4 border-black rounded-none p-4 w-full max-w-4xl h-[30rem] flex flex-col ">
+            <CardHeader>
+              <div className="flex flex-col justify-center items-center border border-black p-4 mx-auto max-w-xl rounded-lg">
+                どれにするぅ？
+              </div>
+            </CardHeader>
+            <CardContent className="py-[60px]">
+              <div className="grid grid-cols-3 gap-4 w-full">
+                {/* スクワット */}
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/training/plank")}
+                  className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video h-auto"
+                >
+                  <span className="text-lg">スクワット</span>
+                </Button>
+                {/* プランク */}
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/training/plank")}
+                  className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video h-auto"
+                >
+                  <span className="text-lg">プランク</span>
+                </Button>
+                {/* 腕立て */}
+                <Button
+                  variant="outline"
+                  onClick={() => navigate("/training/plank")}
+                  className="hover:bg-accent hover:text-accent-foreground border-4 border-black p-4 bg-white flex items-center justify-center text-black aspect-video h-auto"
+                >
+                  <span className="text-lg">腕立て</span>
+                </Button>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button
+                className="w-full text-lg py-6"
+                onClick={() => navigate("/training/plank")}
+              >
+                カメラを起動
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
 }
