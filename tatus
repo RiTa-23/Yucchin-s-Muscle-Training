@@ -1,3 +1,0 @@
-[33macea6ad[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32myukki/create_settings_oto[m[33m, [m[1;31morigin/yukki/create_settings_oto[m[33m)[m ui: 音声設定機能を追加し、ボタンで音声のオンオフを切り替えられるようにした
-[33mf4a6e4b[m ui: 設定に基づいて音声再生を制御する機能を追加
-[33m810d763[m ui: 設定ページのBGMボリューム変更時にイベントハンドラを追加し、ログアウト時の音声再生を改善
