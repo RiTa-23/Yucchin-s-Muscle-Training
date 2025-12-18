@@ -80,10 +80,54 @@ export default function SettingsPage() {
       try {
         const res = await client.get("/settings/me");
         const data = res.data;
-        setYucchinSound(data.yucchin_sound);
-        setYucchinHidden(data.yucchin_hidden);
-        setBgmVolume(data.bgm_volume);
-        setFps(data.fps);
+
+        // localStorageの値を優先（他のページで変更された可能性があるため）
+        try {
+          const localSound = localStorage.getItem("settings_yucchinSound");
+          const localHidden = localStorage.getItem("settings_yucchinHidden");
+          const localVolume = localStorage.getItem("settings_bgmVolume");
+          const localFps = localStorage.getItem("settings_fps");
+
+          setYucchinSound(
+            localSound !== null ? localSound === "true" : data.yucchin_sound
+          );
+          setYucchinHidden(
+            localHidden !== null ? localHidden === "true" : data.yucchin_hidden
+          );
+          setBgmVolume(
+            localVolume !== null ? Number(localVolume) : data.bgm_volume
+          );
+          setFps(localFps !== null ? Number(localFps) : data.fps);
+
+          // localStorageとサーバーの値が異なる場合、サーバーを更新
+          const needsSync =
+            (localSound !== null &&
+              (localSound === "true") !== data.yucchin_sound) ||
+            (localHidden !== null &&
+              (localHidden === "true") !== data.yucchin_hidden) ||
+            (localVolume !== null && Number(localVolume) !== data.bgm_volume) ||
+            (localFps !== null && Number(localFps) !== data.fps);
+
+          if (needsSync) {
+            const updates: any = {};
+            if (localSound !== null)
+              updates.yucchin_sound = localSound === "true";
+            if (localHidden !== null)
+              updates.yucchin_hidden = localHidden === "true";
+            if (localVolume !== null) updates.bgm_volume = Number(localVolume);
+            if (localFps !== null) updates.fps = Number(localFps);
+
+            if (Object.keys(updates).length > 0) {
+              await client.put("/settings/me", updates);
+            }
+          }
+        } catch {
+          // localStorageが使えない場合はサーバーの値を使用
+          setYucchinSound(data.yucchin_sound);
+          setYucchinHidden(data.yucchin_hidden);
+          setBgmVolume(data.bgm_volume);
+          setFps(data.fps);
+        }
       } catch (e) {
         console.error("Failed to fetch settings", e);
       }
@@ -98,6 +142,8 @@ export default function SettingsPage() {
       localStorage.setItem("settings_yucchinHidden", String(yucchinHidden));
       localStorage.setItem("settings_bgmVolume", String(bgmVolume));
       localStorage.setItem("settings_fps", String(fps));
+      // 同一タブ内の他のコンポーネントに通知
+      window.dispatchEvent(new Event("soundSettingChanged"));
     } catch {
       // ignore storage errors
     }

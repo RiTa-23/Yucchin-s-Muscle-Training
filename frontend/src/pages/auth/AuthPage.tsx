@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useState, useEffect, type FormEvent, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import bgImage from "@/assets/img/doubleyuttin.png";
 import soundFile from "@/assets/sounds/へへっ_T01.wav";
@@ -17,11 +17,51 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { playSound } from "@/utils/audio";
-import { LogIn, UserPlus } from "lucide-react";
+import { LogIn, UserPlus, Volume2, VolumeX } from "lucide-react";
 
 export default function AuthPage() {
   const navigate = useNavigate();
   const { login, signup } = useAuth();
+
+  const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem("settings_yucchinSound");
+      return v === null ? true : v === "true";
+    } catch {
+      return true;
+    }
+  });
+
+  useEffect(() => {
+    const checkSoundStatus = () => {
+      try {
+        const v = localStorage.getItem("settings_yucchinSound");
+        setSoundEnabled(v === null ? true : v === "true");
+      } catch {
+        // ignore
+      }
+    };
+    // 別タブでの変更を検知
+    window.addEventListener("storage", checkSoundStatus);
+    // 同一タブ内での変更を検知（カスタムイベント）
+    window.addEventListener("soundSettingChanged", checkSoundStatus);
+    return () => {
+      window.removeEventListener("storage", checkSoundStatus);
+      window.removeEventListener("soundSettingChanged", checkSoundStatus);
+    };
+  }, []);
+
+  const toggleSound = () => {
+    const newValue = !soundEnabled;
+    setSoundEnabled(newValue);
+    try {
+      localStorage.setItem("settings_yucchinSound", String(newValue));
+      // 同一タブ内の他のコンポーネントに通知
+      window.dispatchEvent(new Event("soundSettingChanged"));
+    } catch {
+      // ignore
+    }
+  };
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState("");
@@ -306,14 +346,35 @@ export default function AuthPage() {
             </form>
           </Card>
         </TabsContent>
-        <div className="mt-6 text-center">
-          <Link
-            to="/"
-            className="text-purple-300 hover:text-purple-200 hover:underline text-base font-bold transition-colors duration-300 inline-block hover:scale-110"
-            onClick={() => playSound(backSoundFile)}
-          >
-            ⬅️ スタート画面に戻る
-          </Link>
+        <div className="mt-6 space-y-3">
+          <div className="flex items-center justify-center gap-3">
+            <p className="text-sm text-orange-300/80 font-semibold flex items-center gap-1">
+              <span className="text-yellow-400">※</span>
+              このサイトは音声が流れます
+            </p>
+            <button
+              onClick={toggleSound}
+              className="p-2 rounded-full bg-gradient-to-r from-yellow-400/20 to-orange-500/20 border-2 border-orange-500/50 hover:border-yellow-400 hover:bg-gradient-to-r hover:from-yellow-400/30 hover:to-orange-500/30 transition-all duration-300 hover:scale-110"
+              aria-label={
+                soundEnabled ? "音声をオフにする" : "音声をオンにする"
+              }
+            >
+              {soundEnabled ? (
+                <Volume2 className="w-5 h-5 text-orange-300" />
+              ) : (
+                <VolumeX className="w-5 h-5 text-gray-400" />
+              )}
+            </button>
+          </div>
+          <div className="text-center">
+            <Link
+              to="/"
+              className="text-purple-300 hover:text-purple-200 hover:underline text-base font-bold transition-colors duration-300 inline-block hover:scale-110"
+              onClick={() => playSound(backSoundFile)}
+            >
+              ⬅️ スタート画面に戻る
+            </Link>
+          </div>
         </div>
       </Tabs>
 
