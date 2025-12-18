@@ -3,13 +3,13 @@ import yucchin101 from '../assets/img/yucchins/type_1.png';
 import yucchin102 from '../assets/img/yucchins/type_1.png';
 // Import downloaded placeholders
 import yucchin2 from '../assets/img/yucchins/type_1.png';
-import yucchin3 from '../assets/img/yucchins/type_1.png';
-import yucchin4 from '../assets/img/yucchins/type_1.png';
-import yucchin5 from '../assets/img/yucchins/type_1.png';
-import yucchin6 from '../assets/img/yucchins/type_1.png';
-import yucchin103 from '../assets/img/yucchins/type_1.png';
-import yucchin104 from '../assets/img/yucchins/type_1.png';
-import yucchin105 from '../assets/img/yucchins/type_1.png';
+import yucchin3 from '../assets/img/yucchins/hanataba_rainbow.png';
+import yucchin4 from '../assets/img/yucchins/hanabi.png';
+import yucchin5 from '../assets/img/yucchins/iwankofu.png';
+import yucchin6 from '../assets/img/yucchins/sika.png';
+import yucchin103 from '../assets/img/yucchins/egg.png';
+import yucchin104 from '../assets/img/yucchins/risu.png';
+import yucchin105 from '../assets/img/yucchins/angel.png';
 
 export interface YucchinMaster {
     type: number;
@@ -29,14 +29,16 @@ export const YUCCHIN_MASTER: YucchinMaster[] = [
     { type: 5, name: "ノーマルゆっちん5", rarity: 'NORMAL', imageUrl: yucchin5 },
     { type: 6, name: "ノーマルゆっちん6", rarity: 'NORMAL', imageUrl: yucchin6 },
     // RARE
-    { type: 101, name: "レアゆっちん1", rarity: 'RARE', imageUrl: yucchin101 },
-    { type: 102, name: "レアゆっちん2", rarity: 'RARE', imageUrl: yucchin102 },
+    { type: 101, name: "花火ゆっちん", rarity: 'RARE', imageUrl: yucchin4 },
+    { type: 102, name: "カラフルゆっちんブーケ", rarity: 'RARE', imageUrl: yucchin3 },
     { type: 103, name: "レアゆっちん3", rarity: 'RARE', imageUrl: yucchin103 },
     { type: 104, name: "レアゆっちん4", rarity: 'RARE', imageUrl: yucchin104 },
     { type: 105, name: "レアゆっちん5", rarity: 'RARE', imageUrl: yucchin105 },
     // SR
-    { type: 201, name: "SRゆっちん1", rarity: 'SR', imageUrl: yucchin1 },
-    { type: 202, name: "SRゆっちん2", rarity: 'SR', imageUrl: yucchin1 },
+    { type: 201, name: "リスカゆっちん", rarity: 'SR', imageUrl: yucchin104 },
+    { type: 202, name: "たまごゆっちん", rarity: 'SR', imageUrl: yucchin103 },
+    { type: 203, name: "しかゆっちん", rarity: 'SR', imageUrl: yucchin6 },
+    { type: 204, name: "イワンコフゆっちん", rarity: 'SR', imageUrl: yucchin5 },
     // UR
-    { type: 301, name: "URゆっちん1", rarity: 'UR', imageUrl: yucchin1 },
+    { type: 301, name: "エンジェルゆっちん", rarity: 'UR', imageUrl: yucchin105 },
 ];
