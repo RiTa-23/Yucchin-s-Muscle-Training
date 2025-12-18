@@ -81,7 +81,7 @@ export default function AuthPage() {
 
     try {
       await login(loginEmail, loginPassword);
-      navigate("/home");
+      // navigation is handled by useEffect when user state changes
     } catch (error: any) {
       console.error("Login failed:", error);
       setLoginError(getErrorMessage(error, "ログインに失敗しました。"));
@@ -97,7 +97,7 @@ export default function AuthPage() {
 
     try {
       await signup(signupUsername, signupEmail, signupPassword);
-      navigate("/home");
+      // navigation is handled by useEffect when user state changes
     } catch (error: any) {
       console.error("Signup failed:", error);
       setSignupError(getErrorMessage(error, "新規登録に失敗しました。"));
