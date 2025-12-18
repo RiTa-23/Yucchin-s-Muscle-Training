@@ -127,7 +127,7 @@ export default function SquatPage() {
                         performed_at: new Date().toISOString(),
                         exercise_name: "squat",
                         duration: 0,
-                        count: targetCount // OR count if we allow over-achievement
+                        count: count
                     });
                     console.log("Training log saved!");
                 } catch (err) {
@@ -136,7 +136,7 @@ export default function SquatPage() {
             };
             saveResult();
         }
-    }, [gameState, targetCount]);
+    }, [gameState, targetCount, count]);
 
     const handleError = useCallback((err: any) => {
         setError(typeof err === 'string' ? err : err.message || "Unknown Camera Error");
