@@ -8,6 +8,18 @@ const client = axios.create({
     },
 });
 
-// Interceptor removed as we now use HttpOnly cookies
+// Interceptor to handle 401 Unauthorized errors
+client.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            // Prevent infinite redirect loop if already on auth page
+            if (window.location.pathname !== "/auth") {
+                window.location.href = "/auth";
+            }
+        }
+        return Promise.reject(error);
+    }
+);
 
 export default client;
