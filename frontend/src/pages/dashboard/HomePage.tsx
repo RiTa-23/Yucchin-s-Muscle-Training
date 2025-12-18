@@ -8,9 +8,35 @@ import {
 import { useNavigate } from "react-router-dom";
 import mukiyuchiImg from "@/assets/mukiyuchiBK.png";
 import { Settings, History, Trophy, Dumbbell } from "lucide-react";
+import * as React from "react";
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const [yucchinHidden, setYucchinHidden] = React.useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem("settings_yucchinHidden");
+      return v === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  React.useEffect(() => {
+    const checkHiddenStatus = () => {
+      try {
+        const v = localStorage.getItem("settings_yucchinHidden");
+        setYucchinHidden(v === "true");
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener("storage", checkHiddenStatus);
+    const interval = setInterval(checkHiddenStatus, 500);
+    return () => {
+      window.removeEventListener("storage", checkHiddenStatus);
+      clearInterval(interval);
+    };
+  }, []);
 
   const handleSettings = () => {
     // TODO: Navigate to settings page
@@ -53,18 +79,22 @@ export default function HomePage() {
       ></div>
 
       {/* 左側の画像 */}
-      <img
-        src={mukiyuchiImg}
-        alt="mukiyuchi left"
-        className="fixed left-0 bottom-0 w-[30vw] min-w-[250px] max-w-[600px] h-auto z-0 opacity-80 -translate-x-1/4 drop-shadow-[0_0_30px_rgba(251,146,60,0.8)]"
-      />
+      {!yucchinHidden && (
+        <img
+          src={mukiyuchiImg}
+          alt="mukiyuchi left"
+          className="fixed left-0 bottom-0 w-[30vw] min-w-[250px] max-w-[600px] h-auto z-0 opacity-80 -translate-x-1/4 drop-shadow-[0_0_30px_rgba(251,146,60,0.8)]"
+        />
+      )}
 
       {/* 右側の画像 */}
-      <img
-        src={mukiyuchiImg}
-        alt="mukiyuchi right"
-        className="fixed right-0 bottom-0 w-[30vw] min-w-[250px] max-w-[600px] h-auto z-0 opacity-80 transform scale-x-[-1] translate-x-1/4 drop-shadow-[0_0_30px_rgba(251,146,60,0.8)]"
-      />
+      {!yucchinHidden && (
+        <img
+          src={mukiyuchiImg}
+          alt="mukiyuchi right"
+          className="fixed right-0 bottom-0 w-[30vw] min-w-[250px] max-w-[600px] h-auto z-0 opacity-80 transform scale-x-[-1] translate-x-1/4 drop-shadow-[0_0_30px_rgba(251,146,60,0.8)]"
+        />
+      )}
       <div className="max-w-none mx-auto space-y-8 relative z-10">
         <div className="flex justify-between items-center border-4 border-orange-500/50 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl p-4 gap-4 shadow-[0_0_40px_rgba(251,146,60,0.6)]">
           <Button

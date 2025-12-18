@@ -8,6 +8,14 @@ export const playSound = async (
   volume?: number
 ): Promise<void> => {
   try {
+    try {
+      const enabled = localStorage.getItem("settings_yucchinSound");
+      if (enabled !== null && enabled === "false") {
+        return;
+      }
+    } catch {
+      // ignore storage errors
+    }
     const audio = new Audio(audioFile);
     let v: number | undefined = volume;
     if (typeof v !== "number") {
