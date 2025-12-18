@@ -206,6 +206,7 @@ export default function SettingsPage() {
                     onChange={(e) => setBgmVolume(Number(e.target.value))}
                     onMouseUp={() => updateSettings({ bgm_volume: bgmVolume })}
                     onTouchEnd={() => updateSettings({ bgm_volume: bgmVolume })}
+                    onKeyUp={() => updateSettings({ bgm_volume: bgmVolume })}
                     className="w-full accent-orange-500"
                   />
                   <div className="text-xs text-right text-orange-300 mt-1">
@@ -313,14 +314,15 @@ export default function SettingsPage() {
                     ゆっちんを変更
                   </div>
                   <div className="text-sm text-orange-200">
-                    別のゆっちんに変更します
+                    別のゆっちんに変更します（準備中）
                   </div>
                 </div>
                 <Button
                   size="sm"
-                  className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-white font-bold"
+                  disabled
+                  className="bg-gradient-to-r from-gray-500 to-gray-600 text-gray-300 font-bold cursor-not-allowed opacity-60"
                 >
-                  変更
+                  準備中
                 </Button>
               </div>
             </div>
