@@ -190,6 +190,7 @@ export default function SettingsPage() {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="ユーザーネーム"
+                      maxLength={10}
                       className="bg-gray-700/50 border-orange-500/50 text-white placeholder:text-gray-400"
                     />
                   </div>
@@ -316,16 +317,14 @@ export default function SettingsPage() {
                     aria-label="ゆっちんの音トグル"
                   />
                   <div
-                    className={`w-11 h-6 rounded-full transition-colors ${
-                      yucchinSound
+                    className={`w-11 h-6 rounded-full transition-colors ${yucchinSound
                         ? "bg-gradient-to-r from-yellow-400 to-orange-500"
                         : "bg-gray-600"
-                    }`}
+                      }`}
                   />
                   <div
-                    className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
-                      yucchinSound ? "translate-x-5" : "translate-x-0"
-                    }`}
+                    className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${yucchinSound ? "translate-x-5" : "translate-x-0"
+                      }`}
                   />
                 </label>
               </div>
@@ -350,16 +349,14 @@ export default function SettingsPage() {
                     aria-label="ゆっちん非表示トグル"
                   />
                   <div
-                    className={`w-11 h-6 rounded-full transition-colors ${
-                      yucchinHidden
+                    className={`w-11 h-6 rounded-full transition-colors ${yucchinHidden
                         ? "bg-gradient-to-r from-yellow-400 to-orange-500"
                         : "bg-gray-600"
-                    }`}
+                      }`}
                   />
                   <div
-                    className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
-                      yucchinHidden ? "translate-x-5" : "translate-x-0"
-                    }`}
+                    className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${yucchinHidden ? "translate-x-5" : "translate-x-0"
+                      }`}
                   />
                 </label>
               </div>
