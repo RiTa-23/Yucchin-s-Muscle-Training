@@ -132,7 +132,7 @@ export default function PushupPage() {
                 try {
                     await trainingApi.createLog({
                         performed_at: new Date().toISOString(),
-                        exercise_name: "push_up", // Using snake_case for consistency with backend enum if it exists, or string. Plank uses "plank", Squat uses "squat". "push_up" or "pushup"? Let's assume "push_up" or just string.
+                        exercise_name: "pushup",
                         duration: 0,
                         count: count
                     });
