@@ -10,10 +10,32 @@ import {
   Zap,
   Star,
   Sparkles,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { playSound } from "@/utils/audio";
+import * as React from "react";
 
 export default function LandingPage() {
+  const [soundEnabled, setSoundEnabled] = React.useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem("settings_yucchinSound");
+      return v === null ? true : v === "true";
+    } catch {
+      return true;
+    }
+  });
+
+  const toggleSound = () => {
+    const newValue = !soundEnabled;
+    setSoundEnabled(newValue);
+    try {
+      localStorage.setItem("settings_yucchinSound", String(newValue));
+    } catch {
+      // ignore
+    }
+  };
+
   const features = [
     {
       icon: Dumbbell,
@@ -98,27 +120,52 @@ export default function LandingPage() {
               </div>
 
               <div
-                className="flex gap-4"
+                className="space-y-4"
                 style={{ animation: "slideInLeft 0.8s ease-out 0.4s both" }}
               >
-                <Button
-                  asChild
-                  size="lg"
-                  className="text-2xl px-12 py-8 font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 shadow-[0_0_40px_rgba(251,146,60,0.8)] hover:shadow-[0_0_60px_rgba(251,146,60,1)] transition-all duration-300 hover:scale-110 border-4 border-yellow-300/50 relative overflow-hidden group"
-                >
-                  <Link
-                    to="/auth"
-                    onClick={() => playSound(soundFile)}
-                    className="relative z-10 flex items-center gap-3"
+                <div className="flex gap-4">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="text-2xl px-12 py-8 font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 shadow-[0_0_40px_rgba(251,146,60,0.8)] hover:shadow-[0_0_60px_rgba(251,146,60,1)] transition-all duration-300 hover:scale-110 border-4 border-yellow-300/50 relative overflow-hidden group"
                   >
-                    <Zap className="w-8 h-8 animate-pulse" />
-                    今すぐ始める
-                    <Zap
-                      className="w-8 h-8 animate-pulse"
-                      style={{ animationDelay: "0.5s" }}
-                    />
-                  </Link>
-                </Button>
+                    <Link
+                      to="/auth"
+                      onClick={() => {
+                        if (soundEnabled) {
+                          playSound(soundFile);
+                        }
+                      }}
+                      className="relative z-10 flex items-center gap-3"
+                    >
+                      <Zap className="w-8 h-8 animate-pulse" />
+                      今すぐ始める
+                      <Zap
+                        className="w-8 h-8 animate-pulse"
+                        style={{ animationDelay: "0.5s" }}
+                      />
+                    </Link>
+                  </Button>
+                </div>
+                <div className="flex items-center gap-3">
+                  <p className="text-sm text-orange-300/80 font-semibold flex items-center gap-1">
+                    <span className="text-yellow-400">※</span>
+                    このサイトは音声が流れます
+                  </p>
+                  <button
+                    onClick={toggleSound}
+                    className="p-2 rounded-full bg-gradient-to-r from-yellow-400/20 to-orange-500/20 border-2 border-orange-500/50 hover:border-yellow-400 hover:bg-gradient-to-r hover:from-yellow-400/30 hover:to-orange-500/30 transition-all duration-300 hover:scale-110"
+                    aria-label={
+                      soundEnabled ? "音声をオフにする" : "音声をオンにする"
+                    }
+                  >
+                    {soundEnabled ? (
+                      <Volume2 className="w-5 h-5 text-orange-300" />
+                    ) : (
+                      <VolumeX className="w-5 h-5 text-gray-400" />
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
