@@ -124,7 +124,7 @@ export default function HomePage() {
           </Button>
           <div className="w-[100px] flex flex-col items-end justify-center gap-2">
             {user && (
-              <span className="text-white font-bold text-sm drop-shadow-[0_0_5px_rgba(251,146,60,0.8)]">
+              <span className="text-white font-bold text-sm drop-shadow-[0_0_5px_rgba(251,146,60,0.8)] whitespace-nowrap">
                 {user.username} さん
               </span>
             )}
