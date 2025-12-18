@@ -14,7 +14,7 @@ import yucchin105 from '../assets/img/yucchins/type_1.png';
 export interface YucchinMaster {
     type: number;
     name: string;
-    rarity: 'NORMAL' | 'RARE';
+    rarity: 'NORMAL' | 'RARE' | 'SR' | 'UR';
     imageUrl: string; // Path to image (e.g., '/assets/yucchins/type_1.png')
 }
 
@@ -34,4 +34,9 @@ export const YUCCHIN_MASTER: YucchinMaster[] = [
     { type: 103, name: "レアゆっちん3", rarity: 'RARE', imageUrl: yucchin103 },
     { type: 104, name: "レアゆっちん4", rarity: 'RARE', imageUrl: yucchin104 },
     { type: 105, name: "レアゆっちん5", rarity: 'RARE', imageUrl: yucchin105 },
+    // SR
+    { type: 201, name: "SRゆっちん1", rarity: 'SR', imageUrl: yucchin1 },
+    { type: 202, name: "SRゆっちん2", rarity: 'SR', imageUrl: yucchin1 },
+    // UR
+    { type: 301, name: "URゆっちん1", rarity: 'UR', imageUrl: yucchin1 },
 ];
