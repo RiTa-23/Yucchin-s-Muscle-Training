@@ -221,13 +221,34 @@ export default function SettingsPage() {
                       max={100}
                       value={bgmVolume}
                       onChange={(e) => setBgmVolume(Number(e.target.value))}
-                      onMouseUp={() =>
-                        updateSettings({ bgm_volume: bgmVolume })
+                      onMouseUp={(e) =>
+                        updateSettings({
+                          bgm_volume: Number(
+                            (e.currentTarget as HTMLInputElement).value
+                          ),
+                        })
                       }
-                      onTouchEnd={() =>
-                        updateSettings({ bgm_volume: bgmVolume })
+                      onTouchEnd={(e) =>
+                        updateSettings({
+                          bgm_volume: Number(
+                            (e.currentTarget as HTMLInputElement).value
+                          ),
+                        })
                       }
-                      onKeyUp={() => updateSettings({ bgm_volume: bgmVolume })}
+                      onKeyUp={(e) =>
+                        updateSettings({
+                          bgm_volume: Number(
+                            (e.currentTarget as HTMLInputElement).value
+                          ),
+                        })
+                      }
+                      onBlur={(e) =>
+                        updateSettings({
+                          bgm_volume: Number(
+                            (e.currentTarget as HTMLInputElement).value
+                          ),
+                        })
+                      }
                       className="w-full accent-orange-500"
                     />
                     <div className="text-xs text-right text-orange-300 mt-1">
@@ -255,9 +276,12 @@ export default function SettingsPage() {
                   <Button
                     variant="outline"
                     className="text-red-600 border-red-500/50 hover:bg-red-900/20 hover:text-red-500 hover:border-red-400 font-semibold"
-                    onClick={() => {
-                      playSound(clickSound);
-                      handleLogout();
+                    onClick={async () => {
+                      try {
+                        await playSound(clickSound);
+                      } finally {
+                        handleLogout();
+                      }
                     }}
                   >
                     ログアウト
