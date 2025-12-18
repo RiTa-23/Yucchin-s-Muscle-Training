@@ -26,6 +26,23 @@ export default function LandingPage() {
     }
   });
 
+  React.useEffect(() => {
+    const checkSoundStatus = () => {
+      try {
+        const v = localStorage.getItem("settings_yucchinSound");
+        setSoundEnabled(v === null ? true : v === "true");
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener("storage", checkSoundStatus);
+    const interval = setInterval(checkSoundStatus, 500);
+    return () => {
+      window.removeEventListener("storage", checkSoundStatus);
+      clearInterval(interval);
+    };
+  }, []);
+
   const toggleSound = () => {
     const newValue = !soundEnabled;
     setSoundEnabled(newValue);
