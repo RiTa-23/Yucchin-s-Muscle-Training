@@ -2,16 +2,17 @@ import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
-  CardFooter,
   CardHeader,
 } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import mukiyuchiImg from "@/assets/mukiyuchiBK.png";
-import { Settings, History, Trophy, Dumbbell } from "lucide-react";
+import { Settings, History, Trophy, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 import * as React from "react";
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [yucchinHidden, setYucchinHidden] = React.useState<boolean>(() => {
     try {
       const v = localStorage.getItem("settings_yucchinHidden");
@@ -121,7 +122,22 @@ export default function HomePage() {
             <Trophy className="w-4 h-4 mr-2" />
             集めたゆっちん
           </Button>
-          <div className="w-[100px]"></div>
+          <div className="w-[100px] flex flex-col items-end justify-center gap-2">
+            {user && (
+              <span className="text-white font-bold text-sm drop-shadow-[0_0_5px_rgba(251,146,60,0.8)] whitespace-nowrap">
+                {user.username} さん
+              </span>
+            )}
+            <Button
+              variant="outline"
+              onClick={() => logout()}
+              size="sm"
+              className="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 border-2 border-red-500/50 text-white font-bold shadow-[0_0_10px_rgba(239,68,68,0.4)] hover:shadow-[0_0_20px_rgba(239,68,68,0.6)] transition-all duration-300 hover:scale-105"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              ログアウト
+            </Button>
+          </div>
         </div>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
           <Card className="border-4 border-orange-500/50 hover:border-yellow-400 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl rounded-none p-4 w-full max-w-4xl h-[30rem] flex flex-col shadow-[0_0_40px_rgba(251,146,60,0.8)] hover:shadow-[0_0_60px_rgba(251,146,60,1)] transition-all duration-300">
