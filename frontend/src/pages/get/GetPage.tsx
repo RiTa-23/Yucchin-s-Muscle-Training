@@ -237,19 +237,21 @@ const GetPage: React.FC = () => {
               </div>
           </div>
 
-          {/* GET Text with Enhanced Shine Effect */}
-          <div className={`mt-4 mb-12 transition-all duration-1000 delay-500 transform ${isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-150'}`}>
-            <div className="relative group overflow-hidden text-center">
+          {/* GET Text with Background-only Shine (No square artifact) */}
+          <div className={`mt-4 mb-12 transition-all duration-1000 delay-500 transform ${isRevealed ? 'opacity-100 scale-100' : 'opacity-0 scale-150'} drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)]`}>
+            <div className="relative group text-center">
               <h1 
-                className={`text-8xl font-black tracking-tighter inline-block ${yucchin.rarity === 'UR' ? 'bg-gradient-to-r from-red-600 via-yellow-500 via-green-500 via-blue-500 to-purple-600' : 'bg-gradient-to-br from-blue-900 via-purple-800 to-pink-700'} bg-clip-text text-transparent drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)] relative z-10`}
+                className={`text-8xl font-black tracking-tighter inline-block bg-clip-text text-transparent relative z-10 animate-[shineText_3s_linear_infinite]`}
                 style={{ 
                     fontFamily: '"Inter", "Helvetica Neue", sans-serif',
-                    textShadow: '8px 8px 0px rgba(255,255,255,1), 16px 16px 0px rgba(0,0,0,0.4)'
+                    textShadow: '8px 8px 0px rgba(255,255,255,1), 16px 16px 0px rgba(0,0,0,0.4)',
+                    backgroundImage: yucchin.rarity === 'UR' 
+                      ? 'linear-gradient(110deg, #dc2626, #eab308 20%, #fff 50%, #22c55e 80%, #9333ea)' 
+                      : 'linear-gradient(110deg, #1e3a8a, #6b21a8 20%, #fff 50%, #be185d 80%, #1e3a8a)',
+                    backgroundSize: '200% 100%',
                 }}
               >
                 GET!!
-                {/* Intensified Shine Animation Layer */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/80 to-transparent skew-x-[-20deg] animate-[shine_2s_infinite] pointer-events-none z-20" />
               </h1>
             </div>
           </div>
@@ -276,9 +278,9 @@ const GetPage: React.FC = () => {
           0% { transform: translateY(0) rotate(0deg); opacity: 1; }
           100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
-        @keyframes shine {
-          0% { left: -100%; top: -100%; }
-          100% { left: 200%; top: 200%; }
+        @keyframes shineText {
+          0% { background-position: 100% 0; }
+          100% { background-position: -100% 0; }
         }
         @keyframes twinkle {
           0%, 100% { opacity: 0; transform: scale(0.5); }
