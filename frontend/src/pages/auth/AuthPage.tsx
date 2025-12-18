@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ChangeEvent } from "react";
+import { useState, useEffect, type FormEvent, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import bgImage from "@/assets/img/doubleyuttin.png";
 import soundFile from "@/assets/sounds/へへっ_T01.wav";
@@ -21,7 +21,13 @@ import { LogIn, UserPlus } from "lucide-react";
 
 export default function AuthPage() {
   const navigate = useNavigate();
-  const { login, signup } = useAuth();
+  const { login, signup, user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/home");
+    }
+  }, [user, loading, navigate]);
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState("");
