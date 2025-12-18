@@ -3,6 +3,7 @@ import LandingPage from "./pages/landing/LandingPage";
 import AuthPage from "./pages/auth/AuthPage";
 import HomePage from "./pages/dashboard/HomePage";
 import PlankPage from "./pages/training/PlankPage";
+import SquatPage from "./pages/training/SquatPage";
 import SettingsPage from "./pages/settings/SettingsPage";
 import CollectionPage from "./pages/collection/CollectionPage";
 import RecordPage from "./pages/record/RecordPage";
@@ -39,6 +40,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <PlankPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/training/squat"
+            element={
+              <ProtectedRoute>
+                <SquatPage />
               </ProtectedRoute>
             }
           />
