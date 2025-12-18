@@ -51,11 +51,11 @@ export default function SquatPage() {
         const hip = isLeft ? landmarks[23] : landmarks[24];
         const knee = isLeft ? landmarks[25] : landmarks[26];
         const ankle = isLeft ? landmarks[27] : landmarks[28];
-        const shoulder = isLeft ? landmarks[11] : landmarks[12];
+        // const shoulder = isLeft ? landmarks[11] : landmarks[12];
 
         // Basic visibility check
-        if ((hip.visibility || 0) < 0.5 || (knee.visibility || 0) < 0.5 || (ankle.visibility || 0) < 0.5) {
-            setMessage("全身が映るようにしてください");
+        if ((hip.visibility || 0) < 0.3 || (knee.visibility || 0) < 0.3 || (ankle.visibility || 0) < 0.3) {
+            setMessage("下半身が映るようにしてください");
             setIsGood(false);
             return;
         }
@@ -66,7 +66,7 @@ export default function SquatPage() {
         // UP: Standing straight, knee angle > 160
         // DOWN: Squatting, knee angle < 100
 
-        const UP_THRESHOLD = 160;
+        const UP_THRESHOLD = 130;
         const DOWN_THRESHOLD = 100;
 
         if (squatState === "UP") {
@@ -78,7 +78,7 @@ export default function SquatPage() {
                 setMessage("もっと深く！");
                 setIsGood(true); // Encouraging
             } else {
-                setMessage("スタート！しゃがんでください");
+                setMessage("しゃがんでください");
                 setIsGood(true);
             }
         } else if (squatState === "DOWN") {
