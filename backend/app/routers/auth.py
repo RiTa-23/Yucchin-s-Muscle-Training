@@ -7,7 +7,7 @@ import jwt
 from jwt.exceptions import PyJWTError
 from app.database import get_db
 from app.core.security import create_access_token, verify_password, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
-from app.crud.user import get_user_by_username, get_user_by_email
+from app.crud.user import get_user_by_email
 from app.schemas.token import Token
 from app.schemas.user import UserResponse, UserLogin
 
@@ -37,13 +37,13 @@ async def get_current_user(
 
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
+        email: str = payload.get("sub")
+        if email is None:
             raise credentials_exception
     except PyJWTError:
         raise credentials_exception from None
     
-    user = await get_user_by_username(db, username=username)
+    user = await get_user_by_email(db, email=email)
     if user is None:
         raise credentials_exception
     if not user.is_active:
@@ -61,7 +61,7 @@ async def login_for_access_token(response: Response, form_data: UserLogin, db: A
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
     
     # Set HttpOnly Cookie
