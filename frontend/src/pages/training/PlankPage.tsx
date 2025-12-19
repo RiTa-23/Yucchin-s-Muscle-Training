@@ -21,6 +21,19 @@ export default function PlankPage() {
     const [timeLeft, setTimeLeft] = useState<number>(30);
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+    // Refs for stable access in quit handler
+    const timeLeftRef = useRef<number>(30);
+    const targetDurationRef = useRef<number>(30);
+
+    // Sync refs with state
+    useEffect(() => {
+        timeLeftRef.current = timeLeft;
+    }, [timeLeft]);
+
+    useEffect(() => {
+        targetDurationRef.current = targetDuration;
+    }, [targetDuration]);
+
     // --- Logic ---
     const calculateAngle = useCallback((a: NormalizedLandmark, b: NormalizedLandmark, c: NormalizedLandmark) => {
         const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
@@ -149,23 +162,23 @@ export default function PlankPage() {
     // Save Logic
     useEffect(() => {
         if (gameState === "FINISHED") {
-            const duration = targetDuration;
+            const performedDuration = targetDurationRef.current - timeLeftRef.current;
             const saveResult = async () => {
                 try {
                     await trainingApi.createLog({
                         performed_at: new Date().toISOString(),
                         exercise_name: "plank",
-                        duration: duration,
+                        duration: performedDuration,
                         count: 0
                     });
-                    console.log("Training log saved!");
+                    console.log("Training log saved!", performedDuration);
                 } catch (err) {
                     console.error("Failed to save training log:", err);
                 }
             };
             saveResult();
         }
-    }, [gameState, targetDuration]);
+    }, [gameState]);
 
     const handleError = useCallback((err: any) => {
         setError(typeof err === 'string' ? err : err.message || "Unknown Camera Error");
@@ -176,9 +189,19 @@ export default function PlankPage() {
         setGameState("ACTIVE");
     };
 
-    const handleQuit = () => {
-        navigate('/home');
-    };
+    const handleQuit = useCallback(() => {
+        const currentTarget = targetDurationRef.current;
+        const currentTime = timeLeftRef.current;
+        const performedDuration = currentTarget - currentTime;
+
+        console.log("Quit Check:", { currentTarget, currentTime, performedDuration });
+
+        if (performedDuration > 0) {
+            setGameState("FINISHED");
+        } else {
+            navigate('/home');
+        }
+    }, [navigate]);
 
     return (
         <TrainingContainer
@@ -217,7 +240,7 @@ export default function PlankPage() {
             onError={handleError}
 
             // Result
-            score={`${targetDuration}秒`}
+            score={`${targetDuration - timeLeft}秒`}
             onRetry={handleRetry}
 
             // Navigation
