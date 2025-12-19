@@ -16,15 +16,19 @@ const COMPLIMENTS = [
     `${ASSETS_BASE}/compliment/びゅーてぃふぉ.wav`,
 ];
 
+const PLANK_STARTS = [
+    `${ASSETS_BASE}/plank/プランク1_T01.wav`,
+    `${ASSETS_BASE}/plank/プﾙﾙｧンクのｼｾｲ_T01.wav`,
+];
+
 const SOUNDS = {
-    start: `${ASSETS_BASE}/へへっ_T01.wav`,
     finish: `${ASSETS_BASE}/これであなたも！ムキムキよ！_T01.wav`,
     hipsHigh: `${ASSETS_BASE}/plank/お尻を下げてください。_T01.wav`,
     hipsLow: `${ASSETS_BASE}/縮めｪ！！_T01.wav`,
     warning: `${ASSETS_BASE}/ﾍｪッ！！_T01.wav`,
 } as const;
 
-type SoundType = keyof typeof SOUNDS | 'good';
+type SoundType = keyof typeof SOUNDS | 'good' | 'start';
 
 export const useTrainer = () => {
     const audioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
@@ -35,7 +39,8 @@ export const useTrainer = () => {
         hipsHigh: 5000,
         hipsLow: 5000,
         warning: 5000,
-        good: 3000, // 3 seconds interval for compliments
+        good: 3000,
+        start: 0,
     };
 
     useEffect(() => {
@@ -53,6 +58,13 @@ export const useTrainer = () => {
             audioRefs.current.set(`good_${index}`, audio);
         });
 
+        // Preload starts
+        PLANK_STARTS.forEach((src, index) => {
+            const audio = new Audio(src);
+            audio.load();
+            audioRefs.current.set(`start_${index}`, audio);
+        });
+
         return () => {
             audioRefs.current.forEach(audio => {
                 audio.pause();
@@ -67,6 +79,9 @@ export const useTrainer = () => {
         if (type === 'good') {
             const randomIndex = Math.floor(Math.random() * COMPLIMENTS.length);
             audioKey = `good_${randomIndex}`;
+        } else if (type === 'start') {
+            const randomIndex = Math.floor(Math.random() * PLANK_STARTS.length);
+            audioKey = `start_${randomIndex}`;
         }
 
         const audio = audioRefs.current.get(audioKey);
