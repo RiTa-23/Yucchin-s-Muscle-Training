@@ -221,7 +221,7 @@ export default function SquatPage() {
                 className="absolute top-4 left-4 z-20 bg-white/80 hover:bg-white"
                 onClick={() => navigate('/home')}
             >
-                終了
+                やめる
             </Button>
         </div>
     );
