@@ -83,6 +83,7 @@ export default function PlankPage() {
             const elbowAngle = calculateAngle(shoulder, elbow, wrist);
             if (elbowAngle > 135) {
                 setMessage("肘を床につけてください！");
+                play('elbowsOnFloor');
                 setIsGood(false);
                 return;
             }
