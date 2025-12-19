@@ -4,7 +4,7 @@ import { TrainingGuide, type GoalConfig } from "./TrainingGuide";
 import { TrainingResult } from "./TrainingResult";
 import { PoseDetector } from "@/components/camera/PoseDetector";
 import { PoseOverlay } from "@/components/camera/PoseOverlay";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 
 export type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
@@ -68,6 +68,8 @@ export const TrainingContainer = ({
     onQuit
 }: TrainingContainerProps) => {
     const { user } = useAuth();
+
+    const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
 
     // Default FPS logic if not provided
     const fps = useMemo(() => user?.settings?.fps || 20, [user?.settings?.fps]);
@@ -134,10 +136,36 @@ export const TrainingContainer = ({
             <Button
                 variant="outline"
                 className="absolute top-4 left-4 z-20 bg-white/80 hover:bg-white"
-                onClick={onQuit}
+                onClick={() => setIsQuitModalOpen(true)}
             >
                 やめる
             </Button>
+
+            {/* Quit Confirmation Modal */}
+            {isQuitModalOpen && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-50 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-xl p-6 max-w-xs w-full shadow-2xl scale-in-95 animate-in zoom-in-95 duration-200">
+                        <h3 className="text-xl font-bold text-center mb-6 text-gray-900">
+                            やめちゃうの？
+                        </h3>
+                        <div className="flex gap-3">
+                            <Button
+                                variant="outline"
+                                className="flex-1 border-gray-300"
+                                onClick={onQuit}
+                            >
+                                やめる
+                            </Button>
+                            <Button
+                                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                                onClick={() => setIsQuitModalOpen(false)}
+                            >
+                                やめない
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

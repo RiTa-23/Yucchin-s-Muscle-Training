@@ -149,7 +149,11 @@ export default function SquatPage() {
     };
 
     const handleQuit = () => {
-        navigate('/home');
+        if (count > 0) {
+            setGameState("FINISHED");
+        } else {
+            navigate('/home');
+        }
     };
 
     return (
