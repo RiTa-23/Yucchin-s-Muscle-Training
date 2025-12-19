@@ -1,22 +1,15 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { PoseDetector } from "@/components/camera/PoseDetector";
-import { PoseOverlay } from "@/components/camera/PoseOverlay";
-import { TrainingGuide } from "@/components/training/TrainingGuide";
-import { TrainingResult } from "@/components/training/TrainingResult";
 import { type Results, type NormalizedLandmark } from "@mediapipe/pose";
 import { useAuth } from "@/context/AuthContext";
 import { trainingApi } from "@/api/training";
+import { TrainingContainer, type GameState } from "@/components/training/TrainingContainer";
 
-type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 type PushupState = "UP" | "DOWN";
 
 export default function PushupPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const fps = useMemo(() => user?.settings?.fps || 20, [user?.settings?.fps]);
-    const interval = useMemo(() => Math.floor(1000 / fps), [fps]);
 
     const [error, setError] = useState<string | null>(null);
     const [gameState, setGameState] = useState<GameState>("GUIDE");
@@ -50,8 +43,6 @@ export default function PushupPage() {
         if (!results.poseLandmarks) return;
         const landmarks = results.poseLandmarks;
 
-        // Use visibility to determine which side is facing the camera
-        // Using shoulder visibility seems appropriate for general side checking
         const leftVisibility = (landmarks[11].visibility || 0) + (landmarks[13].visibility || 0) + (landmarks[15].visibility || 0);
         const rightVisibility = (landmarks[12].visibility || 0) + (landmarks[14].visibility || 0) + (landmarks[16].visibility || 0);
         const isLeft = leftVisibility > rightVisibility;
@@ -60,7 +51,6 @@ export default function PushupPage() {
         const elbow = isLeft ? landmarks[13] : landmarks[14];
         const wrist = isLeft ? landmarks[15] : landmarks[16];
 
-        // Basic visibility check
         if ((shoulder.visibility || 0) < 0.5 || (elbow.visibility || 0) < 0.5 || (wrist.visibility || 0) < 0.5) {
             safeSetMessage("上半身（肩・肘・手首）がはっきり映るようにしてください");
             setIsGood(false);
@@ -68,10 +58,6 @@ export default function PushupPage() {
         }
 
         const elbowAngle = calculateAngle(shoulder, elbow, wrist);
-
-        // Push-up Logic
-        // UP: Arms straight, elbow angle > 160
-        // DOWN: Arms bent, elbow angle < 90
 
         const UP_THRESHOLD = 150;
         const DOWN_THRESHOLD = 90;
@@ -143,93 +129,64 @@ export default function PushupPage() {
             };
             saveResult();
         }
-    }, [gameState, count]); // Included count as dependency
+    }, [gameState, count]);
 
     const handleError = useCallback((err: any) => {
         setError(typeof err === 'string' ? err : err.message || "Unknown Camera Error");
     }, []);
 
-    if (error) {
-        return (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-30">
-                <div className="bg-white p-8 rounded-lg max-w-md text-center">
-                    <p className="text-red-600 mb-4 font-bold">カメラエラーが発生しました</p>
-                    <p className="text-gray-700 mb-6">{error}</p>
-                    <Button onClick={() => navigate('/home')}>ホームに戻る</Button>
-                </div>
-            </div>
-        );
-    }
+    const handleRetry = () => {
+        setCount(0);
+        setPushupState("UP");
+        setGameState("ACTIVE");
+    };
 
-    if (gameState === "GUIDE") {
-        return (
-            <TrainingGuide
-                title="腕立て伏せ"
-                description={
-                    <>
-                        肩幅より少し広く手をつき、頭から足まで一直線にします。<br />
-                        肘を曲げて体を深く沈め、力強く押し上げましょう！
-                    </>
-                }
-                onStart={handleStart}
-                illustration={
-                    <div className="text-6xl">💪</div>
-                }
-                goalConfig={{
-                    type: "count",
-                    min: 5,
-                    max: 50,
-                    default: 10,
-                    step: 5,
-                    unit: "回"
-                }}
-            />
-        );
-    }
-
-    if (gameState === "FINISHED") {
-        return (
-            <TrainingResult
-                score={`${count}回`}
-                scoreLabel="記録"
-                onRetry={() => {
-                    setCount(0);
-                    setPushupState("UP");
-                    setGameState("ACTIVE");
-                }}
-            />
-        );
-    }
+    const handleQuit = () => {
+        navigate('/home');
+    };
 
     return (
-        <div className="relative w-full h-screen bg-black overflow-hidden">
-            {/* Camera Layer */}
-            <PoseDetector
-                onPoseDetected={onPoseDetected}
-                interval={interval}
-                onError={handleError}
-            />
+        <TrainingContainer
+            gameState={gameState}
 
-            {/* Overlay Layer */}
-            <PoseOverlay
-                results={lastResults}
-                feedback={message}
-                isGoodPose={isGood}
-                stats={{
-                    label: "回数",
-                    value: count,
-                    unit: "回"
-                }}
-            />
+            // Guide
+            title="腕立て伏せ"
+            description={
+                <>
+                    肩幅より少し広く手をつき、頭から足まで一直線にします。<br />
+                    肘を曲げて体を深く沈め、力強く押し上げましょう！
+                </>
+            }
+            illustration={<div className="text-6xl">💪</div>}
+            goalConfig={{
+                type: "count",
+                min: 5,
+                max: 50,
+                default: 10,
+                step: 5,
+                unit: "回"
+            }}
+            onStart={handleStart}
 
-            {/* Back Button (In-game) */}
-            <Button
-                variant="outline"
-                className="absolute top-4 left-4 z-20 bg-white/80 hover:bg-white"
-                onClick={() => navigate('/home')}
-            >
-                やめる
-            </Button>
-        </div>
+            // Active
+            onPoseDetected={onPoseDetected}
+            overlayResults={lastResults}
+            feedbackMessage={message}
+            isGoodPose={isGood}
+            stats={{
+                label: "回数",
+                value: count,
+                unit: "回"
+            }}
+            cameraError={error}
+            onError={handleError}
+
+            // Result
+            score={`${count}回`}
+            onRetry={handleRetry}
+
+            // Navigation
+            onQuit={handleQuit}
+        />
     );
 }

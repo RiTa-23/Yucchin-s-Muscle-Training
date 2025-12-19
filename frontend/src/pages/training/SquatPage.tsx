@@ -1,22 +1,15 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { PoseDetector } from "@/components/camera/PoseDetector";
-import { PoseOverlay } from "@/components/camera/PoseOverlay";
-import { TrainingGuide } from "@/components/training/TrainingGuide";
-import { TrainingResult } from "@/components/training/TrainingResult";
 import { type Results, type NormalizedLandmark } from "@mediapipe/pose";
 import { useAuth } from "@/context/AuthContext";
 import { trainingApi } from "@/api/training";
+import { TrainingContainer, type GameState } from "@/components/training/TrainingContainer";
 
-type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 type SquatState = "UP" | "DOWN";
 
 export default function SquatPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const fps = useMemo(() => user?.settings?.fps || 20, [user?.settings?.fps]);
-    const interval = useMemo(() => Math.floor(1000 / fps), [fps]);
 
     const [error, setError] = useState<string | null>(null);
     const [gameState, setGameState] = useState<GameState>("GUIDE");
@@ -29,8 +22,15 @@ export default function SquatPage() {
     const [squatState, setSquatState] = useState<SquatState>("UP");
     const [targetCount, setTargetCount] = useState<number>(10);
 
-    // Refs for stable state access in callbacks if needed
-    // However, react state is usually fine if dependencies are correct.
+    // Refs for stable state access in callbacks
+    const lastMessageRef = useRef<string>("");
+
+    const safeSetMessage = useCallback((msg: string) => {
+        if (lastMessageRef.current !== msg) {
+            setMessage(msg);
+            lastMessageRef.current = msg;
+        }
+    }, []);
 
     const calculateAngle = useCallback((a: NormalizedLandmark, b: NormalizedLandmark, c: NormalizedLandmark) => {
         const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
@@ -55,7 +55,7 @@ export default function SquatPage() {
 
         // Basic visibility check
         if ((hip.visibility || 0) < 0.3 || (knee.visibility || 0) < 0.3 || (ankle.visibility || 0) < 0.3) {
-            setMessage("下半身が映るようにしてください");
+            safeSetMessage("下半身が映るようにしてください");
             setIsGood(false);
             return;
         }
@@ -72,28 +72,28 @@ export default function SquatPage() {
         if (squatState === "UP") {
             if (kneeAngle < DOWN_THRESHOLD) {
                 setSquatState("DOWN");
-                setMessage("Good! そのまま立ち上がって！");
+                safeSetMessage("Good! そのまま立ち上がって！");
                 setIsGood(true);
             } else if (kneeAngle < 140) {
-                setMessage("もっと深く！");
+                safeSetMessage("もっと深く！");
                 setIsGood(true); // Encouraging
             } else {
-                setMessage("しゃがんでください");
+                safeSetMessage("しゃがんでください");
                 setIsGood(true);
             }
         } else if (squatState === "DOWN") {
             if (kneeAngle > UP_THRESHOLD) {
                 setSquatState("UP");
                 setCount(prev => prev + 1);
-                setMessage("ナイススクワット！");
+                safeSetMessage("ナイススクワット！");
                 setIsGood(true);
             } else {
-                setMessage("立ち上がって！");
+                safeSetMessage("立ち上がって！");
                 setIsGood(true);
             }
         }
 
-    }, [calculateAngle, squatState]);
+    }, [calculateAngle, squatState, safeSetMessage]);
 
     const onPoseDetected = useCallback((results: Results) => {
         setLastResults(results);
@@ -142,87 +142,60 @@ export default function SquatPage() {
         setError(typeof err === 'string' ? err : err.message || "Unknown Camera Error");
     }, []);
 
-    if (error) {
-        return (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-30">
-                <div className="bg-white p-8 rounded-lg max-w-md text-center">
-                    <p className="text-red-600 mb-4 font-bold">カメラエラーが発生しました</p>
-                    <p className="text-gray-700 mb-6">{error}</p>
-                    <Button onClick={() => navigate('/home')}>ホームに戻る</Button>
-                </div>
-            </div>
-        );
-    }
+    const handleRetry = () => {
+        setCount(0);
+        setSquatState("UP");
+        setGameState("ACTIVE");
+    };
 
-    if (gameState === "GUIDE") {
-        return (
-            <TrainingGuide
-                title="スクワット"
-                description={
-                    <>
-                        足を肩幅に開き、背筋を伸ばして立ちます。<br />
-                        お尻を後ろに引くように深くしゃがみ込みましょう！
-                    </>
-                }
-                onStart={handleStart}
-                illustration={
-                    <div className="text-6xl">🦵</div>
-                }
-                goalConfig={{
-                    type: "count",
-                    min: 5,
-                    max: 50,
-                    default: 10,
-                    step: 5,
-                    unit: "回"
-                }}
-            />
-        );
-    }
-
-    if (gameState === "FINISHED") {
-        return (
-            <TrainingResult
-                score={`${count}回`}
-                scoreLabel="記録"
-                onRetry={() => {
-                    setCount(0);
-                    setSquatState("UP");
-                    setGameState("ACTIVE");
-                }}
-            />
-        );
-    }
+    const handleQuit = () => {
+        navigate('/home');
+    };
 
     return (
-        <div className="relative w-full h-screen bg-black overflow-hidden">
-            {/* Camera Layer */}
-            <PoseDetector
-                onPoseDetected={onPoseDetected}
-                interval={interval}
-                onError={handleError}
-            />
+        <TrainingContainer
+            gameState={gameState}
+            setGameState={setGameState}
+            userSettings={user?.settings}
 
-            {/* Overlay Layer */}
-            <PoseOverlay
-                results={lastResults}
-                feedback={message}
-                isGoodPose={isGood}
-                stats={{
-                    label: "回数",
-                    value: count,
-                    unit: "回"
-                }}
-            />
+            // Guide
+            title="スクワット"
+            description={
+                <>
+                    足を肩幅に開き、背筋を伸ばして立ちます。<br />
+                    お尻を後ろに引くように深くしゃがみ込みましょう！
+                </>
+            }
+            illustration={<div className="text-6xl">🦵</div>}
+            goalConfig={{
+                type: "count",
+                min: 5,
+                max: 50,
+                default: 10,
+                step: 5,
+                unit: "回"
+            }}
+            onStart={handleStart}
 
-            {/* Back Button (In-game) */}
-            <Button
-                variant="outline"
-                className="absolute top-4 left-4 z-20 bg-white/80 hover:bg-white"
-                onClick={() => navigate('/home')}
-            >
-                やめる
-            </Button>
-        </div>
+            // Active
+            onPoseDetected={onPoseDetected}
+            overlayResults={lastResults}
+            feedbackMessage={message}
+            isGoodPose={isGood}
+            stats={{
+                label: "回数",
+                value: count,
+                unit: "回"
+            }}
+            cameraError={error}
+            onError={handleError}
+
+            // Result
+            score={`${count}回`}
+            onRetry={handleRetry}
+
+            // Navigation
+            onQuit={handleQuit}
+        />
     );
 }
