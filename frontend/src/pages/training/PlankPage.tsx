@@ -4,10 +4,12 @@ import { type Results, type NormalizedLandmark } from "@mediapipe/pose";
 import { useAuth } from "@/context/AuthContext";
 import { trainingApi } from "@/api/training";
 import { TrainingContainer, type GameState } from "@/components/training/TrainingContainer";
+import { useTrainer } from "@/hooks/useTrainer";
 
 export default function PlankPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { play } = useTrainer();
 
     // State
     const [error, setError] = useState<string | null>(null);
@@ -103,6 +105,7 @@ export default function PlankPage() {
         if (hipAngle >= THRESHOLD_GOOD_MIN) {
             setMessage("いいね！その調子！");
             setIsGood(true);
+            play('good');
         } else {
             const deltaX = ankle.x - shoulder.x;
             if (Math.abs(deltaX) < 0.01) {
@@ -114,12 +117,14 @@ export default function PlankPage() {
             const expectedHipY = shoulder.y + (hip.x - shoulder.x) * (ankle.y - shoulder.y) / deltaX;
             if (hip.y < expectedHipY) {
                 setMessage("お尻が上がっています！下げて！");
+                play('hipsHigh');
             } else {
                 setMessage("腰が下がっています！上げて！");
+                play('hipsLow');
             }
             setIsGood(false);
         }
-    }, [calculateAngle]);
+    }, [calculateAngle, play]);
 
     const onPoseDetected = useCallback((results: Results) => {
         setLastResults(results);
@@ -157,11 +162,13 @@ export default function PlankPage() {
             setTimeLeft(duration);
         }
         setGameState("ACTIVE");
+        play('start');
     };
 
     // Save Logic
     useEffect(() => {
         if (gameState === "FINISHED") {
+            play('finish');
             const performedDuration = targetDurationRef.current - timeLeftRef.current;
             const saveResult = async () => {
                 try {
