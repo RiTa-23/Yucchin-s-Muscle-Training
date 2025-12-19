@@ -159,8 +159,6 @@ export default function SquatPage() {
     return (
         <TrainingContainer
             gameState={gameState}
-            setGameState={setGameState}
-            userSettings={user?.settings}
 
             // Guide
             title="スクワット"
