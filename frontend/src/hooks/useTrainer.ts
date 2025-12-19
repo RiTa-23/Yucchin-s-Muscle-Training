@@ -24,6 +24,7 @@ const PLANK_STARTS = [
 const CAMERA_ALERTS = [
     `${ASSETS_BASE}/体をカメラにおさめてね1_T01.wav`,
     `${ASSETS_BASE}/体をカメラにおさめてね2_T01.wav`,
+    `${ASSETS_BASE}/縮めｪ！！_T01.wav`,
 ];
 
 const SOUNDS = {
