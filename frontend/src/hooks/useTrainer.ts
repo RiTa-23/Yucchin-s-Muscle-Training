@@ -26,6 +26,7 @@ const SOUNDS = {
     hipsHigh: `${ASSETS_BASE}/plank/お尻を下げてください。_T01.wav`,
     hipsLow: `${ASSETS_BASE}/プリけつ_T01.wav`,
     elbowsOnFloor: `${ASSETS_BASE}/plank/肘を床に付ける2_T01.wav`,
+    camera: `${ASSETS_BASE}/体をカメラにおさめてね1_T01.wav`,
     warning: `${ASSETS_BASE}/ﾍｪッ！！_T01.wav`,
 } as const;
 
@@ -40,6 +41,7 @@ export const useTrainer = () => {
         hipsHigh: 5000,
         hipsLow: 5000,
         elbowsOnFloor: 5000,
+        camera: 10000, // Longer cooldown for system-like message
         warning: 5000,
         good: 3000,
         start: 0,

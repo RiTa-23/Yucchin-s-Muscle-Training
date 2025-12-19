@@ -62,6 +62,7 @@ export default function PlankPage() {
 
         if ((shoulder.visibility || 0) < 0.5 || (hip.visibility || 0) < 0.5 || (ankle.visibility || 0) < 0.5) {
             setMessage("体がカメラに収まっていません");
+            play('camera');
             setIsGood(false);
             return;
         }
