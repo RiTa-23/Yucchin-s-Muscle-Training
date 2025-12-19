@@ -24,7 +24,7 @@ const PLANK_STARTS = [
 const SOUNDS = {
     finish: `${ASSETS_BASE}/これであなたも！ムキムキよ！_T01.wav`,
     hipsHigh: `${ASSETS_BASE}/plank/お尻を下げてください。_T01.wav`,
-    hipsLow: `${ASSETS_BASE}/縮めｪ！！_T01.wav`,
+    hipsLow: `${ASSETS_BASE}/プリけつ_T01.wav`,
     warning: `${ASSETS_BASE}/ﾍｪッ！！_T01.wav`,
 } as const;
 
