@@ -21,16 +21,20 @@ const PLANK_STARTS = [
     `${ASSETS_BASE}/plank/プﾙﾙｧンクのｼｾｲ_T01.wav`,
 ];
 
+const CAMERA_ALERTS = [
+    `${ASSETS_BASE}/体をカメラにおさめてね1_T01.wav`,
+    `${ASSETS_BASE}/体をカメラにおさめてね2_T01.wav`,
+];
+
 const SOUNDS = {
     finish: `${ASSETS_BASE}/これであなたも！ムキムキよ！_T01.wav`,
     hipsHigh: `${ASSETS_BASE}/plank/お尻を下げてください。_T01.wav`,
     hipsLow: `${ASSETS_BASE}/プリけつ_T01.wav`,
     elbowsOnFloor: `${ASSETS_BASE}/plank/肘を床に付ける2_T01.wav`,
-    camera: `${ASSETS_BASE}/体をカメラにおさめてね1_T01.wav`,
     warning: `${ASSETS_BASE}/ﾍｪッ！！_T01.wav`,
 } as const;
 
-type SoundType = keyof typeof SOUNDS | 'good' | 'start';
+type SoundType = keyof typeof SOUNDS | 'good' | 'start' | 'camera';
 
 export const useTrainer = () => {
     const audioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
@@ -69,6 +73,13 @@ export const useTrainer = () => {
             audioRefs.current.set(`start_${index}`, audio);
         });
 
+        // Preload camera alerts
+        CAMERA_ALERTS.forEach((src, index) => {
+            const audio = new Audio(src);
+            audio.load();
+            audioRefs.current.set(`camera_${index}`, audio);
+        });
+
         return () => {
             audioRefs.current.forEach(audio => {
                 audio.pause();
@@ -86,6 +97,9 @@ export const useTrainer = () => {
         } else if (type === 'start') {
             const randomIndex = Math.floor(Math.random() * PLANK_STARTS.length);
             audioKey = `start_${randomIndex}`;
+        } else if (type === 'camera') {
+            const randomIndex = Math.floor(Math.random() * CAMERA_ALERTS.length);
+            audioKey = `camera_${randomIndex}`;
         }
 
         const audio = audioRefs.current.get(audioKey);
