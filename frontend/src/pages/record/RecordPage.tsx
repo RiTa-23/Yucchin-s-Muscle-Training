@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar } from "lucide-react";
+import { Calendar } from "lucide-react";
 import {
   trainingApi,
   type TrainingLogResponse,
@@ -9,6 +9,7 @@ import {
 import { playSound } from "@/utils/audio";
 import clickSound from "@/assets/sounds/へへっ_T01.wav";
 import backSound from "@/assets/sounds/ﾍｪッ！！_T01.wav";
+import { Button } from "@/components/ui/button";
 
 export default function RecordPage() {
   const navigate = useNavigate();
@@ -147,81 +148,90 @@ export default function RecordPage() {
         }}
       ></div>
 
-      <button
-        onClick={async () => {
-          await playSound(backSound);
-          navigate("/home");
-        }}
-        className="absolute top-4 left-4 p-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 rounded-full shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 z-20"
-        aria-label="ホームに戻る"
-      >
-        <ArrowLeft className="w-6 h-6 text-white font-bold" />
-      </button>
-
-      <div className="w-full max-w-md space-y-8 mt-12 pb-20 relative z-10">
-        {/* Total Section */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-center mb-4 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-            Total
-          </h2>
-          {totalItems.map((item, index) => (
-            <div
-              key={index}
-              className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 rounded-lg p-4 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 flex items-center justify-center backdrop-blur-xl"
-            >
-              <span className="text-lg font-bold text-yellow-300 w-32 text-left">
-                {item.label}
-              </span>
-              <span className="text-xl font-extrabold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent w-32 text-right">
-                {item.value}
-              </span>
-            </div>
-          ))}
+      <div className="max-w-md mx-auto space-y-8 relative z-10 w-full">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+            頑張りの歴史
+          </h1>
+          <Button
+            variant="outline"
+            onClick={async () => {
+              await playSound(backSound);
+              navigate("/home");
+            }}
+            className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+            aria-label="ホームに戻る"
+          >
+            戻る
+          </Button>
         </div>
-
-        {/* Today Section */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-bold text-center mb-4 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-            Today
-          </h2>
-          {todayItems.length > 0 ? (
-            todayItems.map((item, index) => (
+        <div className="space-y-8 pb-20">
+          {/* Total Section */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-center mb-4 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+              Total
+            </h2>
+            {totalItems.map((item, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 rounded-lg p-4 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 flex items-center justify-between backdrop-blur-xl"
+                className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 rounded-lg p-4 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 flex items-center justify-center backdrop-blur-xl"
               >
-                <div className="text-lg font-bold text-orange-400 w-16 text-center border-r-2 border-orange-500/50 mr-4">
-                  {item.time}
-                </div>
-                <div className="flex-1 flex justify-between items-center">
-                  <p className="text-lg font-bold text-yellow-300">
-                    {item.exercise}
-                  </p>
-                  <p className="text-xl font-bold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-                    {item.value}
-                  </p>
-                </div>
+                <span className="text-lg font-bold text-yellow-300 w-32 text-left">
+                  {item.label}
+                </span>
+                <span className="text-xl font-extrabold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent w-32 text-right">
+                  {item.value}
+                </span>
               </div>
-            ))
-          ) : (
-            <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 rounded-lg p-6 text-center shadow-[0_0_20px_rgba(251,146,60,0.6)] backdrop-blur-xl">
-              <p className="text-lg font-semibold text-orange-300">記録なし</p>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
 
-        {/* History Link */}
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={async () => {
-              await playSound(clickSound);
-              navigate("/record/history");
-            }}
-            className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 rounded-full px-6 py-3 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
-          >
-            <Calendar className="w-5 h-5 text-white" />
-            <span className="font-bold text-white">過去の記録を見る</span>
-          </button>
+          {/* Today Section */}
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-center mb-4 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+              Today
+            </h2>
+            {todayItems.length > 0 ? (
+              todayItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 rounded-lg p-4 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 flex items-center justify-between backdrop-blur-xl"
+                >
+                  <div className="text-lg font-bold text-orange-400 w-16 text-center border-r-2 border-orange-500/50 mr-4">
+                    {item.time}
+                  </div>
+                  <div className="flex-1 flex justify-between items-center">
+                    <p className="text-lg font-bold text-yellow-300">
+                      {item.exercise}
+                    </p>
+                    <p className="text-xl font-bold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+                      {item.value}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 rounded-lg p-6 text-center shadow-[0_0_20px_rgba(251,146,60,0.6)] backdrop-blur-xl">
+                <p className="text-lg font-semibold text-orange-300">
+                  記録なし
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* History Link */}
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={async () => {
+                await playSound(clickSound);
+                navigate("/record/history");
+              }}
+              className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 rounded-full px-6 py-3 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+            >
+              <Calendar className="w-5 h-5 text-white" />
+              <span className="font-bold text-white">過去の記録を見る</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

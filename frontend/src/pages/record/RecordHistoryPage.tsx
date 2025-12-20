@@ -1,9 +1,10 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { trainingApi, type TrainingLogResponse } from "@/api/training";
 import { playSound } from "@/utils/audio";
 import backSound from "@/assets/sounds/ﾍｪッ！！_T01.wav";
+import { Button } from "@/components/ui/button";
 
 export default function RecordHistoryPage() {
   const navigate = useNavigate();
@@ -147,21 +148,23 @@ export default function RecordHistoryPage() {
         }}
       ></div>
 
-      <button
-        onClick={async () => {
-          await playSound(backSound);
-          navigate("/record");
-        }}
-        className="absolute top-4 left-4 p-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 rounded-full shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 z-20"
-        aria-label="戻る"
-      >
-        <ArrowLeft className="w-6 h-6 text-white font-bold" />
-      </button>
-
       <div className="w-full max-w-md space-y-8 relative z-10">
-        <h1 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-          過去の記録
-        </h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+            過去の記録
+          </h1>
+          <Button
+            variant="outline"
+            onClick={async () => {
+              await playSound(backSound);
+              navigate("/record");
+            }}
+            className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+            aria-label="戻る"
+          >
+            戻る
+          </Button>
+        </div>
 
         {/* Daily Section */}
         <div className="space-y-4">
