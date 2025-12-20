@@ -110,9 +110,9 @@ const Confetti: React.FC<{ colors: string[]; count: number }> = ({ colors, count
 };
 
 // 神々しい光の柱（God Rays）
-const GodRays: React.FC<{ color: string }> = ({ color }) => {
+const GodRays: React.FC<{ color: string; rotate?: boolean }> = ({ color, rotate }) => {
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
+    <div className={`absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden ${rotate ? 'animate-[spin_60s_linear_infinite]' : ''}`}>
       {[...Array(12)].map((_, i) => (
         <div
           key={i}
@@ -137,27 +137,41 @@ const RarityBadge: React.FC<{ rarity: YucchinMaster['rarity'] }> = ({ rarity }) 
       {/* Decorative Elements for UR */}
       {rarity === 'UR' && (
         <div className="absolute inset-x-0 -inset-y-4 pointer-events-none select-none">
-          <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-8 h-12 bg-gradient-to-br from-yellow-400 to-amber-600 rounded-sm skew-x-12 border-2 border-amber-200"></div>
-          <div className="absolute -right-6 top-1/2 -translate-y-1/2 w-8 h-12 bg-gradient-to-bl from-yellow-400 to-amber-600 rounded-sm -skew-x-12 border-2 border-amber-200"></div>
-          <div className="absolute left-1/2 -translate-x-1/2 -bottom-4 flex gap-4">
-             <div className="w-8 h-4 bg-white rounded-full opacity-80 blur-[2px] rotate-[-20deg]"></div>
-             <div className="w-8 h-4 bg-white rounded-full opacity-80 blur-[2px] rotate-[20deg]"></div>
-          </div>
-          <div className="absolute -top-4 left-0 text-yellow-300 animate-pulse text-xl">✦</div>
-          <div className="absolute -top-4 right-0 text-yellow-300 animate-pulse delay-75 text-xl">✦</div>
+          {/* Stars Only (Wings removed) */}
+          <div className="absolute -top-4 left-0 text-yellow-300 text-xl">✦</div>
+          <div className="absolute -top-4 right-0 text-yellow-300 text-xl">✦</div>
         </div>
       )}
 
-      {/* Main Badge Text with Shine */}
+      {/* Main Badge Text (Horizon Metallic Style) */}
       <div className={`
-        relative px-6 py-1 rounded-sm font-black text-5xl italic tracking-tighter
+        relative px-6 py-2 rounded-xl font-black text-6xl leading-none tracking-normal
         ${rarity === 'UR' ? 'rarity-ur' : rarity === 'SR' ? 'rarity-sr' : rarity === 'RARE' ? 'rarity-rare' : 'rarity-normal'}
-        filter drop-shadow-[0_4px_4px_rgba(0,0,0,0.5)] overflow-hidden
-      `}>
-        {badgeLabel}
-        {/* Metallic Shine Sweep - Only for RARE and above */}
+        filter drop-shadow-[0_4px_15px_rgba(0,0,0,0.8)]
+      `} style={{ 
+          fontFamily: '"Kanit", sans-serif',
+          fontWeight: 900,
+          // 3D内側ベベルをシミュレートする多層シャドウ
+          textShadow: rarity !== 'NORMAL' ? `
+            2px 2px 0px rgba(255,255,255,0.4),
+            -1px -1px 0px rgba(0,0,0,0.6),
+            0px 0px 8px rgba(0,0,0,0.5)
+          ` : 'none'
+      }}>
+        <span className="relative z-10">{badgeLabel}</span>
+        
+        {/* Fill Layer (ハイライトの入り方を調整) */}
         {rarity !== 'NORMAL' && (
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full animate-[metallicShine_3s_infinite] skew-x-[-20deg]"></div>
+          <span 
+            className="absolute inset-0 bg-clip-text text-transparent pointer-events-none px-6 py-2 select-none z-20"
+            style={{
+              WebkitBackgroundClip: 'text',
+              backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.4) 100%)',
+              WebkitTextStroke: '0'
+            }}
+          >
+            {badgeLabel}
+          </span>
         )}
       </div>
     </div>
@@ -277,7 +291,7 @@ const GetPage: React.FC = () => {
         
           {/* Unified Muscle Name Badge */}
           <div className={`relative z-20 transition-all duration-1000 transform ${revealBadge ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
-            <div className={`absolute inset-0 bg-orange-500 rounded-full blur-[40px] opacity-60 animate-pulse`}></div>
+            <div className={`absolute inset-0 bg-orange-500 rounded-full blur-[40px] opacity-60 ${yucchin.rarity === 'UR' ? '' : 'animate-pulse'}`}></div>
             <div className="relative bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 border-2 border-orange-300 rounded-full px-12 py-4 shadow-[0_0_40px_rgba(251,146,60,1)] overflow-hidden">
               <div className="flex items-center gap-6">
                 <span className="text-3xl filter drop-shadow-md">💪</span>
@@ -286,10 +300,6 @@ const GetPage: React.FC = () => {
                 </span>
                 <span className="text-3xl filter drop-shadow-md">💪</span>
               </div>
-              {/* Name Badge Shine - Only for RARE and above */}
-              {yucchin.rarity !== 'NORMAL' && (
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-[metallicShine_3s_infinite_1s] skew-x-[-20deg]"></div>
-              )}
             </div>
           </div>
 
@@ -306,30 +316,52 @@ const GetPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Rarity Aura & God Rays */}
-              <div className={`absolute inset-0 flex items-center justify-center transition-all duration-1500 ${revealImage ? 'scale-125 opacity-100' : 'scale-0 opacity-0'}`}>
-                 {(yucchin.rarity === 'UR' || yucchin.rarity === 'SR') && <GodRays color={theme.glowColor} />}
-                 <div className={`absolute w-[35rem] h-[35rem] rounded-full blur-[120px] animate-pulse`}
-                      style={{ backgroundColor: theme.glowColor }}></div>
-                 <div className="absolute w-[20rem] h-[20rem] bg-white rounded-full blur-[80px] opacity-60"></div>
-                 {/* UR Unique Inner Spark */}
-                 {yucchin.rarity === 'UR' && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-[10rem] h-[10rem] bg-white rounded-full blur-[20px] animate-ping opacity-20"></div>
-                    </div>
-                 )}
-              </div>
+               {/* Rarity Aura & God Rays */}
+               <div className={`absolute inset-0 flex items-center justify-center transition-all duration-1500 ${revealImage ? 'scale-125 opacity-100' : 'scale-0 opacity-0'}`}>
+                  {(yucchin.rarity === 'UR' || yucchin.rarity === 'SR') && <GodRays color={theme.glowColor} rotate={yucchin.rarity === 'UR'} />}
+                  
+                  {/* Multi-layered Aura Pulse */}
+                  <div className={`absolute w-[35rem] h-[35rem] rounded-full blur-[120px] ${yucchin.rarity === 'UR' ? '' : 'animate-pulse'} opacity-60`}
+                       style={{ backgroundColor: theme.glowColor }}></div>
+                  {yucchin.rarity === 'UR' && (
+                    <div className={`absolute w-[45rem] h-[45rem] rounded-full blur-[100px] opacity-30`}
+                         style={{ backgroundColor: theme.glowColor }}></div>
+                  )}
 
-              <div 
-                className={`relative transition-all duration-1000 cubic-bezier(0.175, 0.885, 0.32, 1.275) transform ${revealImage ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}
-                style={{
-                  animation: revealImage ? 'subtleBounce 3s ease-in-out infinite' : 'none'
-                }}
-              >
+                  <div className="absolute w-[20rem] h-[20rem] bg-white rounded-full blur-[80px] opacity-60"></div>
+                  
+                  {/* UR Unique Inner Spark - Multi-layered */}
+                  {yucchin.rarity === 'UR' && (
+                     <div className="absolute inset-0 flex items-center justify-center">
+                       <div className="w-[12rem] h-[12rem] bg-white rounded-full blur-[20px] animate-ping opacity-30"></div>
+                       <div className="w-[8rem] h-[8rem] bg-white rounded-full blur-[15px] animate-ping opacity-40 delay-500"></div>
+                     </div>
+                  )}
+               </div>
+
+              <div className={`relative transition-all duration-1000 cubic-bezier(0.175, 0.885, 0.32, 1.275) transform ${revealImage ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>
+                  {/* Luxury Ripple Waves (No Gaps) - Shared for SR and UR - Moved to background of image */}
+                  {(yucchin.rarity === 'UR' || yucchin.rarity === 'SR') && revealImage && (
+                    <div className="absolute inset-0 pointer-events-none z-0">
+                      {/* Rainbow Rotating Ring - Only for UR */}
+                      {yucchin.rarity === 'UR' && (
+                        <div className="absolute inset-[-20%] rounded-full border-4 border-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500 animate-[spin_5s_linear_infinite] opacity-20 blur-[2px]" style={{ maskImage: 'linear-gradient(white, white), linear-gradient(white, white)', maskClip: 'padding-box, border-box', maskComposite: 'exclude' }}></div>
+                      )}
+                      
+                      {/* Continuous Ripple Waves */}
+                      <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.4)_0%,transparent_100%)] rounded-full animate-ping scale-110 blur-[2px]" />
+                      <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.3)_0%,transparent_100%)] rounded-full animate-ping scale-130 delay-500 blur-[4px]" />
+                      <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.2)_0%,transparent_100%)] rounded-full animate-ping scale-150 delay-1000 blur-[8px]" />
+                    </div>
+                  )}
+
                   <img 
                       src={yucchin.imageUrl} 
                       alt={yucchin.name}
-                      className={`w-72 h-72 object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)] ${yucchin.rarity === 'UR' ? 'animate-pulse' : ''}`}
+                      className="w-72 h-72 object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)]"
+                      style={{
+                        animation: revealImage ? 'subtleBounce 3s ease-in-out infinite' : 'none'
+                      }}
                   />
 
                   {/* Rarity Badge at Bottom Right of Image */}
@@ -337,10 +369,6 @@ const GetPage: React.FC = () => {
                     <RarityBadge rarity={yucchin.rarity} />
                   </div>
                   
-                  {/* UR Glow Ring */}
-                  {yucchin.rarity === 'UR' && revealImage && (
-                    <div className="absolute inset-0 border-[10px] border-white/20 rounded-full animate-ping scale-110 pointer-events-none" />
-                  )}
               </div>
           </div>
 
@@ -350,18 +378,30 @@ const GetPage: React.FC = () => {
               {/* Outer Glow for GET!! */}
               <div className={`absolute inset-0 bg-orange-600 blur-[40px] opacity-40 animate-pulse`}></div>
               <h1 
-                className={`text-8xl md:text-9xl font-black tracking-tighter inline-block bg-clip-text text-transparent bg-gradient-to-b from-yellow-200 via-orange-500 to-red-800 relative z-10 overflow-hidden`}
+                className={`text-8xl md:text-9xl font-black tracking-tighter inline-block relative z-10`}
                 style={{ 
-                    fontFamily: '"Montserrat", sans-serif',
-                    filter: 'drop-shadow(0 0 30px rgba(251,146,60,1)) drop-shadow(0 10px 10px rgba(0,0,0,0.5))',
-                    WebkitTextStroke: '1px rgba(255,255,255,0.4)'
+                  fontFamily: '"Bungee", cursive',
+                  filter: 'drop-shadow(0 0 30px rgba(251,146,60,1)) drop-shadow(0 10px 10px rgba(0,0,0,0.5))',
+                  WebkitTextStroke: '1px rgba(255,255,255,0.4)',
                 }}
               >
-                GET!!
-                {/* GET!! Shine Sweep - Only for RARE and above */}
-                {yucchin.rarity !== 'NORMAL' && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[metallicShine_3s_infinite_1.5s] skew-x-[-30deg]"></div>
-                )}
+                <span className="relative inline-block bg-clip-text text-transparent bg-gradient-to-b from-yellow-200 via-orange-500 to-red-800">
+                  GET!!
+                  {/* Metallic Shine Sweep - Clipped to text */}
+                  {yucchin.rarity !== 'NORMAL' && (
+                    <span 
+                      className="absolute inset-0 bg-clip-text text-transparent pointer-events-none"
+                      style={{
+                        WebkitBackgroundClip: 'text',
+                        backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)',
+                        backgroundSize: '200% 100%',
+                        animation: 'metallicShineText 3s infinite'
+                      }}
+                    >
+                      GET!!
+                    </span>
+                  )}
+                </span>
               </h1>
             </div>
           </div>
@@ -369,6 +409,8 @@ const GetPage: React.FC = () => {
       </Card>
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@900&family=Montserrat:wght@900&family=Bungee&display=swap');
+
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
@@ -404,40 +446,49 @@ const GetPage: React.FC = () => {
           0% { transform: translateX(-150%) skewX(-20deg); }
           20%, 100% { transform: translateX(250%) skewX(-20deg); }
         }
+        @keyframes metallicShineText {
+          0% { background-position: -200% 0; }
+          20%, 100% { background-position: 200% 0; }
+        }
 
         .rarity-normal {
-          background: linear-gradient(to bottom, #d1d5db 0%, #6b7280 50%, #374151 100%);
+          background: linear-gradient(to bottom, 
+            #e2e8f0 0%, #ffffff 40%, #475569 45%, #94a3b8 50%, #f1f5f9 60%, #4b5563 100%
+          );
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          -webkit-text-stroke: 1.5px #fff;
-          opacity: 0.8;
+          -webkit-text-stroke: 1.5px #1e293b;
+          opacity: 0.9;
         }
         .rarity-rare {
-          background: linear-gradient(to bottom, #ffe4b5 0%, #ea580c 50%, #7c2d12 100%);
+          background: linear-gradient(to bottom, 
+            #fef3c7 0%, #fde68a 40%, #78350f 45%, #ea580c 50%, #fef3c7 60%, #451a03 100%
+          );
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           -webkit-text-stroke: 1.5px #431407;
-          text-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+          filter: drop-shadow(0 0 10px rgba(251, 146, 60, 0.5));
         }
         .rarity-sr {
-          background: linear-gradient(to bottom, #cce3ff 0%, #3b82f6 50%, #172554 100%);
+          background: linear-gradient(to bottom, 
+            #e0f2fe 0%, #7dd3fc 40%, #0c4a6e 45%, #38bdf8 50%, #e0f2fe 60%, #1e3a8a 100%
+          );
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          -webkit-text-stroke: 1.5px #fff;
-          filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.7));
+          -webkit-text-stroke: 1.5px #0f172a;
+          filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6));
         }
         .rarity-ur {
-          background: linear-gradient(to bottom, #ef4444, #eab308, #22c55e, #3b82f6, #a855f7);
+          background: linear-gradient(to bottom, 
+            #ffffff 0%, #fff9c4 30%, #fde047 40%, #7c2d12 45%, #fb923c 50%, #ffffff 55%, #ef4444 75%, #7e22ce 100%
+          );
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          -webkit-text-stroke: 2px #fff;
-          filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1));
-          animation: ur-pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes ur-pulse {
-          0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)); transform: scale(1); }
-          50% { filter: drop-shadow(0 0 30px rgba(255, 255, 255, 1)); transform: scale(1.05); }
+          -webkit-text-stroke: 1.5px #450a0a;
+          filter: 
+            drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) 
+            drop-shadow(0 0 40px rgba(251, 191, 36, 0.6));
+          font-weight: 900;
         }
       `}</style>
     </div>
