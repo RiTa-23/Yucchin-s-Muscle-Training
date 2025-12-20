@@ -80,7 +80,10 @@ async def login_for_access_token(response: Response, form_data: UserLogin, db: A
         secure=secure_cookie,
     )
     
-    return {"message": "Login successful"}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer"
+    }
 
 @router.post("/logout")
 async def logout(response: Response):

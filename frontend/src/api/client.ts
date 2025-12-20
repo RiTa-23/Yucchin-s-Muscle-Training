@@ -8,6 +8,18 @@ const client = axios.create({
     },
 });
 
+// Interceptor to add Bearer token
+client.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem("access_token");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
 // Interceptor to handle 401 Unauthorized errors
 client.interceptors.response.use(
     (response) => response,

@@ -74,7 +74,6 @@ export const TrainingContainer = ({
     illustration,
     goalConfig,
     onStart,
-    interval,
     onPoseDetected,
     overlayResults,
     feedbackMessage,
