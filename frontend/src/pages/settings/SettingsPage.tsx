@@ -201,7 +201,7 @@ export default function SettingsPage() {
       ></div>
 
       <div className="max-w-4xl mx-auto space-y-8 relative z-10">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
             設定
           </h1>
@@ -217,7 +217,7 @@ export default function SettingsPage() {
           </Button>
         </div>
 
-        <Card className="w-full bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
+        <Card className="max-w-3xl mx-auto bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-yellow-300">【アプリ設定】</CardTitle>
           </CardHeader>
@@ -339,7 +339,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="w-full bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
+        <Card className="max-w-3xl mx-auto bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-yellow-300">【ゆっちん設定】</CardTitle>
           </CardHeader>
@@ -363,14 +363,16 @@ export default function SettingsPage() {
                     aria-label="ゆっちんの音トグル"
                   />
                   <div
-                    className={`w-11 h-6 rounded-full transition-colors ${yucchinSound
+                    className={`w-11 h-6 rounded-full transition-colors ${
+                      yucchinSound
                         ? "bg-gradient-to-r from-yellow-400 to-orange-500"
                         : "bg-gray-600"
-                      }`}
+                    }`}
                   />
                   <div
-                    className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${yucchinSound ? "translate-x-5" : "translate-x-0"
-                      }`}
+                    className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
+                      yucchinSound ? "translate-x-5" : "translate-x-0"
+                    }`}
                   />
                 </label>
               </div>
@@ -395,14 +397,16 @@ export default function SettingsPage() {
                     aria-label="ゆっちん非表示トグル"
                   />
                   <div
-                    className={`w-11 h-6 rounded-full transition-colors ${yucchinHidden
+                    className={`w-11 h-6 rounded-full transition-colors ${
+                      yucchinHidden
                         ? "bg-gradient-to-r from-yellow-400 to-orange-500"
                         : "bg-gray-600"
-                      }`}
+                    }`}
                   />
                   <div
-                    className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${yucchinHidden ? "translate-x-5" : "translate-x-0"
-                      }`}
+                    className={`absolute left-1 top-0.5 w-4 h-4 bg-white rounded-full shadow transform transition-transform ${
+                      yucchinHidden ? "translate-x-5" : "translate-x-0"
+                    }`}
                   />
                 </label>
               </div>
@@ -428,7 +432,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="w-full bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
+        <Card className="max-w-3xl mx-auto bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-yellow-300">【カメラ設定】</CardTitle>
           </CardHeader>
