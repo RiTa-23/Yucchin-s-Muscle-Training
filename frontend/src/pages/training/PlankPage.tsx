@@ -4,10 +4,12 @@ import { type Results, type NormalizedLandmark } from "@mediapipe/pose";
 import { useAuth } from "@/context/AuthContext";
 import { trainingApi } from "@/api/training";
 import { TrainingContainer, type GameState } from "@/components/training/TrainingContainer";
+import { useTrainer } from "@/hooks/useTrainer";
 
 export default function PlankPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { play, isSpeaking, trainerMessage } = useTrainer();
 
     // State
     const [error, setError] = useState<string | null>(null);
@@ -60,6 +62,7 @@ export default function PlankPage() {
 
         if ((shoulder.visibility || 0) < 0.5 || (hip.visibility || 0) < 0.5 || (ankle.visibility || 0) < 0.5) {
             setMessage("体がカメラに収まっていません");
+            play('camera', "体がカメラに収まってないよ！");
             setIsGood(false);
             return;
         }
@@ -73,6 +76,7 @@ export default function PlankPage() {
 
         if (!isHorizontal) {
             setMessage("プランクの姿勢をとってください");
+            play('plankPosture');
             setIsGood(false);
             return;
         }
@@ -81,6 +85,7 @@ export default function PlankPage() {
             const elbowAngle = calculateAngle(shoulder, elbow, wrist);
             if (elbowAngle > 135) {
                 setMessage("肘を床につけてください！");
+                play('elbowsOnFloor');
                 setIsGood(false);
                 return;
             }
@@ -92,6 +97,7 @@ export default function PlankPage() {
 
             if (kneeAngle < THRESHOLD_KNEE_STRAIGHT) {
                 setMessage("膝を伸ばしてください！");
+                play('kneesStraight');
                 setIsGood(false);
                 return;
             }
@@ -103,6 +109,7 @@ export default function PlankPage() {
         if (hipAngle >= THRESHOLD_GOOD_MIN) {
             setMessage("いいね！その調子！");
             setIsGood(true);
+            play('good', "いいね！その調子！");
         } else {
             const deltaX = ankle.x - shoulder.x;
             if (Math.abs(deltaX) < 0.01) {
@@ -114,12 +121,14 @@ export default function PlankPage() {
             const expectedHipY = shoulder.y + (hip.x - shoulder.x) * (ankle.y - shoulder.y) / deltaX;
             if (hip.y < expectedHipY) {
                 setMessage("お尻が上がっています！下げて！");
+                play('hipsHigh');
             } else {
                 setMessage("腰が下がっています！上げて！");
+                play('hipsLow');
             }
             setIsGood(false);
         }
-    }, [calculateAngle]);
+    }, [calculateAngle, play]);
 
     const onPoseDetected = useCallback((results: Results) => {
         setLastResults(results);
@@ -162,6 +171,7 @@ export default function PlankPage() {
     // Save Logic
     useEffect(() => {
         if (gameState === "FINISHED") {
+            play('finish', "お疲れ様！ナイスファイト！");
             const performedDuration = targetDurationRef.current - timeLeftRef.current;
             const saveResult = async () => {
                 try {
@@ -245,6 +255,10 @@ export default function PlankPage() {
 
             // Navigation
             onQuit={handleQuit}
+
+            // Trainer
+            isSpeaking={isSpeaking}
+            trainerMessage={trainerMessage}
         />
     );
 }
