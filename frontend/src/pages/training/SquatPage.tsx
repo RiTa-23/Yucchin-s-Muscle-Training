@@ -47,43 +47,46 @@ export default function SquatPage() {
         if (!results.poseLandmarks) return;
         const landmarks = results.poseLandmarks;
 
-        // Use visibility to determine which side is facing the camera
-        const leftVisibility = (landmarks[23].visibility || 0) + (landmarks[25].visibility || 0) + (landmarks[27].visibility || 0);
-        const rightVisibility = (landmarks[24].visibility || 0) + (landmarks[26].visibility || 0) + (landmarks[28].visibility || 0);
-        const isLeft = leftVisibility > rightVisibility;
+        // Landmarks for both sides
+        const leftHip = landmarks[23];
+        const rightHip = landmarks[24];
+        const leftKnee = landmarks[25];
+        const rightKnee = landmarks[26];
+        const leftAnkle = landmarks[27];
+        const rightAnkle = landmarks[28];
 
-        const hip = isLeft ? landmarks[23] : landmarks[24];
-        const knee = isLeft ? landmarks[25] : landmarks[26];
-        const ankle = isLeft ? landmarks[27] : landmarks[28];
-        // const shoulder = isLeft ? landmarks[11] : landmarks[12];
+        // Visibility check for BOTH legs (Strict: 0.6 for core, 0.3 for ankles)
+        const leftLegVisible = (leftHip.visibility || 0) >= 0.6 && (leftKnee.visibility || 0) >= 0.6 && (leftAnkle.visibility || 0) >= 0.3;
+        const rightLegVisible = (rightHip.visibility || 0) >= 0.6 && (rightKnee.visibility || 0) >= 0.6 && (rightAnkle.visibility || 0) >= 0.3;
 
-        // Basic visibility check
-        if ((hip.visibility || 0) < 0.6 || (knee.visibility || 0) < 0.6 || (ankle.visibility || 0) < 0.3) {
-            safeSetMessage("下半身が映るようにしてください");
+        if (!leftLegVisible || !rightLegVisible) {
+            safeSetMessage("両足が映るようにしてください");
             play('camera');
             setIsGood(false);
             return;
         }
 
-        const kneeAngle = calculateAngle(hip, knee, ankle);
+        const leftKneeAngle = calculateAngle(leftHip, leftKnee, leftAnkle);
+        const rightKneeAngle = calculateAngle(rightHip, rightKnee, rightAnkle);
 
-        // Squat Logic
-        // UP: Standing straight, knee angle > 160
-        // DOWN: Squatting, knee angle < 100
+        // Strict Requirement: Both legs must satisfy the condition
+        // To be considered "DOWN" (bent), both legs must be < Threshold. So MAX(left, right) < Threshold.
+        // To be considered "UP" (straight), both legs must be > Threshold. So MIN(left, right) > Threshold.
+        const maxKneeAngle = Math.max(leftKneeAngle, rightKneeAngle);
+        const minKneeAngle = Math.min(leftKneeAngle, rightKneeAngle);
 
         const UP_THRESHOLD = 130;
         const DOWN_THRESHOLD = 100;
 
         if (squatState === "UP") {
-            if (kneeAngle < DOWN_THRESHOLD) {
+            if (maxKneeAngle < DOWN_THRESHOLD) {
                 setSquatState("DOWN");
                 safeSetMessage("Good! そのまま立ち上がって！");
                 play('squatUp');
                 setIsGood(true);
                 shallowSquatStartTime.current = 0; // Reset
-            } else if (kneeAngle < 140) {
-                // Only prompt for depth if they are actually crouching appropriately
-                // And only if they stay in this "shallow" state for > 2 seconds
+            } else if (maxKneeAngle < 140) {
+                // "More deep" if not deep enough yet
                 if (shallowSquatStartTime.current === 0) {
                     shallowSquatStartTime.current = Date.now();
                 }
@@ -94,11 +97,10 @@ export default function SquatPage() {
                     play('squatDeep');
                 }
                 setIsGood(true); // Encouraging
-            } else if (kneeAngle > 150) {
+            } else if (minKneeAngle > 150) {
                 shallowSquatStartTime.current = 0; // Reset
                 safeSetMessage("しゃがんでください");
                 // Only play "squat down" if some time has passed since they stood up
-                // to avoid interrupting the success message
                 if (Date.now() - lastCompletionTime.current > 3000) {
                     play('squatDown');
                 }
@@ -110,7 +112,7 @@ export default function SquatPage() {
                 setIsGood(true);
             }
         } else if (squatState === "DOWN") {
-            if (kneeAngle > UP_THRESHOLD) {
+            if (minKneeAngle > UP_THRESHOLD) {
                 setSquatState("UP");
                 setCount(prev => prev + 1);
                 lastCompletionTime.current = Date.now(); // Record completion time
