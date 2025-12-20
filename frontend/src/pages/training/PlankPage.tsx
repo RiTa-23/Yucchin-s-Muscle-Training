@@ -84,7 +84,7 @@ export default function PlankPage() {
             const elbowAngle = calculateAngle(shoulder, elbow, wrist);
             if (elbowAngle > 135) {
                 setMessage("肘を床につけてください！");
-                play('elbowsOnFloor', "肘を床につけて！");
+                play('elbowsOnFloor');
                 setIsGood(false);
                 return;
             }
@@ -96,6 +96,7 @@ export default function PlankPage() {
 
             if (kneeAngle < THRESHOLD_KNEE_STRAIGHT) {
                 setMessage("膝を伸ばしてください！");
+                play('kneesStraight');
                 setIsGood(false);
                 return;
             }
@@ -119,10 +120,10 @@ export default function PlankPage() {
             const expectedHipY = shoulder.y + (hip.x - shoulder.x) * (ankle.y - shoulder.y) / deltaX;
             if (hip.y < expectedHipY) {
                 setMessage("お尻が上がっています！下げて！");
-                play('hipsHigh', "お尻が上がってるよ！下げて！");
+                play('hipsHigh');
             } else {
                 setMessage("腰が下がっています！上げて！");
-                play('hipsLow', "腰が下がってるよ！上げて！");
+                play('hipsLow');
             }
             setIsGood(false);
         }

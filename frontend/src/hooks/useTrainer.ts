@@ -33,10 +33,10 @@ const FINISH_SOUNDS = [
 ];
 
 const SOUNDS = {
-    hipsHigh: `${ASSETS_BASE}/plank/お尻を下げてください。_T01.wav`,
-    hipsLow: `${ASSETS_BASE}/腰を上げろぉお.wav`,
-    elbowsOnFloor: `${ASSETS_BASE}/plank/肘を床に付ける2_T01.wav`,
-    warning: `${ASSETS_BASE}/ﾍｪッ！！_T01.wav`,
+    hipsHigh: { src: `${ASSETS_BASE}/plank/お尻を下げてください。_T01.wav`, text: "お尻を下げて！" },
+    hipsLow: { src: `${ASSETS_BASE}/plank/腰を上げろぉお.wav`, text: "腰を上げろぉお！" },
+    elbowsOnFloor: { src: `${ASSETS_BASE}/plank/肘を床に付ける2_T01.wav`, text: "肘を床につけて！" },
+    kneesStraight: { src: `${ASSETS_BASE}/plank/膝を伸ばす.wav`, text: "膝を伸ばして！" },
 } as const;
 
 type SoundType = keyof typeof SOUNDS | 'good' | 'start' | 'camera' | 'finish';
@@ -52,6 +52,7 @@ export const useTrainer = () => {
         hipsHigh: 5000,
         hipsLow: 5000,
         elbowsOnFloor: 5000,
+        kneesStraight: 5000,
         camera: 10000, // Longer cooldown for system-like message
         warning: 5000,
         good: 3000,
@@ -82,7 +83,7 @@ export const useTrainer = () => {
         };
 
         // Preload standard sounds
-        Object.entries(SOUNDS).forEach(([key, src]) => loadAudio(src, key));
+        Object.entries(SOUNDS).forEach(([key, item]) => loadAudio(item.src, key));
 
         // Preload compliments
         COMPLIMENTS.forEach((item, index) => loadAudio(item.src, `good_${index}`));
@@ -124,6 +125,11 @@ export const useTrainer = () => {
             const randomIndex = Math.floor(Math.random() * FINISH_SOUNDS.length);
             audioKey = `finish_${randomIndex}`;
             specificText = FINISH_SOUNDS[randomIndex].text;
+        } else if (type in SOUNDS) {
+            // Handle standard named sounds
+            // @ts-ignore - TS doesn't fully narrow the type here effectively but it's safe
+            specificText = SOUNDS[type as keyof typeof SOUNDS].text;
+            audioKey = type;
         }
 
         const audio = audioRefs.current.get(audioKey);
