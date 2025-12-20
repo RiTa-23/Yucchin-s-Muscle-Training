@@ -177,7 +177,7 @@ export default function SquatPage() {
         }
       }
     },
-    [calculateAngle, squatState, safeSetMessage, cameraAngle]
+    [calculateAngle, squatState, safeSetMessage, cameraAngle, play]
   );
 
   const onPoseDetected = useCallback(
@@ -225,7 +225,7 @@ export default function SquatPage() {
       saveResult();
       play("finish", "お疲れ様！ナイスファイト！");
     }
-  }, [gameState, targetCount, count]);
+  }, [gameState, count, play]);
 
   const handleError = useCallback((err: any) => {
     setError(

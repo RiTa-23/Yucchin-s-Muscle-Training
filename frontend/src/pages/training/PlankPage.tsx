@@ -215,7 +215,7 @@ export default function PlankPage() {
       };
       saveResult();
     }
-  }, [gameState]);
+  }, [gameState, play]);
 
   const handleError = useCallback((err: any) => {
     setError(
