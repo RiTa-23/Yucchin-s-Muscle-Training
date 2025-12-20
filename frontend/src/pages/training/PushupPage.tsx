@@ -4,12 +4,16 @@ import { type Results, type NormalizedLandmark } from "@mediapipe/pose";
 import { useAuth } from "@/context/AuthContext";
 import { trainingApi } from "@/api/training";
 import { TrainingContainer, type GameState } from "@/components/training/TrainingContainer";
+import { useTrainer } from "@/hooks/useTrainer";
 
 type PushupState = "UP" | "DOWN";
 
 export default function PushupPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
+
+    // Use Trainer Hook
+    const { play, isSpeaking, trainerMessage } = useTrainer();
 
     const [error, setError] = useState<string | null>(null);
     const [gameState, setGameState] = useState<GameState>("GUIDE");
@@ -39,6 +43,8 @@ export default function PushupPage() {
         return angle;
     }, []);
 
+    const [cameraAngle, setCameraAngle] = useState<'front' | 'side'>('front');
+
     const checkForm = useCallback((results: Results) => {
         if (!results.poseLandmarks) return;
         const landmarks = results.poseLandmarks;
@@ -50,6 +56,31 @@ export default function PushupPage() {
         const shoulder = isLeft ? landmarks[11] : landmarks[12];
         const elbow = isLeft ? landmarks[13] : landmarks[14];
         const wrist = isLeft ? landmarks[15] : landmarks[16];
+        const hip = isLeft ? landmarks[23] : landmarks[24];
+
+        // Body alignment check
+        const bodyDx = Math.abs(shoulder.x - hip.x);
+        const bodyDy = Math.abs(shoulder.y - hip.y);
+
+        let isStanding = false;
+
+        if (cameraAngle === 'front') {
+            // === FRONT MODE ===
+            if (bodyDy > 0.3) {
+                isStanding = true;
+            }
+        } else {
+            // === SIDE MODE ===
+            if (bodyDy > bodyDx) {
+                isStanding = true;
+            }
+        }
+
+        if (isStanding) {
+            safeSetMessage("腕立て伏せの姿勢になってください");
+            setIsGood(false);
+            return;
+        }
 
         if ((shoulder.visibility || 0) < 0.5 || (elbow.visibility || 0) < 0.5 || (wrist.visibility || 0) < 0.5) {
             safeSetMessage("上半身（肩・肘・手首）がはっきり映るようにしてください");
@@ -67,11 +98,12 @@ export default function PushupPage() {
                 setPushupState("DOWN");
                 safeSetMessage("Good! そのまま体を押し上げて！");
                 setIsGood(true);
-            } else if (elbowAngle < 140) {
+            } else if (elbowAngle < 130) {
                 safeSetMessage("もっと深く曲げて！");
                 setIsGood(true); // Encouraging
             } else {
                 safeSetMessage("スタート！体を沈めてください");
+                play('pushupDown');
                 setIsGood(true);
             }
         } else if (pushupState === "DOWN") {
@@ -79,6 +111,11 @@ export default function PushupPage() {
                 setPushupState("UP");
                 setCount(prev => prev + 1);
                 safeSetMessage("ナイスプッシュアップ！");
+                if (Math.random() < 0.5) {
+                    play('nicePushup');
+                } else {
+                    play('good');
+                }
                 setIsGood(true);
             } else {
                 safeSetMessage("体を押し上げて！");
@@ -86,7 +123,7 @@ export default function PushupPage() {
             }
         }
 
-    }, [calculateAngle, pushupState, safeSetMessage]);
+    }, [calculateAngle, pushupState, safeSetMessage, cameraAngle, play]);
 
     const onPoseDetected = useCallback((results: Results) => {
         setLastResults(results);
@@ -99,8 +136,9 @@ export default function PushupPage() {
     useEffect(() => {
         if (gameState === "ACTIVE" && count >= targetCount) {
             setGameState("FINISHED");
+            play('finish', "お疲れ様！ナイスプッシュアップ！");
         }
-    }, [count, targetCount, gameState]);
+    }, [count, targetCount, gameState, play]);
 
     const handleStart = (target?: number) => {
         if (target) {
@@ -191,6 +229,14 @@ export default function PushupPage() {
 
             // Navigation
             onQuit={handleQuit}
+
+            // Camera Toggle
+            cameraAngle={cameraAngle}
+            onCameraAngleChange={setCameraAngle}
+
+            // Trainer
+            isSpeaking={isSpeaking}
+            trainerMessage={trainerMessage}
         />
     );
 }

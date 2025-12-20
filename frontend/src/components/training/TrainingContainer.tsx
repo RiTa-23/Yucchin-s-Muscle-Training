@@ -48,6 +48,10 @@ interface TrainingContainerProps {
 
     // Navigation (Quit)
     onQuit: () => void;
+
+    // Camera Angle Toggle
+    cameraAngle?: 'front' | 'side';
+    onCameraAngleChange?: (angle: 'front' | 'side') => void;
 }
 
 export const TrainingContainer = ({
@@ -72,7 +76,9 @@ export const TrainingContainer = ({
     onRetry,
     isSpeaking,
     trainerMessage,
-    onQuit
+    onQuit,
+    cameraAngle,
+    onCameraAngleChange
 }: TrainingContainerProps) => {
     const { user } = useAuth();
 
@@ -157,6 +163,30 @@ export const TrainingContainer = ({
                     やめる
                 </Button>
             </div>
+
+            {/* Camera Angle Toggle (Top Right) */}
+            {onCameraAngleChange && cameraAngle && (
+                <div className="absolute top-4 right-4 z-50 flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
+                    <button
+                        className={`px-4 py-2 rounded-md font-bold transition-all ${cameraAngle === 'front'
+                                ? 'bg-orange-500 text-white shadow-lg'
+                                : 'text-gray-300 hover:text-white'
+                            }`}
+                        onClick={() => onCameraAngleChange('front')}
+                    >
+                        正面
+                    </button>
+                    <button
+                        className={`px-4 py-2 rounded-md font-bold transition-all ${cameraAngle === 'side'
+                                ? 'bg-orange-500 text-white shadow-lg'
+                                : 'text-gray-300 hover:text-white'
+                            }`}
+                        onClick={() => onCameraAngleChange('side')}
+                    >
+                        横
+                    </button>
+                </div>
+            )}
 
             {/* Camera FrameContainer */}
             <div className="relative w-full max-w-6xl aspect-video border-4 border-orange-500/50 rounded-xl shadow-[0_0_60px_rgba(251,146,60,0.6)] overflow-hidden bg-black z-10">
