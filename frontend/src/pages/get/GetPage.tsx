@@ -276,6 +276,24 @@ const GetPage: React.FC = () => {
         audioRef.current = audio;
       }
     }
+
+    // クリーンアップ処理: コンポーネントのアンマウント時や再レンダリング時に音声を停止
+    return () => {
+      const cleanupAudio = (ref: React.RefObject<HTMLAudioElement | null>) => {
+        if (ref.current) {
+          ref.current.pause();
+          ref.current.src = "";
+          ref.current.onended = null;
+          ref.current.onerror = null;
+          ref.current = null;
+        }
+      };
+
+      cleanupAudio(startAudioRef);
+      cleanupAudio(pepeAudioRef);
+      cleanupAudio(voiceAudioRef);
+      cleanupAudio(audioRef);
+    };
   }, [location, searchParams]);
 
   // 事前ロード済み音声を再生するヘルパー
