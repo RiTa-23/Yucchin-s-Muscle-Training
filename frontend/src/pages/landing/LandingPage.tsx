@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import bgImage from "@/assets/img/yucchins/mukimukiyuttin.jpg";
-import soundFile from "@/assets/sounds/これであなたも！ムキムキよ！_T01.wav";
+import soundFile from "@/assets/sounds/finish1_T01.wav";
 import {
   Dumbbell,
   TrendingUp,
