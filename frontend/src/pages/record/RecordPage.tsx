@@ -7,8 +7,8 @@ import {
   type TrainingStatsResponse,
 } from "@/api/training";
 import { playSound } from "@/utils/audio";
-import clickSound from "@/assets/sounds/へへっ_T01.wav";
-import backSound from "@/assets/sounds/ﾍｪッ！！_T01.wav";
+import clickSound from "@/assets/sounds/hehe_T01.wav";
+import backSound from "@/assets/sounds/he-sound_T01.wav";
 import { Button } from "@/components/ui/button";
 
 export default function RecordPage() {
