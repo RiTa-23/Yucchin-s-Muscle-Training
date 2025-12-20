@@ -14,7 +14,11 @@ client.interceptors.response.use(
     (error) => {
         if (error.response && error.response.status === 401) {
             // Prevent infinite redirect loop if already on auth page
-            if (window.location.pathname !== "/auth") {
+            // Also ignore 401 on /users/me (initial auth check)
+            if (
+                window.location.pathname !== "/auth" &&
+                !error.config?.url?.includes("/users/me")
+            ) {
                 window.location.href = "/auth";
             }
         }
