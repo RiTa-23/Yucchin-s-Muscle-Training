@@ -58,7 +58,7 @@ export default function SquatPage() {
         // const shoulder = isLeft ? landmarks[11] : landmarks[12];
 
         // Basic visibility check
-        if ((hip.visibility || 0) < 0.3 || (knee.visibility || 0) < 0.3 || (ankle.visibility || 0) < 0.3) {
+        if ((hip.visibility || 0) < 0.6 || (knee.visibility || 0) < 0.6 || (ankle.visibility || 0) < 0.3) {
             safeSetMessage("下半身が映るようにしてください");
             play('camera');
             setIsGood(false);
