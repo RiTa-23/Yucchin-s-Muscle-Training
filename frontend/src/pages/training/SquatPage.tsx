@@ -9,7 +9,7 @@ type SquatState = "UP" | "DOWN";
 
 export default function SquatPage() {
     const navigate = useNavigate();
-    // const { user } = useAuth(); // Unused
+
     const { play, isSpeaking, trainerMessage } = useTrainer();
 
     const [error, setError] = useState<string | null>(null);
