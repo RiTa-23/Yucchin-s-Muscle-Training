@@ -17,6 +17,7 @@ export interface GoalConfig {
 interface TrainingGuideProps {
   title: string;
   description: React.ReactNode;
+  descriptionPlacement?: "top" | "bottom";
   onStart: (goalValue?: number) => void;
   illustration?: React.ReactNode;
   goalConfig?: GoalConfig;
@@ -25,6 +26,7 @@ interface TrainingGuideProps {
 export const TrainingGuide = ({
   title,
   description,
+  descriptionPlacement = "top",
   onStart,
   illustration,
   goalConfig,
@@ -80,15 +82,17 @@ export const TrainingGuide = ({
 
         {/* Content */}
         <div className="p-8 flex-1 overflow-y-auto flex flex-col items-center text-center">
-          {illustration && (
-            <div className="w-full max-w-sm aspect-video bg-gradient-to-br from-gray-700/50 to-gray-800/50 border-2 border-orange-500/30 rounded-lg mb-8 flex items-center justify-center overflow-hidden">
+          {descriptionPlacement === "top" && illustration && (
+            <div className="w-full max-w-sm min-h-[520px] max-h-[900px] p-4 bg-gradient-to-br from-gray-700/50 to-gray-800/50 border-2 border-orange-500/30 rounded-lg mb-8 flex items-center justify-center overflow-hidden">
               {illustration}
             </div>
           )}
 
-          <div className="text-gray-200 text-lg leading-relaxed mb-8 space-y-4">
-            {description}
-          </div>
+          {descriptionPlacement === "top" && (
+            <div className="text-gray-200 text-lg leading-relaxed mb-8 space-y-4">
+              {description}
+            </div>
+          )}
 
           {/* Goal Setting */}
           {goalConfig && (
@@ -134,6 +138,18 @@ export const TrainingGuide = ({
           >
             スタート！
           </Button>
+
+          {descriptionPlacement === "bottom" && (
+            <div className="text-gray-200 text-lg leading-relaxed mt-6 space-y-4">
+              {description}
+            </div>
+          )}
+
+          {descriptionPlacement === "bottom" && illustration && (
+            <div className="w-full max-w-sm min-h-[520px] max-h-[900px] p-4 bg-gradient-to-br from-gray-700/50 to-gray-800/50 border-2 border-orange-500/30 rounded-lg mt-6 flex items-center justify-center overflow-hidden">
+              {illustration}
+            </div>
+          )}
         </div>
       </div>
     </div>
