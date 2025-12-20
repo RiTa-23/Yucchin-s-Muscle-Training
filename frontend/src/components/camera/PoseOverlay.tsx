@@ -9,6 +9,7 @@ interface PoseOverlayProps {
     stats?: {
         label: string;
         value: string | number;
+        target?: number;
         unit?: string;
     };
 }
@@ -69,6 +70,7 @@ export const PoseOverlay = ({ results, feedback, isGoodPose = false, stats }: Po
                             className="text-6xl font-black text-blue-600 font-mono animate-in zoom-in-50 duration-150"
                         >
                             {stats.value}
+                            {stats.target && <span className="text-4xl text-gray-400 mx-2">/ {stats.target}</span>}
                             {stats.unit && <span className="text-2xl ml-2 text-gray-600">{stats.unit}</span>}
                         </p>
                     </div>

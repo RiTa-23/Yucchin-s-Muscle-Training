@@ -30,6 +30,7 @@ interface TrainingContainerProps {
     stats: {
         label: string;
         value: string | number;
+        target?: number;
         unit: string;
     };
     cameraError: string | null;
@@ -169,8 +170,8 @@ export const TrainingContainer = ({
                 <div className="absolute top-4 right-4 z-50 flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
                     <button
                         className={`px-4 py-2 rounded-md font-bold transition-all ${cameraAngle === 'front'
-                                ? 'bg-orange-500 text-white shadow-lg'
-                                : 'text-gray-300 hover:text-white'
+                            ? 'bg-orange-500 text-white shadow-lg'
+                            : 'text-gray-300 hover:text-white'
                             }`}
                         onClick={() => onCameraAngleChange('front')}
                     >
@@ -178,8 +179,8 @@ export const TrainingContainer = ({
                     </button>
                     <button
                         className={`px-4 py-2 rounded-md font-bold transition-all ${cameraAngle === 'side'
-                                ? 'bg-orange-500 text-white shadow-lg'
-                                : 'text-gray-300 hover:text-white'
+                            ? 'bg-orange-500 text-white shadow-lg'
+                            : 'text-gray-300 hover:text-white'
                             }`}
                         onClick={() => onCameraAngleChange('side')}
                     >
