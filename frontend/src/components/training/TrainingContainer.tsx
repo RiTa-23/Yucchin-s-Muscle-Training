@@ -101,6 +101,13 @@ export const TrainingContainer = ({
     const [localFps, setLocalFps] = useState<number>(user?.settings?.fps || 20);
     const effectiveInterval = useMemo(() => Math.floor(1000 / localFps), [localFps]);
 
+    // Sync localFps with user settings when they load or change
+    useEffect(() => {
+        if (user?.settings?.fps) {
+            setLocalFps(user.settings.fps);
+        }
+    }, [user?.settings?.fps]);
+
     // Reset modal state when gameState changes (e.g. Retry)
     useEffect(() => {
         setIsQuitModalOpen(false);
