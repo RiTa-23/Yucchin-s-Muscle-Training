@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
 import { YUCCHIN_MASTER, type YucchinMaster } from '../../data/yucchinMaster';
@@ -214,6 +214,7 @@ const GetPage: React.FC = () => {
   const [quoteFadeOut, setQuoteFadeOut] = useState(false); // セリフのフェードアウト
   const [revealImage, setRevealImage] = useState(false); // キャラクター画像
   const [revealText, setRevealText] = useState(false);   // GET!!テキスト
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     const stateYucchin = (location as any).state?.yucchin as YucchinMaster | undefined;
@@ -225,6 +226,15 @@ const GetPage: React.FC = () => {
     const targetYucchin = stateYucchin || paramYucchin || randomYucchin;
 
     setYucchin(targetYucchin);
+
+    // 音声の事前読み込み
+    if (targetYucchin?.audioUrl) {
+      const audio = new Audio(targetYucchin.audioUrl);
+      audio.volume = 0.7;
+      audio.preload = 'auto';
+      audio.load();
+      audioRef.current = audio;
+    }
 
     // 演出タイマーの設定
     if (targetYucchin) {
@@ -255,79 +265,53 @@ const GetPage: React.FC = () => {
   // セリフ表示時に音声を再生し、音声終了後にフェードアウト→次の画面へ
   useEffect(() => {
     if (revealQuote && !quoteFadeOut) {
-      if (yucchin?.audioUrl) {
-        // 音声がある場合
-        const audio = new Audio(yucchin.audioUrl);
-        audio.volume = 0.7;
-        audio.preload = 'auto';
-        
-        // 音声終了時の処理
-        audio.onended = () => {
-          // フェードアウトを開始
+      const displayStartTime = Date.now();
+      const MIN_DISPLAY_TIME = 2500; // 最小表示時間 (2.5秒)
+
+      const proceedToNext = () => {
+        const elapsedTime = Date.now() - displayStartTime;
+        const remainingTime = Math.max(0, MIN_DISPLAY_TIME - elapsedTime);
+
+        setTimeout(() => {
           setQuoteFadeOut(true);
-          
-          // フェードアウト完了後（500ms後）に次の画面へ
           setTimeout(() => {
             setRevealImage(true);
             setRevealBadge(true);
-            // テキスト表示は画像表示の少し後（500ms後）
             setTimeout(() => setRevealText(true), 500);
           }, 500);
+        }, remainingTime);
+      };
+
+      const audio = audioRef.current;
+      if (audio) {
+        audio.onended = () => {
+          proceedToNext();
         };
         
-        // 音声の読み込みが完了してから再生
-        const handleCanPlayThrough = () => {
-          audio.play().catch((error) => {
-            console.error('音声の再生に失敗しました:', error);
-            // エラー時も次の画面へ進む
-            setQuoteFadeOut(true);
-            setTimeout(() => {
-              setRevealImage(true);
-              setRevealBadge(true);
-              setTimeout(() => setRevealText(true), 500);
-            }, 500);
+        audio.onerror = () => {
+          console.error('音声の再生中にエラーが発生しました');
+          proceedToNext();
+        };
+
+        // 再生を確実に開始する
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.error('音声の再生に失敗しました（自動再生制限など）:', error);
+            proceedToNext();
           });
-        };
-        
-        // 既に読み込み済みの場合も考慮
-        if (audio.readyState >= 3) { // HAVE_FUTURE_DATA
-          handleCanPlayThrough();
-        } else {
-          audio.addEventListener('canplaythrough', handleCanPlayThrough, { once: true });
         }
         
-        // エラー時の処理
-        audio.onerror = () => {
-          console.error('音声の読み込みに失敗しました');
-          setQuoteFadeOut(true);
-          setTimeout(() => {
-            setRevealImage(true);
-            setRevealBadge(true);
-            setTimeout(() => setRevealText(true), 500);
-          }, 500);
-        };
-        
-        // クリーンアップ関数で音声を停止
         return () => {
-          audio.removeEventListener('canplaythrough', handleCanPlayThrough);
-          audio.pause();
-          audio.src = '';
+          audio.onended = null;
+          audio.onerror = null;
         };
       } else {
-        // 音声がない場合、一定時間（2秒）後に次の画面へ
-        const timer = setTimeout(() => {
-          setQuoteFadeOut(true);
-          setTimeout(() => {
-            setRevealImage(true);
-            setRevealBadge(true);
-            setTimeout(() => setRevealText(true), 500);
-          }, 500);
-        }, 2000);
-        
-        return () => clearTimeout(timer);
+        // 音声がない場合、またはまだロードされていない場合
+        proceedToNext();
       }
     }
-  }, [revealQuote, yucchin?.audioUrl, quoteFadeOut]);
+  }, [revealQuote, quoteFadeOut]);
 
   const theme = useMemo(() => {
     if (!yucchin) return RARITY_THEMES.NORMAL;
