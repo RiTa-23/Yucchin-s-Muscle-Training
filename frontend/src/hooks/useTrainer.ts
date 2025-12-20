@@ -54,7 +54,6 @@ export const useTrainer = () => {
         elbowsOnFloor: 5000,
         kneesStraight: 5000,
         camera: 10000, // Longer cooldown for system-like message
-        warning: 5000,
         good: 3000,
         start: 0,
         finish: 0,
