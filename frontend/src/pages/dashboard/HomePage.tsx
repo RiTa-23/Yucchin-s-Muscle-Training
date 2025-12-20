@@ -1,13 +1,12 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import mukiyuchiImg from "@/assets/mukiyuchiBK.png";
+import clickSound from "@/assets/sounds/へへっ_T01.wav";
+import backSound from "@/assets/sounds/ﾍｪッ！！_T01.wav";
 import { Settings, History, Trophy, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { playSound } from "@/utils/audio";
 import * as React from "react";
 
 export default function HomePage() {
@@ -39,18 +38,18 @@ export default function HomePage() {
     };
   }, []);
 
-  const handleSettings = () => {
-    // TODO: Navigate to settings page
+  const handleSettings = async () => {
+    await playSound(clickSound);
     navigate("/settings");
   };
 
-  const handleHistory = () => {
-    // TODO: Navigate to history page (mapped to existing route)
+  const handleHistory = async () => {
+    await playSound(clickSound);
     navigate("/record");
   };
 
-  const handleCollection = () => {
-    // TODO: Navigate to collection page
+  const handleCollection = async () => {
+    await playSound(clickSound);
     navigate("/collection");
   };
 
@@ -130,7 +129,10 @@ export default function HomePage() {
             )}
             <Button
               variant="outline"
-              onClick={() => logout()}
+              onClick={async () => {
+                await playSound(backSound);
+                logout();
+              }}
               size="sm"
               className="bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 border-2 border-red-500/50 text-white font-bold shadow-[0_0_10px_rgba(239,68,68,0.4)] hover:shadow-[0_0_20px_rgba(239,68,68,0.6)] transition-all duration-300 hover:scale-105"
             >
@@ -160,7 +162,10 @@ export default function HomePage() {
                 {/* TODO: /training/squat ページを実装後、遷移先を変更 */}
                 <Button
                   variant="outline"
-                  onClick={() => navigate("/training/squat")}
+                  onClick={async () => {
+                    await playSound(clickSound);
+                    navigate("/training/squat");
+                  }}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-orange-500/50 hover:border-yellow-400 p-4 bg-gradient-to-br from-gray-700/90 to-gray-800/90 backdrop-blur-xl flex items-center justify-center text-white aspect-video h-auto shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_40px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 hover:-translate-y-2"
                 >
                   <span className="text-2xl font-bold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
@@ -170,7 +175,10 @@ export default function HomePage() {
                 {/* プランク */}
                 <Button
                   variant="outline"
-                  onClick={() => navigate("/training/plank")}
+                  onClick={async () => {
+                    await playSound(clickSound);
+                    navigate("/training/plank");
+                  }}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-orange-500/50 hover:border-yellow-400 p-4 bg-gradient-to-br from-gray-700/90 to-gray-800/90 backdrop-blur-xl flex items-center justify-center text-white aspect-video h-auto shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_40px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 hover:-translate-y-2"
                 >
                   <span className="text-2xl font-bold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
@@ -181,7 +189,10 @@ export default function HomePage() {
                 {/* TODO: /training/pushup ページを実装後、遷移先を変更 */}
                 <Button
                   variant="outline"
-                  onClick={() => navigate("/training/pushup")}
+                  onClick={async () => {
+                    await playSound(clickSound);
+                    navigate("/training/pushup");
+                  }}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-orange-500/50 hover:border-yellow-400 p-4 bg-gradient-to-br from-gray-700/90 to-gray-800/90 backdrop-blur-xl flex items-center justify-center text-white aspect-video h-auto shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_40px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 hover:-translate-y-2"
                 >
                   <span className="text-2xl font-bold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
