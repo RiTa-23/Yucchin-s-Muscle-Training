@@ -183,7 +183,7 @@ export const TrainingContainer = ({
                 {isSpeaking && trainerMessage && (
                     <div className="absolute -top-60 right-10 w-[800px] max-w-[90vw] bg-white p-10 rounded-3xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div className="relative">
-                            <p className="text-gray-900 font-bold text-3xl text-center leading-relaxed">
+                            <p className="text-gray-900 font-bold text-4xl text-center leading-relaxed">
                                 {trainerMessage}
                             </p>
                         </div>
