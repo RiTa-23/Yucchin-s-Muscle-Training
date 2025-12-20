@@ -29,6 +29,7 @@ export default function SquatPage() {
 
   // Refs for stable state access in callbacks
   const lastMessageRef = useRef<string>("");
+  const lastSoundRef = useRef<string>("");
   const lastCompletionTime = useRef<number>(0);
   const shallowSquatStartTime = useRef<number>(0);
 
@@ -38,6 +39,16 @@ export default function SquatPage() {
       lastMessageRef.current = msg;
     }
   }, []);
+
+  const safePlaySound = useCallback(
+    (soundType: string, customMessage?: string) => {
+      if (lastSoundRef.current !== soundType) {
+        play(soundType as any, customMessage);
+        lastSoundRef.current = soundType;
+      }
+    },
+    [play]
+  );
 
   const calculateAngle = useCallback(
     (a: NormalizedLandmark, b: NormalizedLandmark, c: NormalizedLandmark) => {
@@ -79,7 +90,7 @@ export default function SquatPage() {
 
         if (!leftLegVisible || !rightLegVisible) {
           safeSetMessage("両足が映るようにしてください");
-          play("camera");
+          safePlaySound("camera");
           setIsGood(false);
           return;
         }
@@ -116,7 +127,7 @@ export default function SquatPage() {
           (ankle.visibility || 0) < 0.3
         ) {
           safeSetMessage("下半身が映るようにしてください");
-          play("camera");
+          safePlaySound("camera");
           setIsGood(false);
           return;
         }
@@ -130,7 +141,7 @@ export default function SquatPage() {
         if (kneeAngle < DOWN_THRESHOLD) {
           setSquatState("DOWN");
           safeSetMessage("Good! そのまま立ち上がって！");
-          play("squatUp");
+          safePlaySound("squatUp");
           setIsGood(true);
           shallowSquatStartTime.current = 0; // Reset
         } else if (kneeAngle < 140) {
@@ -142,7 +153,7 @@ export default function SquatPage() {
           safeSetMessage("もっと深く！");
 
           if (Date.now() - shallowSquatStartTime.current > 1500) {
-            play("squatDeep");
+            safePlaySound("squatDeep");
           }
           setIsGood(true); // Encouraging
         } else if (kneeAngle > 150) {
@@ -150,13 +161,13 @@ export default function SquatPage() {
           safeSetMessage("しゃがんでください");
           // Only play "squat down" if some time has passed since they stood up
           if (Date.now() - lastCompletionTime.current > 3000) {
-            play("squatDown");
+            safePlaySound("squatDown");
           }
           setIsGood(true);
         } else {
           shallowSquatStartTime.current = 0; // Reset
           safeSetMessage("しゃがんでください");
-          play("squatDown");
+          safePlaySound("squatDown");
           setIsGood(true);
         }
       } else if (squatState === "DOWN") {
@@ -167,9 +178,9 @@ export default function SquatPage() {
           shallowSquatStartTime.current = 0; // Reset
           safeSetMessage("ナイススクワット！");
           if (Math.random() < 0.5) {
-            play("niceSquat");
+            safePlaySound("niceSquat");
           } else {
-            play("good");
+            safePlaySound("good");
           }
           setIsGood(true);
         } else {
@@ -178,7 +189,7 @@ export default function SquatPage() {
         }
       }
     },
-    [calculateAngle, squatState, safeSetMessage, cameraAngle, play]
+    [calculateAngle, squatState, safeSetMessage, cameraAngle, safePlaySound]
   );
 
   const onPoseDetected = useCallback(
