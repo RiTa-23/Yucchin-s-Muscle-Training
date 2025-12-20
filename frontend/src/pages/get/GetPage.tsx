@@ -222,6 +222,7 @@ const GetPage: React.FC = () => {
   const startAudioRef = useRef<HTMLAudioElement | null>(null);     // 開始音用
   const pepeAudioRef = useRef<HTMLAudioElement | null>(null);      // 登場音用
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null);     // ボイス用
+  const timeoutIdsRef = useRef<number[]>([]);
   const settingsRef = useRef({ isSoundEnabled: true, volume: 0.7 });
 
   useEffect(() => {
@@ -293,8 +294,19 @@ const GetPage: React.FC = () => {
       cleanupAudio(pepeAudioRef);
       cleanupAudio(voiceAudioRef);
       cleanupAudio(audioRef);
+
+      // タイマーの解除
+      timeoutIdsRef.current.forEach(clearTimeout);
+      timeoutIdsRef.current = [];
     };
   }, [location, searchParams]);
+
+  // 安全に setTimeout を実行し、管理対象に追加するヘルパー
+  const safeSetTimeout = useCallback((handler: () => void, delay?: number) => {
+    const id = window.setTimeout(handler, delay);
+    timeoutIdsRef.current.push(id);
+    return id;
+  }, []);
 
   // 事前ロード済み音声を再生するヘルパー (useCallback でメモ化)
   const playPreloaded = useCallback((ref: React.RefObject<HTMLAudioElement | null>) => {
@@ -314,20 +326,20 @@ const GetPage: React.FC = () => {
     const isSecret = yucchin.rarity === 'SECRET';
     
     // 1. 最初のアクション: フラッシュ除去 (500ms) - シークレットの場合は少し長め
-    setTimeout(() => setRevealStart(true), isSecret ? 800 : 500);
+    safeSetTimeout(() => setRevealStart(true), isSecret ? 800 : 500);
 
     if ((isHighRarity || isSecret) && yucchin.quote) {
       // SR/UR/SECRET の場合: セリフあり演出
       // 2. セリフ表示 (1500ms) - シークレットの場合は少し長め
-      setTimeout(() => setRevealQuote(true), isSecret ? 2000 : 1500);
+      safeSetTimeout(() => setRevealQuote(true), isSecret ? 2000 : 1500);
     } else {
       // NORMAL/RARE の場合: 従来通りのテンポ
       // 2. 画像 ＆ 名前バッジ 表示 (1500ms)
-      setTimeout(() => {
+      safeSetTimeout(() => {
         setRevealImage(true);
         setRevealBadge(true);
         playPreloaded(pepeAudioRef);
-        setTimeout(() => {
+        safeSetTimeout(() => {
           playPreloaded(voiceAudioRef);
           setRevealText(true);
         }, 1500); // ユーザー調整済みのタイミング
@@ -345,13 +357,13 @@ const GetPage: React.FC = () => {
         const elapsedTime = Date.now() - displayStartTime;
         const remainingTime = Math.max(0, MIN_DISPLAY_TIME - elapsedTime);
 
-        setTimeout(() => {
+        safeSetTimeout(() => {
           setQuoteFadeOut(true);
-          setTimeout(() => {
+          safeSetTimeout(() => {
             setRevealImage(true);
             setRevealBadge(true);
             playPreloaded(pepeAudioRef);
-            setTimeout(() => {
+            safeSetTimeout(() => {
               playPreloaded(voiceAudioRef);
               setRevealText(true);
             }, 1500); // ユーザー調整済みのタイミング
@@ -388,7 +400,7 @@ const GetPage: React.FC = () => {
         proceedToNext();
       }
     }
-  }, [revealQuote, quoteFadeOut, playPreloaded]);
+  }, [revealQuote, quoteFadeOut, playPreloaded, safeSetTimeout, audioRef, pepeAudioRef, voiceAudioRef]);
 
   const theme = useMemo(() => {
     if (!yucchin) return RARITY_THEMES.NORMAL;
