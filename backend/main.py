@@ -44,11 +44,16 @@ from fastapi import Request
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
-    # Content Security Policy (Adjusted for FastAPI Swagger UI)
-    response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:;"
+    
+    # CSP: Loosen only for Swagger UI, strict for API
+    if request.url.path in ["/docs", "/redoc", "/openapi.json"]:
+        response.headers["Content-Security-Policy"] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:;"
+    else:
+        response.headers["Content-Security-Policy"] = "default-src 'self';"
+
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
-    response.headers["X-XSS-Protection"] = "1; mode=block"
+    # X-XSS-Protection is deprecated and should be removed
     return response
 
 app.include_router(auth.router)
