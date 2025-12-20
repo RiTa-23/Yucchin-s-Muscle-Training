@@ -164,7 +164,7 @@ export default function HomePage() {
                   variant="outline"
                   onClick={() => {
                     playSound(clickSound);
-                    navigate("/training/plank");
+                    navigate("/training/squat");
                   }}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-orange-500/50 hover:border-yellow-400 p-4 bg-gradient-to-br from-gray-700/90 to-gray-800/90 backdrop-blur-xl flex items-center justify-center text-white aspect-video h-auto shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_40px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 hover:-translate-y-2"
                 >
@@ -191,7 +191,7 @@ export default function HomePage() {
                   variant="outline"
                   onClick={() => {
                     playSound(clickSound);
-                    navigate("/training/plank");
+                    navigate("/training/pushup");
                   }}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-orange-500/50 hover:border-yellow-400 p-4 bg-gradient-to-br from-gray-700/90 to-gray-800/90 backdrop-blur-xl flex items-center justify-center text-white aspect-video h-auto shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_40px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 hover:-translate-y-2"
                 >

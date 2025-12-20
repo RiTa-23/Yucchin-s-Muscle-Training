@@ -21,7 +21,13 @@ import { LogIn, UserPlus, Volume2, VolumeX } from "lucide-react";
 
 export default function AuthPage() {
   const navigate = useNavigate();
-  const { login, signup } = useAuth();
+  const { login, signup, user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/home");
+    }
+  }, [user, loading, navigate]);
 
   const [soundEnabled, setSoundEnabled] = useState<boolean>(() => {
     try {
@@ -115,7 +121,7 @@ export default function AuthPage() {
 
     try {
       await login(loginEmail, loginPassword);
-      navigate("/home");
+      // navigation is handled by useEffect when user state changes
     } catch (error: any) {
       console.error("Login failed:", error);
       setLoginError(getErrorMessage(error, "ログインに失敗しました。"));
@@ -131,7 +137,7 @@ export default function AuthPage() {
 
     try {
       await signup(signupUsername, signupEmail, signupPassword);
-      navigate("/home");
+      // navigation is handled by useEffect when user state changes
     } catch (error: any) {
       console.error("Signup failed:", error);
       setSignupError(getErrorMessage(error, "新規登録に失敗しました。"));
