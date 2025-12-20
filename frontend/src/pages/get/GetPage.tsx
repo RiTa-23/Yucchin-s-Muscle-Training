@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
 import { YUCCHIN_MASTER, type YucchinMaster } from '../../data/yucchinMaster';
@@ -296,13 +296,13 @@ const GetPage: React.FC = () => {
     };
   }, [location, searchParams]);
 
-  // 事前ロード済み音声を再生するヘルパー
-  const playPreloaded = (ref: React.RefObject<HTMLAudioElement | null>) => {
+  // 事前ロード済み音声を再生するヘルパー (useCallback でメモ化)
+  const playPreloaded = useCallback((ref: React.RefObject<HTMLAudioElement | null>) => {
     if (!settingsRef.current.isSoundEnabled || !ref.current) return;
     const audio = ref.current;
     audio.currentTime = 0; // 頭出し
     audio.play().catch(e => console.warn("Preloaded playback failed", e));
-  };
+  }, []);
 
   // 演出開始時の処理
   const handleStart = () => {
@@ -388,7 +388,7 @@ const GetPage: React.FC = () => {
         proceedToNext();
       }
     }
-  }, [revealQuote, quoteFadeOut]);
+  }, [revealQuote, quoteFadeOut, playPreloaded]);
 
   const theme = useMemo(() => {
     if (!yucchin) return RARITY_THEMES.NORMAL;
