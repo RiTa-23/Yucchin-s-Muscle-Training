@@ -8,6 +8,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import trainerImage from "@/assets/mukiyuchiBK.png";
 import client from "@/api/client";
+import yamerunoImage from "@/assets/img/yameruno.png";
 
 export type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 
@@ -272,9 +273,14 @@ export const TrainingContainer = ({
             {/* Quit Confirmation Modal */}
             {isQuitModalOpen && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-50 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-xl p-6 max-w-xs w-full shadow-2xl scale-in-95 animate-in zoom-in-95 duration-200 border-4 border-orange-500">
+                    <div className="bg-white rounded-xl p-6 max-w-xs w-full shadow-2xl scale-in-95 animate-in zoom-in-95 duration-200 border-4 border-orange-500 flex flex-col items-center">
+                        <img
+                            src={yamerunoImage}
+                            alt="やめるんですか？"
+                            className="w-96 h-auto mb-4"
+                        />
                         <h3 className="text-xl font-bold text-center mb-6 text-gray-900">
-                            やめちゃうの？
+                            やめるんですか？
                         </h3>
                         <div className="flex gap-3">
                             <Button
