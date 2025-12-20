@@ -230,18 +230,7 @@ export const TrainingContainer = ({
             )}
 
             {/* アニメーション用のスタイル */}
-            <style>{`
-            /* アクセシビリティ：モーション感度への配慮 */
-            @media (prefers-reduced-motion: reduce) {
-                .animate-pulse,
-                .animate-talk-shake,
-                * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-                }
-            }
-            `}</style>
+
         </div>
     );
 };
