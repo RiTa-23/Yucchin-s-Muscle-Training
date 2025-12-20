@@ -120,3 +120,31 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  @keyframes talk-shake {
+
+    0%,
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
+
+    25% {
+      transform: scale(1.1) rotate(-5deg);
+    }
+
+    50% {
+      transform: scale(1) rotate(0deg);
+    }
+
+    75% {
+      transform: scale(1.1) rotate(5deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-talk-shake {
+      animation: talk-shake 0.3s infinite ease-in-out;
+    }
+  }
+}

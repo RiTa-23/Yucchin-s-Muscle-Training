@@ -1,36 +1,44 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import { Button } from "@/components/ui/button";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { PoseDetector } from "@/components/camera/PoseDetector";
-import { PoseOverlay } from "@/components/camera/PoseOverlay";
-import { TrainingGuide } from "@/components/training/TrainingGuide";
-import { TrainingResult } from "@/components/training/TrainingResult";
 import { type Results, type NormalizedLandmark } from "@mediapipe/pose";
 import { useAuth } from "@/context/AuthContext";
 import { trainingApi } from "@/api/training";
+import { TrainingContainer, type GameState } from "@/components/training/TrainingContainer";
+import { useTrainer } from "@/hooks/useTrainer";
 
-type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
+// Helper to calculate angle between three points
 
 export default function PlankPage() {
     const navigate = useNavigate();
-    const { user } = useAuth();
-    const fps = useMemo(() => user?.settings?.fps || 20, [user?.settings?.fps]);
-    const interval = useMemo(() => Math.floor(1000 / fps), [fps]);
+    useAuth();
+    const { play, isSpeaking, trainerMessage } = useTrainer();
 
+    // State
     const [error, setError] = useState<string | null>(null);
     const [gameState, setGameState] = useState<GameState>("GUIDE");
     const [lastResults, setLastResults] = useState<Results | null>(null);
     const [message, setMessage] = useState<string>("");
     const [isGood, setIsGood] = useState<boolean>(false);
+
+    // Plank specific state
     const [targetDuration, setTargetDuration] = useState<number>(30);
     const [timeLeft, setTimeLeft] = useState<number>(30);
-
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    // --- Logic ---
+    // Refs for stable access in quit handler
+    const timeLeftRef = useRef<number>(30);
+    const targetDurationRef = useRef<number>(30);
 
-    // Calculate angle at B (A-B-C) - static logic, can be inside or outside. 
-    // If inside, wrap in useCallback to make it stable for checkForm dependency.
+    // Sync refs with state
+    useEffect(() => {
+        timeLeftRef.current = timeLeft;
+    }, [timeLeft]);
+
+    useEffect(() => {
+        targetDurationRef.current = targetDuration;
+    }, [targetDuration]);
+
+    // --- Logic ---
     const calculateAngle = useCallback((a: NormalizedLandmark, b: NormalizedLandmark, c: NormalizedLandmark) => {
         const radians = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(a.y - b.y, a.x - b.x);
         let angle = Math.abs((radians * 180.0) / Math.PI);
@@ -56,6 +64,7 @@ export default function PlankPage() {
 
         if ((shoulder.visibility || 0) < 0.5 || (hip.visibility || 0) < 0.5 || (ankle.visibility || 0) < 0.5) {
             setMessage("体がカメラに収まっていません");
+            play('camera', "体がカメラに収まってないよ！");
             setIsGood(false);
             return;
         }
@@ -69,6 +78,7 @@ export default function PlankPage() {
 
         if (!isHorizontal) {
             setMessage("プランクの姿勢をとってください");
+            play('plankPosture');
             setIsGood(false);
             return;
         }
@@ -77,6 +87,7 @@ export default function PlankPage() {
             const elbowAngle = calculateAngle(shoulder, elbow, wrist);
             if (elbowAngle > 135) {
                 setMessage("肘を床につけてください！");
+                play('elbowsOnFloor');
                 setIsGood(false);
                 return;
             }
@@ -88,6 +99,7 @@ export default function PlankPage() {
 
             if (kneeAngle < THRESHOLD_KNEE_STRAIGHT) {
                 setMessage("膝を伸ばしてください！");
+                play('kneesStraight');
                 setIsGood(false);
                 return;
             }
@@ -99,6 +111,7 @@ export default function PlankPage() {
         if (hipAngle >= THRESHOLD_GOOD_MIN) {
             setMessage("いいね！その調子！");
             setIsGood(true);
+            play('good', "いいね！その調子！");
         } else {
             const deltaX = ankle.x - shoulder.x;
             if (Math.abs(deltaX) < 0.01) {
@@ -110,12 +123,14 @@ export default function PlankPage() {
             const expectedHipY = shoulder.y + (hip.x - shoulder.x) * (ankle.y - shoulder.y) / deltaX;
             if (hip.y < expectedHipY) {
                 setMessage("お尻が上がっています！下げて！");
+                play('hipsHigh');
             } else {
                 setMessage("腰が下がっています！上げて！");
+                play('hipsLow');
             }
             setIsGood(false);
         }
-    }, [calculateAngle, setMessage, setIsGood]);
+    }, [calculateAngle, play]);
 
     const onPoseDetected = useCallback((results: Results) => {
         setLastResults(results);
@@ -124,6 +139,7 @@ export default function PlankPage() {
         }
     }, [gameState, checkForm]);
 
+    // Timer Logic
     useEffect(() => {
         if (gameState === "ACTIVE" && isGood && timeLeft > 0) {
             timerRef.current = setInterval(() => {
@@ -154,23 +170,22 @@ export default function PlankPage() {
         setGameState("ACTIVE");
     };
 
-    // Save result when game finishes
+    // Save Logic
     useEffect(() => {
         if (gameState === "FINISHED") {
-            // targetDuration is captured at the time of finishing
-            const duration = targetDuration;
+            play('finish', "お疲れ様！ナイスファイト！");
+            const performedDuration = targetDurationRef.current - timeLeftRef.current;
             const saveResult = async () => {
                 try {
                     await trainingApi.createLog({
                         performed_at: new Date().toISOString(),
                         exercise_name: "plank",
-                        duration: duration,
+                        duration: performedDuration,
                         count: 0
                     });
-                    console.log("Training log saved!");
+                    console.log("Training log saved!", performedDuration);
                 } catch (err) {
                     console.error("Failed to save training log:", err);
-                    // Optionally show error toast here
                 }
             };
             saveResult();
@@ -181,88 +196,71 @@ export default function PlankPage() {
         setError(typeof err === 'string' ? err : err.message || "Unknown Camera Error");
     }, []);
 
-    // --- Renders ---
+    const handleRetry = () => {
+        setTimeLeft(targetDuration);
+        setGameState("ACTIVE");
+    };
 
-    if (error) {
-        return (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-30">
-                <div className="bg-white p-8 rounded-lg max-w-md text-center">
-                    <p className="text-red-600 mb-4 font-bold">カメラエラーが発生しました</p>
-                    <p className="text-gray-700 mb-6">{error}</p>
-                    <Button onClick={() => navigate('/home')}>ホームに戻る</Button>
-                </div>
-            </div>
-        );
-    }
+    const handleQuit = useCallback(() => {
+        const currentTarget = targetDurationRef.current;
+        const currentTime = timeLeftRef.current;
+        const performedDuration = currentTarget - currentTime;
 
-    if (gameState === "GUIDE") {
-        return (
-            <TrainingGuide
-                title="プランク"
-                description={
-                    <>
-                        両肘とつま先を床につき、体を一直線に保ちます。<br />
-                        お尻が上がったり下がったりしないように注意しましょう！
-                    </>
-                }
-                onStart={handleStart}
-                illustration={
-                    <div className="text-6xl">🧘</div>
-                }
-                goalConfig={{
-                    type: "time",
-                    min: 10,
-                    max: 120,
-                    default: 30,
-                    step: 10,
-                    unit: "秒"
-                }}
-            />
-        );
-    }
+        console.log("Quit Check:", { currentTarget, currentTime, performedDuration });
 
-    if (gameState === "FINISHED") {
-        return (
-            <TrainingResult
-                score={`${targetDuration}秒`}
-                scoreLabel="記録"
-                onRetry={() => {
-                    setTimeLeft(targetDuration);
-                    setGameState("ACTIVE");
-                }}
-            />
-        );
-    }
+        if (performedDuration > 0) {
+            setGameState("FINISHED");
+        } else {
+            navigate('/home');
+        }
+    }, [navigate]);
 
     return (
-        <div className="relative w-full h-screen bg-black overflow-hidden">
-            {/* Camera Layer */}
-            <PoseDetector
-                onPoseDetected={onPoseDetected}
-                interval={interval}
-                onError={handleError}
-            />
+        <TrainingContainer
+            gameState={gameState}
 
-            {/* Overlay Layer */}
-            <PoseOverlay
-                results={lastResults}
-                feedback={message}
-                isGoodPose={isGood}
-                stats={{
-                    label: "残り時間",
-                    value: timeLeft,
-                    unit: "秒"
-                }}
-            />
+            // Guide
+            title="プランク"
+            description={
+                <>
+                    両肘とつま先を床につき、体を一直線に保ちます。<br />
+                    お尻が上がったり下がったりしないように注意しましょう！
+                </>
+            }
+            illustration={<div className="text-6xl">🧘</div>}
+            goalConfig={{
+                type: "time",
+                min: 10,
+                max: 120,
+                default: 30,
+                step: 10,
+                unit: "秒"
+            }}
+            onStart={handleStart}
 
-            {/* Back Button (In-game) */}
-            <Button
-                variant="outline"
-                className="absolute top-4 left-4 z-20 bg-white/80 hover:bg-white"
-                onClick={() => navigate('/home')}
-            >
-                終了
-            </Button>
-        </div>
+            // Active
+            onPoseDetected={onPoseDetected}
+            overlayResults={lastResults}
+            feedbackMessage={message}
+            isGoodPose={isGood}
+            stats={{
+                label: "残り時間",
+                value: timeLeft,
+                unit: "秒"
+            }}
+            cameraError={error}
+            onError={handleError}
+
+            // Result
+            score={`${targetDuration - timeLeft}秒`}
+            onRetry={handleRetry}
+
+            // Navigation
+            onQuit={handleQuit}
+
+            // Trainer
+            isSpeaking={isSpeaking}
+            trainerMessage={trainerMessage}
+        />
     );
 }
