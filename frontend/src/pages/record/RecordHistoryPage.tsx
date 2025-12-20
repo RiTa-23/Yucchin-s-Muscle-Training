@@ -2,6 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { trainingApi, type TrainingLogResponse } from "@/api/training";
+import { playSound } from "@/utils/audio";
+import backSound from "@/assets/sounds/ﾍｪッ！！_T01.wav";
 
 export default function RecordHistoryPage() {
   const navigate = useNavigate();
@@ -146,7 +148,10 @@ export default function RecordHistoryPage() {
       ></div>
 
       <button
-        onClick={() => navigate("/record")}
+        onClick={async () => {
+          await playSound(backSound);
+          navigate("/record");
+        }}
         className="absolute top-4 left-4 p-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 rounded-full shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 z-20"
         aria-label="戻る"
       >
