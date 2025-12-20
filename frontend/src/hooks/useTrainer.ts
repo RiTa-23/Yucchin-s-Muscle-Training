@@ -161,7 +161,11 @@ export const useTrainer = () => {
         };
 
         // Preload standard sounds
-        Object.entries(SOUNDS).forEach(([key, item]) => loadAudio(item.src, key));
+        Object.entries(SOUNDS).forEach(([key, item]) => {
+            if (item.src) {
+                loadAudio(item.src, key);
+            }
+        });
 
         // Preload compliments
         COMPLIMENTS.forEach((item, index) => loadAudio(item.src, `good_${index}`));
