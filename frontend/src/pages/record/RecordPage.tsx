@@ -6,6 +6,9 @@ import {
   type TrainingLogResponse,
   type TrainingStatsResponse,
 } from "@/api/training";
+import { playSound } from "@/utils/audio";
+import clickSound from "@/assets/sounds/へへっ_T01.wav";
+import backSound from "@/assets/sounds/ﾍｪッ！！_T01.wav";
 
 export default function RecordPage() {
   const navigate = useNavigate();
@@ -145,7 +148,10 @@ export default function RecordPage() {
       ></div>
 
       <button
-        onClick={() => navigate("/home")}
+        onClick={async () => {
+          await playSound(backSound);
+          navigate("/home");
+        }}
         className="absolute top-4 left-4 p-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 rounded-full shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 z-20"
         aria-label="ホームに戻る"
       >
@@ -207,7 +213,10 @@ export default function RecordPage() {
         {/* History Link */}
         <div className="flex justify-center mt-8">
           <button
-            onClick={() => navigate("/record/history")}
+            onClick={async () => {
+              await playSound(clickSound);
+              navigate("/record/history");
+            }}
             className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 rounded-full px-6 py-3 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
           >
             <Calendar className="w-5 h-5 text-white" />
