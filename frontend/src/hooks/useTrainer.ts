@@ -85,6 +85,8 @@ export const useTrainer = () => {
     };
 
     useEffect(() => {
+        const cleanupFns: (() => void)[] = [];
+
         // Helper to load and attach listeners
         const loadAudio = (src: string, key: string) => {
             const audio = new Audio(src);
@@ -108,6 +110,12 @@ export const useTrainer = () => {
             audio.addEventListener('pause', onStop);
             audio.addEventListener('ended', onStop);
 
+            cleanupFns.push(() => {
+                audio.removeEventListener('play', onPlay);
+                audio.removeEventListener('pause', onStop);
+                audio.removeEventListener('ended', onStop);
+            });
+
             audioRefs.current.set(key, audio);
         };
 
@@ -128,6 +136,7 @@ export const useTrainer = () => {
 
         return () => {
             playingKeysRef.current.clear();
+            cleanupFns.forEach(fn => fn());
             audioRefs.current.forEach(audio => {
                 audio.pause();
                 audio.currentTime = 0;
