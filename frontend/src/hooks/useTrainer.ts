@@ -9,32 +9,32 @@ import { useCallback, useRef, useEffect, useState } from 'react';
 const ASSETS_BASE = '/src/assets/sounds';
 
 const COMPLIMENTS = [
-    `${ASSETS_BASE}/compliment/天才！.wav`,
-    `${ASSETS_BASE}/compliment/輝いてるよ.wav`,
-    `${ASSETS_BASE}/compliment/輝いてるよ！ｲｲﾖｫ！！.wav`,
-    `${ASSETS_BASE}/compliment/ｲｲﾖｫ！！.wav`,
-    `${ASSETS_BASE}/compliment/びゅーてぃふぉ.wav`,
+    { src: `${ASSETS_BASE}/compliment/天才！.wav`, text: "天才！" },
+    { src: `${ASSETS_BASE}/compliment/輝いてるよ.wav`, text: "輝いてるよ" },
+    { src: `${ASSETS_BASE}/compliment/輝いてるよ！ｲｲﾖｫ！！.wav`, text: "輝いてるよ！イイヨォ！！" },
+    { src: `${ASSETS_BASE}/compliment/ｲｲﾖｫ！！.wav`, text: "イイヨォ！！" },
+    { src: `${ASSETS_BASE}/compliment/びゅーてぃふぉ.wav`, text: "びゅーてぃふぉー！" },
 ];
 
 const PLANK_STARTS = [
-    `${ASSETS_BASE}/plank/プランク1_T01.wav`,
-    `${ASSETS_BASE}/plank/プﾙﾙｧンクのｼｾｲ_T01.wav`,
+    { src: `${ASSETS_BASE}/plank/プランク1_T01.wav`, text: "プランク！" },
+    { src: `${ASSETS_BASE}/plank/プﾙﾙｧンクのｼｾｲ_T01.wav`, text: "プﾙﾙｧンクのｼｾｲ！" },
 ];
 
 const CAMERA_ALERTS = [
-    `${ASSETS_BASE}/体をカメラにおさめてね1_T01.wav`,
-    `${ASSETS_BASE}/体をカメラにおさめてね2_T01.wav`,
-    `${ASSETS_BASE}/縮めｪ！！_T01.wav`,
+    { src: `${ASSETS_BASE}/体をカメラにおさめてね1_T01.wav`, text: "体をカメラにおさめてね" },
+    { src: `${ASSETS_BASE}/体をカメラにおさめてね2_T01.wav`, text: "体をカメラにおさめてね！" },
+    { src: `${ASSETS_BASE}/縮めｪ！！_T01.wav`, text: "縮めェ！！" },
 ];
 
 const FINISH_SOUNDS = [
-    `${ASSETS_BASE}/これであなたも！ムキムキよ！_T01.wav`,
-    `${ASSETS_BASE}/ｺﾚﾃﾞｱﾅﾀﾓｫ〜ムキムキ.wav`,
+    { src: `${ASSETS_BASE}/これであなたも！ムキムキよ！_T01.wav`, text: "これであなたも！ムキムキよ！" },
+    { src: `${ASSETS_BASE}/ｺﾚﾃﾞｱﾅﾀﾓｫ〜ムキムキ.wav`, text: "これであなたもぉ〜ムキムキ！" },
 ];
 
 const SOUNDS = {
     hipsHigh: `${ASSETS_BASE}/plank/お尻を下げてください。_T01.wav`,
-    hipsLow: `${ASSETS_BASE}/プリけつ_T01.wav`,
+    hipsLow: `${ASSETS_BASE}/腰を上げろぉお.wav`,
     elbowsOnFloor: `${ASSETS_BASE}/plank/肘を床に付ける2_T01.wav`,
     warning: `${ASSETS_BASE}/ﾍｪッ！！_T01.wav`,
 } as const;
@@ -85,16 +85,16 @@ export const useTrainer = () => {
         Object.entries(SOUNDS).forEach(([key, src]) => loadAudio(src, key));
 
         // Preload compliments
-        COMPLIMENTS.forEach((src, index) => loadAudio(src, `good_${index}`));
+        COMPLIMENTS.forEach((item, index) => loadAudio(item.src, `good_${index}`));
 
         // Preload starts
-        PLANK_STARTS.forEach((src, index) => loadAudio(src, `start_${index}`));
+        PLANK_STARTS.forEach((item, index) => loadAudio(item.src, `start_${index}`));
 
         // Preload camera alerts
-        CAMERA_ALERTS.forEach((src, index) => loadAudio(src, `camera_${index}`));
+        CAMERA_ALERTS.forEach((item, index) => loadAudio(item.src, `camera_${index}`));
 
         // Preload finish sounds
-        FINISH_SOUNDS.forEach((src, index) => loadAudio(src, `finish_${index}`));
+        FINISH_SOUNDS.forEach((item, index) => loadAudio(item.src, `finish_${index}`));
 
         return () => {
             audioRefs.current.forEach(audio => {
@@ -106,19 +106,24 @@ export const useTrainer = () => {
 
     const play = useCallback((type: SoundType, message?: string) => {
         let audioKey = type as string;
+        let specificText: string | null = null;
 
         if (type === 'good') {
             const randomIndex = Math.floor(Math.random() * COMPLIMENTS.length);
             audioKey = `good_${randomIndex}`;
+            specificText = COMPLIMENTS[randomIndex].text;
         } else if (type === 'start') {
             const randomIndex = Math.floor(Math.random() * PLANK_STARTS.length);
             audioKey = `start_${randomIndex}`;
+            specificText = PLANK_STARTS[randomIndex].text;
         } else if (type === 'camera') {
             const randomIndex = Math.floor(Math.random() * CAMERA_ALERTS.length);
             audioKey = `camera_${randomIndex}`;
+            specificText = CAMERA_ALERTS[randomIndex].text;
         } else if (type === 'finish') {
             const randomIndex = Math.floor(Math.random() * FINISH_SOUNDS.length);
             audioKey = `finish_${randomIndex}`;
+            specificText = FINISH_SOUNDS[randomIndex].text;
         }
 
         const audio = audioRefs.current.get(audioKey);
@@ -133,8 +138,10 @@ export const useTrainer = () => {
             return;
         }
 
-        if (message) {
-            setTrainerMessage(message);
+        // Use specific text if available, otherwise fallback to provided message
+        const displayMessage = specificText || message;
+        if (displayMessage) {
+            setTrainerMessage(displayMessage);
         }
 
         // Reset and play
