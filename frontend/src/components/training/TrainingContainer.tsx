@@ -181,14 +181,14 @@ export const TrainingContainer = ({
 
                 {/* Speech Bubble (Static, Larger) */}
                 {isSpeaking && trainerMessage && (
-                    <div className="absolute -top-48 right-10 w-[600px] max-w-[80vw] bg-white p-8 rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="absolute -top-60 right-10 w-[800px] max-w-[90vw] bg-white p-10 rounded-3xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div className="relative">
-                            <p className="text-gray-900 font-bold text-2xl text-center leading-relaxed">
+                            <p className="text-gray-900 font-bold text-3xl text-center leading-relaxed">
                                 {trainerMessage}
                             </p>
-                            {/* Tailwind Triangle for Bubble Tail */}
-                            <div className="absolute -bottom-10 right-10 w-0 h-0 border-l-[15px] border-l-transparent border-t-[15px] border-t-white border-r-[15px] border-r-transparent"></div>
                         </div>
+                        {/* Tailwind Triangle for Bubble Tail - Moved to parent relative context */}
+                        <div className="absolute top-full right-24 w-0 h-0 border-l-[20px] border-l-transparent border-t-[30px] border-t-white border-r-[20px] border-r-transparent drop-shadow-sm"></div>
                     </div>
                 )}
 
