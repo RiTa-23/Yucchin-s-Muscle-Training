@@ -27,6 +27,10 @@ interface TrainingContainerProps {
     // Guide Props
     title: string;
     description: React.ReactNode;
+    // Merged descriptionPlacement from develop if needed, but rita branch might not use it yet.
+    // Assuming we keep the active branch's props primarily, but checking develop carefully.
+    // develop has descriptionPlacement?: "top" | "bottom";
+    descriptionPlacement?: "top" | "bottom";
     illustration?: React.ReactNode;
     goalConfig?: GoalConfig;
     onStart: (goalValue?: number) => void;
@@ -40,7 +44,7 @@ interface TrainingContainerProps {
     stats: {
         label: string;
         value: string | number;
-        target?: number;
+        target?: number; // Kept (rita specific)
         unit: string;
     };
     cameraError: string | null;
@@ -69,6 +73,7 @@ export const TrainingContainer = ({
     gameState,
     title,
     description,
+    descriptionPlacement,
     illustration,
     goalConfig,
     onStart,
@@ -133,6 +138,7 @@ export const TrainingContainer = ({
             <TrainingGuide
                 title={title}
                 description={description}
+                descriptionPlacement={descriptionPlacement} // Added prop pass-through
                 onStart={onStart}
                 illustration={illustration}
                 goalConfig={goalConfig}
