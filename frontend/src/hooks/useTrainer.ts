@@ -39,8 +39,8 @@ import soundSquatDeep from '@/assets/sounds/squat/マリアナ海溝のように
 import soundNiceSquat from '@/assets/sounds/squat/ナイススクワットｫ.wav';
 
 // Pushup Sounds
-import soundPushupDown from '@/assets/sounds/pushup/お沈みあそばせ⤴︎︎︎_T01.wav';
-import soundNicePushup from '@/assets/sounds/pushup/ナイスプッシュアップ.wav';
+import soundPushupDown from '@/assets/sounds/pushup/pushup_down.wav';
+import soundNicePushup from '@/assets/sounds/pushup/nice_pushup.wav';
 
 const COMPLIMENTS = [
     { src: soundTensai, text: "天才！" },
