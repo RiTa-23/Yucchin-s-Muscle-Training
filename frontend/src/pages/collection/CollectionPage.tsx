@@ -22,9 +22,6 @@ export const CollectionPage: React.FC = () => {
   const navigate = useNavigate();
   const [displayList, setDisplayList] = useState<DisplayYucchin[]>([]);
   const [loading, setLoading] = useState(true);
-  // Pagination state (for future use as requested)
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 20; // Example limit
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,24 +50,12 @@ export const CollectionPage: React.FC = () => {
     fetchData();
   }, []);
 
-  // Pagination Logic
-  // 1. Separate all items by rarity first
-  const allNormals = displayList.filter((i) => i.rarity === "NORMAL");
-  const allRares = displayList.filter((i) => i.rarity === "RARE");
-
-  // 2. Combine them to ensure specific order (Normal -> Rare)
-  const allSortedItems = [...allNormals, ...allRares];
-
-  // 3. Paginate the sorted list
-  const totalPages = Math.ceil(allSortedItems.length / ITEMS_PER_PAGE) || 1;
-  const currentItems = allSortedItems.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
-
-  // 4. Split current page items for rendering
-  const normalItems = currentItems.filter((i) => i.rarity === "NORMAL");
-  const rareItems = currentItems.filter((i) => i.rarity === "RARE");
+  // Rarity buckets (ordered as in master data)
+  const normalItems = displayList.filter((i) => i.rarity === "NORMAL");
+  const rareItems = displayList.filter((i) => i.rarity === "RARE");
+  const srItems = displayList.filter((i) => i.rarity === "SR");
+  const urItems = displayList.filter((i) => i.rarity === "UR");
+  const secretItems = displayList.filter((i) => i.rarity === "SECRET");
 
   const renderGrid = (items: DisplayYucchin[]) => (
     <div className="grid grid-cols-6 gap-4">
@@ -152,17 +137,12 @@ export const CollectionPage: React.FC = () => {
       {/* Main Content */}
       <div className="p-4 pb-24 max-w-5xl mx-auto relative z-10">
         <div className="border-4 border-orange-500/50 hover:border-yellow-400 p-6 rounded-xl bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl shadow-[0_0_40px_rgba(251,146,60,0.6)] relative min-h-[600px] transition-all duration-300">
-          {/* Top Decor (Circle and History Button) */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="w-8 h-8 rounded-full border-2 border-orange-500/50 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 shadow-[0_0_20px_rgba(251,146,60,0.6)]"></div>
-          </div>
-
           {/* Book Content */}
           <div className="space-y-6">
             {normalItems.length > 0 && (
               <section>
                 <h2 className="font-bold text-lg mb-2 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-                  ●ノーマル
+                  ●N
                 </h2>
                 {renderGrid(normalItems)}
               </section>
@@ -171,33 +151,38 @@ export const CollectionPage: React.FC = () => {
             {rareItems.length > 0 && (
               <section>
                 <h2 className="font-bold text-lg mb-2 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-                  ★レア
+                  ★R
                 </h2>
                 {renderGrid(rareItems)}
               </section>
             )}
-          </div>
-        </div>
+            {srItems.length > 0 && (
+              <section>
+                <h2 className="font-bold text-lg mb-2 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+                  ★★SR
+                </h2>
+                {renderGrid(srItems)}
+              </section>
+            )}
 
-        {/* Pagination (Mock UI) */}
-        <div className="flex justify-center items-center mt-6 space-x-4">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            className="px-4 py-2 border-2 border-orange-500/50 rounded bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-bold shadow-[0_0_10px_rgba(251,146,60,0.4)] hover:shadow-[0_0_20px_rgba(251,146,60,0.6)] disabled:opacity-50 transition-all duration-300"
-          >
-            &lt;
-          </button>
-          <span className="font-bold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-            Page {currentPage} / {totalPages}
-          </span>
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            className="px-4 py-2 border-2 border-orange-500/50 rounded bg-gradient-to-r from-gray-700 to-gray-800 hover:from-gray-600 hover:to-gray-700 text-white font-bold shadow-[0_0_10px_rgba(251,146,60,0.4)] hover:shadow-[0_0_20px_rgba(251,146,60,0.6)] disabled:opacity-50 transition-all duration-300"
-          >
-            &gt;
-          </button>
+            {urItems.length > 0 && (
+              <section>
+                <h2 className="font-bold text-lg mb-2 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+                  ★★★UR
+                </h2>
+                {renderGrid(urItems)}
+              </section>
+            )}
+
+            {secretItems.length > 0 && (
+              <section>
+                <h2 className="font-bold text-lg mb-2 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+                  🔥Secret
+                </h2>
+                {renderGrid(secretItems)}
+              </section>
+            )}
+          </div>
         </div>
       </div>
     </div>
