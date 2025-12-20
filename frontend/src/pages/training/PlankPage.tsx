@@ -9,7 +9,7 @@ import { useTrainer } from "@/hooks/useTrainer";
 export default function PlankPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { play } = useTrainer();
+    const { play, isSpeaking } = useTrainer();
 
     // State
     const [error, setError] = useState<string | null>(null);

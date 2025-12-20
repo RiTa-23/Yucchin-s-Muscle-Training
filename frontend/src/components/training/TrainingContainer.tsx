@@ -41,6 +41,9 @@ interface TrainingContainerProps {
     resultSubTitle?: string;
     onRetry: () => void;
 
+    // Trainer
+    isSpeaking?: boolean;
+
     // Navigation (Quit)
     onQuit: () => void;
 }
@@ -65,6 +68,7 @@ export const TrainingContainer = ({
     resultTitle,
     resultSubTitle,
     onRetry,
+    isSpeaking,
     onQuit
 }: TrainingContainerProps) => {
     const { user } = useAuth();
@@ -169,6 +173,15 @@ export const TrainingContainer = ({
                 />
             </div>
 
+            {/* Trainer Avatar */}
+            <div className={`absolute bottom-0 right-4 z-40 w-48 transition-transform duration-300 ${isSpeaking ? 'animate-talk-shake' : ''}`}>
+                <img
+                    src="/src/assets/mukiyuchiBK.png"
+                    alt="Trainer"
+                    className="w-full h-auto drop-shadow-[0_0_15px_rgba(251,146,60,0.6)]"
+                />
+            </div>
+
             {/* Quit Confirmation Modal */}
             {isQuitModalOpen && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-50 animate-in fade-in duration-200">
@@ -200,6 +213,7 @@ export const TrainingContainer = ({
             /* アクセシビリティ：モーション感度への配慮 */
             @media (prefers-reduced-motion: reduce) {
                 .animate-pulse,
+                .animate-talk-shake,
                 * {
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
