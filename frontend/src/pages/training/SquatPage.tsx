@@ -58,6 +58,7 @@ export default function SquatPage() {
         // Basic visibility check
         if ((hip.visibility || 0) < 0.3 || (knee.visibility || 0) < 0.3 || (ankle.visibility || 0) < 0.3) {
             safeSetMessage("下半身が映るようにしてください");
+            play('camera');
             setIsGood(false);
             return;
         }
@@ -91,7 +92,11 @@ export default function SquatPage() {
                 setSquatState("UP");
                 setCount(prev => prev + 1);
                 safeSetMessage("ナイススクワット！");
-                play('niceSquat');
+                if (Math.random() < 0.5) {
+                    play('niceSquat');
+                } else {
+                    play('good');
+                }
                 setIsGood(true);
             } else {
                 safeSetMessage("立ち上がって！");
