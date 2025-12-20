@@ -50,6 +50,20 @@ export default function PushupPage() {
         const shoulder = isLeft ? landmarks[11] : landmarks[12];
         const elbow = isLeft ? landmarks[13] : landmarks[14];
         const wrist = isLeft ? landmarks[15] : landmarks[16];
+        const hip = isLeft ? landmarks[23] : landmarks[24];
+
+        // Body alignment check
+        // Pushup position should be horizontal: |shoulder.x - hip.x| > |shoulder.y - hip.y|
+        // If |shoulder.y - hip.y| > |shoulder.x - hip.x|, the user is likely standing (vertical).
+        const bodyDx = Math.abs(shoulder.x - hip.x);
+        const bodyDy = Math.abs(shoulder.y - hip.y);
+
+        // Check if standing (vertical)
+        if (bodyDy > bodyDx) {
+            safeSetMessage("腕立て伏せの姿勢になってください");
+            setIsGood(false);
+            return;
+        }
 
         if ((shoulder.visibility || 0) < 0.5 || (elbow.visibility || 0) < 0.5 || (wrist.visibility || 0) < 0.5) {
             safeSetMessage("上半身（肩・肘・手首）がはっきり映るようにしてください");
