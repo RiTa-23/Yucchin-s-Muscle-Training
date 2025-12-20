@@ -418,16 +418,22 @@ const GetPage: React.FC = () => {
       
       {/* Start Interaction Overlay */}
       {!isStarted && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-500">
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-500"
+          role="dialog"
+          aria-modal="true"
+        >
           <button 
             onClick={handleStart}
-            className="group relative flex flex-col items-center gap-8 transition-transform hover:scale-110 active:scale-95"
+            autoFocus
+            aria-label="演出を開始してゆっちんをゲットする"
+            className="group relative flex flex-col items-center gap-8 transition-transform hover:scale-110 active:scale-95 focus:outline-none focus-visible:ring-4 focus-visible:ring-orange-500/50 rounded-3xl p-8"
           >
             <div className="absolute inset-0 bg-orange-500 rounded-full blur-[60px] opacity-40 group-hover:opacity-70 animate-pulse"></div>
             <div className="relative text-8xl md:text-9xl font-black text-white italic tracking-tighter drop-shadow-[0_0_30px_rgba(251,146,60,1)]" style={{ fontFamily: '"Bungee", cursive' }}>
               REVEAL!!
             </div>
-            <div className="text-2xl font-bold text-orange-400 tracking-[0.3em] animate-bounce">
+            <div className="relative text-2xl font-bold text-orange-400 tracking-[0.3em] animate-bounce">
               CLICK TO GET YOUR YUCCHIN
             </div>
           </button>
