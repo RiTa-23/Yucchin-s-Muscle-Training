@@ -32,6 +32,12 @@ import soundHipsLow from '@/assets/sounds/plank/腰を上げろぉお.wav';
 import soundElbows from '@/assets/sounds/plank/肘を床に付ける2_T01.wav';
 import soundKneesStraight from '@/assets/sounds/plank/膝を伸ばす.wav';
 
+// Squat Sounds
+import soundSquatDown from '@/assets/sounds/squat/しゃがめ！！_T01.wav';
+import soundSquatUp from '@/assets/sounds/squat/立ち上がぁれぇ_T01.wav';
+import soundSquatDeep from '@/assets/sounds/squat/マリアナ海溝のように深く_T01.wav';
+import soundNiceSquat from '@/assets/sounds/squat/ナイススクワットｫ.wav';
+
 const COMPLIMENTS = [
     { src: soundTensai, text: "天才！" },
     { src: soundKagayaiteru, text: "輝いてるよ" },
@@ -61,6 +67,11 @@ const SOUNDS = {
     hipsLow: { src: soundHipsLow, text: "腰を上げろぉお！" },
     elbowsOnFloor: { src: soundElbows, text: "肘を床につけて！" },
     kneesStraight: { src: soundKneesStraight, text: "膝を伸ばして！" },
+    // Squat
+    squatDown: { src: soundSquatDown, text: "しゃがめ！！" },
+    squatUp: { src: soundSquatUp, text: "立ち上がれ！" },
+    squatDeep: { src: soundSquatDeep, text: "マリアナ海溝のように深く！" },
+    niceSquat: { src: soundNiceSquat, text: "ナイススクワット！" },
 } as const;
 
 type SoundType = keyof typeof SOUNDS | 'good' | 'plankPosture' | 'camera' | 'finish';
@@ -82,6 +93,11 @@ export const useTrainer = () => {
         good: 3000,
         plankPosture: 5000,
         finish: 0,
+        // Squat
+        squatDown: 4000,
+        squatUp: 4000,
+        squatDeep: 5000,
+        niceSquat: 3000,
     };
 
     useEffect(() => {
