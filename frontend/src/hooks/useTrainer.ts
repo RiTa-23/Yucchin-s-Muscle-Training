@@ -14,8 +14,8 @@ import soundIi from '@/assets/sounds/compliment/ｲｲﾖｫ！！.wav';
 import soundBeautiful from '@/assets/sounds/compliment/びゅーてぃふぉ.wav';
 
 // Plank Starts
-import soundPlankStart from '@/assets/sounds/plank/プランク1_T01.wav';
-import soundPlankPosture from '@/assets/sounds/plank/プﾙﾙｧンクのｼｾｲ_T01.wav';
+import soundPlankStart from '@/assets/sounds/plank/プランク1_T01.wav';
+import soundPlankPosture from '@/assets/sounds/plank/プﾙﾙｧンクのｼｾｲ_T01.wav';
 
 // Camera Alerts
 import soundCamera1 from '@/assets/sounds/体をカメラにおさめてね1_T01.wav';
@@ -27,10 +27,10 @@ import soundFinish1 from '@/assets/sounds/これであなたも！ムキムキ�
 import soundFinish2 from '@/assets/sounds/ｺﾚﾃﾞｱﾅﾀﾓｫ〜ムキムキ.wav';
 
 // Action Sounds
-import soundHipsHigh from '@/assets/sounds/plank/お尻を下げてください。_T01.wav';
-import soundHipsLow from '@/assets/sounds/plank/腰を上げろぉお.wav';
+import soundHipsHigh from '@/assets/sounds/plank/お尻を下げてください。_T01.wav';
+import soundHipsLow from '@/assets/sounds/plank/腰を上げろぉお.wav';
 import soundElbows from '@/assets/sounds/plank/肘を床に付ける2_T01.wav';
-import soundKneesStraight from '@/assets/sounds/plank/膝を伸ばす.wav';
+import soundKneesStraight from '@/assets/sounds/plank/膝を伸ばす.wav';
 
 const COMPLIMENTS = [
     { src: soundTensai, text: "天才！" },
