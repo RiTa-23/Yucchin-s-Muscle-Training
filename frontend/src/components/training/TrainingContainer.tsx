@@ -4,7 +4,7 @@ import { TrainingGuide, type GoalConfig } from "./TrainingGuide";
 import { TrainingResult } from "./TrainingResult";
 import { PoseDetector } from "@/components/camera/PoseDetector";
 import { PoseOverlay } from "@/components/camera/PoseOverlay";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import trainerImage from "@/assets/mukiyuchiBK.png";
 import client from "@/api/client";
@@ -89,6 +89,11 @@ export const TrainingContainer = ({
     // FPS Control
     const [localFps, setLocalFps] = useState<number>(user?.settings?.fps || 20);
     const effectiveInterval = useMemo(() => Math.floor(1000 / localFps), [localFps]);
+
+    // Reset modal state when gameState changes (e.g. Retry)
+    useEffect(() => {
+        setIsQuitModalOpen(false);
+    }, [gameState]);
 
     const handleFpsChange = async (rate: number) => {
         setLocalFps(rate);
