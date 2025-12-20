@@ -7,6 +7,7 @@ import { PoseOverlay } from "@/components/camera/PoseOverlay";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import trainerImage from "@/assets/mukiyuchiBK.png";
+import client from "@/api/client";
 
 export type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 
@@ -81,13 +82,23 @@ export const TrainingContainer = ({
     cameraAngle,
     onCameraAngleChange
 }: TrainingContainerProps) => {
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
 
     const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
 
     // FPS Control
     const [localFps, setLocalFps] = useState<number>(user?.settings?.fps || 20);
     const effectiveInterval = useMemo(() => Math.floor(1000 / localFps), [localFps]);
+
+    const handleFpsChange = async (rate: number) => {
+        setLocalFps(rate);
+        try {
+            await client.put("/settings/me", { fps: rate });
+            await refreshUser();
+        } catch (error) {
+            console.error("Failed to save FPS setting:", error);
+        }
+    };
 
     // Error View
     if (cameraError) {
@@ -193,14 +204,14 @@ export const TrainingContainer = ({
 
                 {/* FPS Toggle */}
                 <div className="flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
-                    {[15, 30, 60].map((rate) => (
+                    {[10, 20, 30].map((rate) => (
                         <button
                             key={rate}
                             className={`px-3 py-1 text-sm rounded-md font-bold transition-all ${localFps === rate
                                 ? 'bg-blue-600 text-white shadow-lg'
                                 : 'text-gray-300 hover:text-white'
                                 }`}
-                            onClick={() => setLocalFps(rate)}
+                            onClick={() => handleFpsChange(rate)}
                         >
                             {rate}fps
                         </button>
