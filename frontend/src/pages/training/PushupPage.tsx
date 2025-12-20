@@ -39,6 +39,8 @@ export default function PushupPage() {
         return angle;
     }, []);
 
+    const [cameraAngle, setCameraAngle] = useState<'front' | 'side'>('front');
+
     const checkForm = useCallback((results: Results) => {
         if (!results.poseLandmarks) return;
         const landmarks = results.poseLandmarks;
@@ -53,13 +55,30 @@ export default function PushupPage() {
         const hip = isLeft ? landmarks[23] : landmarks[24];
 
         // Body alignment check
-        // Pushup position should be horizontal: |shoulder.x - hip.x| > |shoulder.y - hip.y|
-        // If |shoulder.y - hip.y| > |shoulder.x - hip.x|, the user is likely standing (vertical).
         const bodyDx = Math.abs(shoulder.x - hip.x);
         const bodyDy = Math.abs(shoulder.y - hip.y);
 
-        // Check if standing (vertical)
-        if (bodyDy > bodyDx) {
+        let isStanding = false;
+
+        if (cameraAngle === 'front') {
+            // === FRONT MODE ===
+            // In front view, x-diff is small. We rely on y-diff.
+            // If shoulder and hip are far apart vertically (dy is large), user is standing/vertical.
+            // Pushup position: Shoulder and hip should be roughly same height (dy is small).
+            // Threshold: 0.3 (approx 30% of screen height)
+            if (bodyDy > 0.3) {
+                isStanding = true;
+            }
+        } else {
+            // === SIDE MODE ===
+            // In side view, pushup is horizontal (dx > dy).
+            // Standing is vertical (dy > dx).
+            if (bodyDy > bodyDx) {
+                isStanding = true;
+            }
+        }
+
+        if (isStanding) {
             safeSetMessage("腕立て伏せの姿勢になってください");
             setIsGood(false);
             return;
@@ -205,6 +224,10 @@ export default function PushupPage() {
 
             // Navigation
             onQuit={handleQuit}
+
+            // Camera Toggle
+            cameraAngle={cameraAngle}
+            onCameraAngleChange={setCameraAngle}
         />
     );
 }
