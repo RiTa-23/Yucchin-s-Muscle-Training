@@ -38,18 +38,18 @@ export default function HomePage() {
     };
   }, []);
 
-  const handleSettings = () => {
-    playSound(clickSound);
+  const handleSettings = async () => {
+    await playSound(clickSound);
     navigate("/settings");
   };
 
-  const handleHistory = () => {
-    playSound(clickSound);
+  const handleHistory = async () => {
+    await playSound(clickSound);
     navigate("/record");
   };
 
-  const handleCollection = () => {
-    playSound(clickSound);
+  const handleCollection = async () => {
+    await playSound(clickSound);
     navigate("/collection");
   };
 
@@ -129,8 +129,8 @@ export default function HomePage() {
             )}
             <Button
               variant="outline"
-              onClick={() => {
-                playSound(backSound);
+              onClick={async () => {
+                await playSound(backSound);
                 logout();
               }}
               size="sm"
@@ -162,8 +162,8 @@ export default function HomePage() {
                 {/* TODO: /training/squat ページを実装後、遷移先を変更 */}
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    playSound(clickSound);
+                  onClick={async () => {
+                    await playSound(clickSound);
                     navigate("/training/plank");
                   }}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-orange-500/50 hover:border-yellow-400 p-4 bg-gradient-to-br from-gray-700/90 to-gray-800/90 backdrop-blur-xl flex items-center justify-center text-white aspect-video h-auto shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_40px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 hover:-translate-y-2"
@@ -175,8 +175,8 @@ export default function HomePage() {
                 {/* プランク */}
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    playSound(clickSound);
+                  onClick={async () => {
+                    await playSound(clickSound);
                     navigate("/training/plank");
                   }}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-orange-500/50 hover:border-yellow-400 p-4 bg-gradient-to-br from-gray-700/90 to-gray-800/90 backdrop-blur-xl flex items-center justify-center text-white aspect-video h-auto shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_40px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 hover:-translate-y-2"
@@ -189,8 +189,8 @@ export default function HomePage() {
                 {/* TODO: /training/pushup ページを実装後、遷移先を変更 */}
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    playSound(clickSound);
+                  onClick={async () => {
+                    await playSound(clickSound);
                     navigate("/training/plank");
                   }}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-orange-500/50 hover:border-yellow-400 p-4 bg-gradient-to-br from-gray-700/90 to-gray-800/90 backdrop-blur-xl flex items-center justify-center text-white aspect-video h-auto shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_40px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 hover:-translate-y-2"
