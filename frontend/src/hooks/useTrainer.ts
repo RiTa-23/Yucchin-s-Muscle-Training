@@ -40,7 +40,7 @@ const COMPLIMENTS = [
     { src: soundBeautiful, text: "びゅーてぃふぉー！" },
 ];
 
-const PLANK_STARTS = [
+const PLANK_POSTURE_PROMPTS = [
     { src: soundPlankStart, text: "プランク！" },
     { src: soundPlankPosture, text: "プﾙﾙｧンクのｼｾｲ！" },
 ];
@@ -63,7 +63,7 @@ const SOUNDS = {
     kneesStraight: { src: soundKneesStraight, text: "膝を伸ばして！" },
 } as const;
 
-type SoundType = keyof typeof SOUNDS | 'good' | 'start' | 'camera' | 'finish';
+type SoundType = keyof typeof SOUNDS | 'good' | 'plankPosture' | 'camera' | 'finish';
 
 export const useTrainer = () => {
     const [isSpeaking, setIsSpeaking] = useState(false);
@@ -80,7 +80,7 @@ export const useTrainer = () => {
         kneesStraight: 5000,
         camera: 10000, // Longer cooldown for system-like message
         good: 3000,
-        start: 5000,
+        plankPosture: 5000,
         finish: 0,
     };
 
@@ -117,8 +117,8 @@ export const useTrainer = () => {
         // Preload compliments
         COMPLIMENTS.forEach((item, index) => loadAudio(item.src, `good_${index}`));
 
-        // Preload starts
-        PLANK_STARTS.forEach((item, index) => loadAudio(item.src, `start_${index}`));
+        // Preload plank posture prompts
+        PLANK_POSTURE_PROMPTS.forEach((item, index) => loadAudio(item.src, `plankPosture_${index}`));
 
         // Preload camera alerts
         CAMERA_ALERTS.forEach((item, index) => loadAudio(item.src, `camera_${index}`));
@@ -143,10 +143,10 @@ export const useTrainer = () => {
             const randomIndex = Math.floor(Math.random() * COMPLIMENTS.length);
             audioKey = `good_${randomIndex}`;
             specificText = COMPLIMENTS[randomIndex].text;
-        } else if (type === 'start') {
-            const randomIndex = Math.floor(Math.random() * PLANK_STARTS.length);
-            audioKey = `start_${randomIndex}`;
-            specificText = PLANK_STARTS[randomIndex].text;
+        } else if (type === 'plankPosture') {
+            const randomIndex = Math.floor(Math.random() * PLANK_POSTURE_PROMPTS.length);
+            audioKey = `plankPosture_${randomIndex}`;
+            specificText = PLANK_POSTURE_PROMPTS[randomIndex].text;
         } else if (type === 'camera') {
             const randomIndex = Math.floor(Math.random() * CAMERA_ALERTS.length);
             audioKey = `camera_${randomIndex}`;

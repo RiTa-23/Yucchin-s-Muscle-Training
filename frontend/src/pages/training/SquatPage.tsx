@@ -120,7 +120,6 @@ export default function SquatPage() {
         setCount(0);
         setSquatState("UP");
         setGameState("ACTIVE");
-        play('start', "さあ、始めるよ！");
     };
 
     // Save result when game finishes

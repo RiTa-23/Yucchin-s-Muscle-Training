@@ -76,7 +76,7 @@ export default function PlankPage() {
 
         if (!isHorizontal) {
             setMessage("プランクの姿勢をとってください");
-            play('start');
+            play('plankPosture');
             setIsGood(false);
             return;
         }
