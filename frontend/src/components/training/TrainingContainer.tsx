@@ -176,26 +176,30 @@ export const TrainingContainer = ({
             </div>
 
             {/* Trainer Avatar */}
-            <div className={`absolute bottom-0 right-4 z-40 w-48 ${isSpeaking ? 'animate-talk-shake' : ''}`}>
+            {/* Trainer Avatar Area */}
+            <div className="absolute bottom-0 right-4 z-40 w-48">
 
-                {/* Speech Bubble */}
+                {/* Speech Bubble (Static, Larger) */}
                 {isSpeaking && trainerMessage && (
-                    <div className="absolute -top-32 right-10 w-64 bg-white p-4 rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="absolute -top-48 right-10 w-[600px] max-w-[80vw] bg-white p-8 rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div className="relative">
-                            <p className="text-gray-900 font-bold text-lg text-center leading-relaxed">
+                            <p className="text-gray-900 font-bold text-2xl text-center leading-relaxed">
                                 {trainerMessage}
                             </p>
                             {/* Tailwind Triangle for Bubble Tail */}
-                            <div className="absolute -bottom-6 right-8 w-0 h-0 border-l-[10px] border-l-transparent border-t-[10px] border-t-white border-r-[10px] border-r-transparent"></div>
+                            <div className="absolute -bottom-10 right-10 w-0 h-0 border-l-[15px] border-l-transparent border-t-[15px] border-t-white border-r-[15px] border-r-transparent"></div>
                         </div>
                     </div>
                 )}
 
-                <img
-                    src="/src/assets/mukiyuchiBK.png"
-                    alt="Trainer"
-                    className="w-full h-auto drop-shadow-[0_0_15px_rgba(251,146,60,0.6)]"
-                />
+                {/* Character Image (Shaking) */}
+                <div className={isSpeaking ? 'animate-talk-shake' : ''}>
+                    <img
+                        src="/src/assets/mukiyuchiBK.png"
+                        alt="Trainer"
+                        className="w-full h-auto drop-shadow-[0_0_15px_rgba(251,146,60,0.6)]"
+                    />
+                </div>
             </div>
 
             {/* Quit Confirmation Modal */}
