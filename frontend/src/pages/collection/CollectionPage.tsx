@@ -3,7 +3,7 @@ import client from "../../api/client";
 import { YUCCHIN_MASTER, type YucchinMaster } from "../../data/yucchinMaster";
 import { useNavigate } from "react-router-dom";
 import { playSound } from "@/utils/audio";
-import backSound from "@/assets/sounds/ﾍｪッ！！_T01.wav";
+import backSound from "@/assets/sounds/he-sound_T01.wav";
 import { Button } from "@/components/ui/button";
 
 interface UserYucchinResponse {

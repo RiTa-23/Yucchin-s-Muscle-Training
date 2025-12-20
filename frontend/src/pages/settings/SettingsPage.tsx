@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import client from "@/api/client";
 import { playSound } from "@/utils/audio";
-import testSound from "@/assets/sounds/これくらいの音量でどうですかぁああ！？_T01.wav";
-import clickSound from "@/assets/sounds/へへっ_T01.wav";
-import backSound from "@/assets/sounds/ﾍｪッ！！_T01.wav";
+import testSound from "@/assets/sounds/volume-check_T01.wav";
+import clickSound from "@/assets/sounds/hehe_T01.wav";
+import backSound from "@/assets/sounds/he-sound_T01.wav";
 
 export default function SettingsPage() {
   const navigate = useNavigate();

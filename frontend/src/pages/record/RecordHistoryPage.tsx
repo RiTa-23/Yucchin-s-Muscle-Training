@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { trainingApi, type TrainingLogResponse } from "@/api/training";
 import { playSound } from "@/utils/audio";
-import backSound from "@/assets/sounds/ﾍｪッ！！_T01.wav";
+import backSound from "@/assets/sounds/he-sound_T01.wav";
 import { Button } from "@/components/ui/button";
 
 export default function RecordHistoryPage() {
