@@ -8,13 +8,13 @@ import yucchin6 from "../assets/img/yucchins/blue_corner.png";
 import yucchin7 from "../assets/img/yucchins/purple.png";
 import yucchin8 from "../assets/img/yucchins/purple_corner.png";
 import yucchin9 from "../assets/img/yucchins/debiruman.png";
-import yucchin10 from "../assets/img/yucchins/uma.png";
+import yucchin10 from "../assets/img/yucchins/hanabi.png";
 
 // R
 import yucchin101 from "../assets/img/yucchins/sika.png";
 import yucchin102 from "../assets/img/yucchins/torikera.png";
 import yucchin103 from "../assets/img/yucchins/hanataba_rainbow.png";
-import yucchin104 from "../assets/img/yucchins/hanabi.png";
+import yucchin104 from "../assets/img/yucchins/uma.png";
 import yucchin105 from "../assets/img/yucchins/dendousi.png";
 // SR
 import yucchin201 from "../assets/img/yucchins/risu.png";
@@ -64,7 +64,7 @@ export const YUCCHIN_MASTER: YucchinMaster[] = [
   { type: 7, name: "パープルゆっちん", rarity: "NORMAL", imageUrl: yucchin7 },
   { type: 8, name: "紫鬼ゆっちん", rarity: "NORMAL", imageUrl: yucchin8 },
   { type: 9, name: "デビルマンゆっちん", rarity: "NORMAL", imageUrl: yucchin9 },
-  { type: 10, name: "ウマゆっちん", rarity: "NORMAL", imageUrl: yucchin10 },
+  { type: 10, name: "花火ゆっちん", rarity: "NORMAL", imageUrl: yucchin10 },
   // RARE
   { type: 101, name: "しかゆっちん", rarity: "RARE", imageUrl: yucchin101 },
   { type: 102, name: "トリケラトユチン", rarity: "RARE", imageUrl: yucchin102 },
@@ -74,7 +74,7 @@ export const YUCCHIN_MASTER: YucchinMaster[] = [
     rarity: "RARE",
     imageUrl: yucchin103,
   },
-  { type: 104, name: "花火ゆっちん", rarity: "RARE", imageUrl: yucchin104 },
+  { type: 104, name: "ウマゆっちん", rarity: "RARE", imageUrl: yucchin104 },
   {
     type: 105,
     name: "愛の伝道師ゆっちん",
