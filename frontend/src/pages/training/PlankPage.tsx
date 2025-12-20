@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { type Results, type NormalizedLandmark } from "@mediapipe/pose";
 import { useAuth } from "@/context/AuthContext";
@@ -6,9 +6,11 @@ import { trainingApi } from "@/api/training";
 import { TrainingContainer, type GameState } from "@/components/training/TrainingContainer";
 import { useTrainer } from "@/hooks/useTrainer";
 
+// Helper to calculate angle between three points
+
 export default function PlankPage() {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    useAuth();
     const { play, isSpeaking, trainerMessage } = useTrainer();
 
     // State
