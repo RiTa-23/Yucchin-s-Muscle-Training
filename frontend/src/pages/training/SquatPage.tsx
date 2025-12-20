@@ -164,6 +164,7 @@ export default function SquatPage() {
           setSquatState("UP");
           setCount((prev) => prev + 1);
           lastCompletionTime.current = Date.now(); // Record completion time
+          shallowSquatStartTime.current = 0; // Reset
           safeSetMessage("ナイススクワット！");
           if (Math.random() < 0.5) {
             play("niceSquat");
