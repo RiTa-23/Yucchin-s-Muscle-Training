@@ -142,7 +142,9 @@
     }
   }
 
-  .animate-talk-shake {
-    animation: talk-shake 0.3s infinite ease-in-out;
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-talk-shake {
+      animation: talk-shake 0.3s infinite ease-in-out;
+    }
   }
 }
