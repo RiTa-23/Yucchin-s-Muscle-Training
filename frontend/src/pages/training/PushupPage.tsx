@@ -4,12 +4,12 @@ import { type Results, type NormalizedLandmark } from "@mediapipe/pose";
 import { trainingApi } from "@/api/training";
 import { TrainingContainer, type GameState } from "@/components/training/TrainingContainer";
 import { useTrainer } from "@/hooks/useTrainer";
+import pushupIllustration from "@/assets/img/udetate.png";
 
 type PushupState = "UP" | "DOWN";
 
 export default function PushupPage() {
     const navigate = useNavigate();
-
 
     // Use Trainer Hook
     const { play, isSpeaking, trainerMessage } = useTrainer();
@@ -198,7 +198,14 @@ export default function PushupPage() {
                     肘を曲げて体を深く沈め、力強く押し上げましょう！
                 </>
             }
-            illustration={<div className="text-6xl">💪</div>}
+            descriptionPlacement="bottom"
+            illustration={
+                <img
+                    src={pushupIllustration}
+                    alt="Pushup illustration"
+                    className="w-full h-full max-h-[400px] object-contain"
+                />
+            }
             goalConfig={{
                 type: "count",
                 min: 5,
