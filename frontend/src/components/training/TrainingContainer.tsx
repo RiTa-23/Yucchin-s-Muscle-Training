@@ -114,12 +114,15 @@ export const TrainingContainer = ({
     }, [gameState]);
 
     const handleFpsChange = async (rate: number) => {
+        const previousFps = localFps;
         setLocalFps(rate);
         try {
             await client.put("/settings/me", { fps: rate });
             await refreshUser();
         } catch (error) {
             console.error("Failed to save FPS setting:", error);
+            setLocalFps(previousFps);
+            alert("FPS設定の保存に失敗しました。");
         }
     };
 
