@@ -75,13 +75,15 @@ export default function SquatPage() {
             if (kneeAngle < DOWN_THRESHOLD) {
                 setSquatState("DOWN");
                 safeSetMessage("Good! そのまま立ち上がって！");
-                play('good', "Good! そのまま立ち上がって！");
+                play('squatUp');
                 setIsGood(true);
             } else if (kneeAngle < 140) {
                 safeSetMessage("もっと深く！");
+                play('squatDeep');
                 setIsGood(true); // Encouraging
             } else {
                 safeSetMessage("しゃがんでください");
+                play('squatDown');
                 setIsGood(true);
             }
         } else if (squatState === "DOWN") {
@@ -89,7 +91,7 @@ export default function SquatPage() {
                 setSquatState("UP");
                 setCount(prev => prev + 1);
                 safeSetMessage("ナイススクワット！");
-                play('good', "ナイススクワット！");
+                play('niceSquat');
                 setIsGood(true);
             } else {
                 safeSetMessage("立ち上がって！");
