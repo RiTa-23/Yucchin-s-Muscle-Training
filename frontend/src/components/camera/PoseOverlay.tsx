@@ -62,11 +62,14 @@ export const PoseOverlay = ({ results, feedback, isGoodPose = false, stats }: Po
             {/* Stats Panel (Top Right) */}
             {stats && (
                 <div className="absolute top-4 right-4 z-10">
-                    <div className="bg-white/90 px-6 py-4 rounded-xl shadow-lg border-2 border-blue-500 text-center min-w-[140px]">
-                        <p className="text-sm text-gray-500 font-bold mb-1">{stats.label}</p>
-                        <p className="text-4xl font-black text-blue-600 font-mono">
+                    <div className="bg-white/95 px-8 py-6 rounded-2xl shadow-xl border-4 border-blue-500 text-center min-w-[180px]">
+                        <p className="text-lg text-gray-500 font-bold mb-2">{stats.label}</p>
+                        <p
+                            key={stats.value}
+                            className="text-6xl font-black text-blue-600 font-mono animate-in zoom-in-50 duration-150"
+                        >
                             {stats.value}
-                            {stats.unit && <span className="text-lg ml-1">{stats.unit}</span>}
+                            {stats.unit && <span className="text-2xl ml-2 text-gray-600">{stats.unit}</span>}
                         </p>
                     </div>
                 </div>
