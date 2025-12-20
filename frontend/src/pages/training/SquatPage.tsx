@@ -153,7 +153,7 @@ export default function SquatPage() {
             }
         }
 
-    }, [calculateAngle, squatState, safeSetMessage]);
+    }, [calculateAngle, squatState, safeSetMessage, cameraAngle]);
 
     const onPoseDetected = useCallback((results: Results) => {
         setLastResults(results);
