@@ -1,46 +1,66 @@
 import { useCallback, useRef, useEffect, useState } from 'react';
 
-// Import audio files
 // Note: Using dynamic imports or URL handling might be needed depending on Vite config, 
 // but direct import usually works for assets if configured. 
 // If direct import fails on Japanese chars, we might need to use URL constructor.
 // Let's try URL constructor for safety with special chars/paths.
 
-// Helper to resolve asset paths for Vite
-const getAudioPath = (path: string) => {
-    return new URL(`../assets/sounds/${path}`, import.meta.url).href;
-};
+// Import audio files directly
+// Compliments
+import soundTensai from '@/assets/sounds/compliment/天才！.wav';
+import soundKagayaiteru from '@/assets/sounds/compliment/輝いてるよ.wav';
+import soundKagayaiteruIi from '@/assets/sounds/compliment/輝いてるよ！ｲｲﾖｫ！！.wav';
+import soundIi from '@/assets/sounds/compliment/ｲｲﾖｫ！！.wav';
+import soundBeautiful from '@/assets/sounds/compliment/びゅーてぃふぉ.wav';
+
+// Plank Starts
+import soundPlankStart from '@/assets/sounds/plank/プランク1_T01.wav';
+import soundPlankPosture from '@/assets/sounds/plank/プﾙﾙｧンクのｼｾｲ_T01.wav';
+
+// Camera Alerts
+import soundCamera1 from '@/assets/sounds/体をカメラにおさめてね1_T01.wav';
+import soundCamera2 from '@/assets/sounds/体をカメラにおさめてね2_T01.wav';
+import soundShrink from '@/assets/sounds/縮めｪ！！_T01.wav';
+
+// Finish Sounds
+import soundFinish1 from '@/assets/sounds/これであなたも！ムキムキよ！_T01.wav';
+import soundFinish2 from '@/assets/sounds/ｺﾚﾃﾞｱﾅﾀﾓｫ〜ムキムキ.wav';
+
+// Action Sounds
+import soundHipsHigh from '@/assets/sounds/plank/お尻を下げてください。_T01.wav';
+import soundHipsLow from '@/assets/sounds/plank/腰を上げろぉお.wav';
+import soundElbows from '@/assets/sounds/plank/肘を床に付ける2_T01.wav';
+import soundKneesStraight from '@/assets/sounds/plank/膝を伸ばす.wav';
 
 const COMPLIMENTS = [
-    { src: getAudioPath('compliment/天才！.wav'), text: "天才！" },
-    { src: getAudioPath('compliment/輝いてるよ.wav'), text: "輝いてるよ" },
-    { src: getAudioPath('compliment/輝いてるよ！ｲｲﾖｫ！！.wav'), text: "輝いてるよ！イイヨォ！！" },
-    { src: getAudioPath('compliment/ｲｲﾖｫ！！.wav'), text: "イイヨォ！！" },
-    { src: getAudioPath('compliment/びゅーてぃふぉ.wav'), text: "びゅーてぃふぉー！" },
+    { src: soundTensai, text: "天才！" },
+    { src: soundKagayaiteru, text: "輝いてるよ" },
+    { src: soundKagayaiteruIi, text: "輝いてるよ！ イイヨォ！！" },
+    { src: soundIi, text: "イイヨォ！！" },
+    { src: soundBeautiful, text: "びゅーてぃふぉー！" },
 ];
 
 const PLANK_STARTS = [
-    { src: getAudioPath('plank/プランク1_T01.wav'), text: "プランク！" },
-    { src: getAudioPath('plank/プﾙﾙｧンクのｼｾｲ_T01.wav'), text: "プﾙﾙｧンクのｼｾｲ！" },
+    { src: soundPlankStart, text: "プランク！" },
+    { src: soundPlankPosture, text: "プﾙﾙｧンクのｼｾｲ！" },
 ];
 
 const CAMERA_ALERTS = [
-    { src: getAudioPath('体をカメラにおさめてね1_T01.wav'), text: "体をカメラにおさめてね" },
-    { src: getAudioPath('体をカメラにおさめてね2_T01.wav'), text: "体をカメラにおさめてね！" },
-    { src: getAudioPath('縮めｪ！！_T01.wav'), text: "縮めェ！！" },
+    { src: soundCamera1, text: "体をカメラにおさめてね" },
+    { src: soundCamera2, text: "体をカメラにおさめてね！" },
+    { src: soundShrink, text: "縮めェ！！" },
 ];
 
 const FINISH_SOUNDS = [
-    { src: getAudioPath('これであなたも！ムキムキよ！_T01.wav'), text: "これであなたも！ムキムキよ！" },
-    { src: getAudioPath('ｺﾚﾃﾞｱﾅﾀﾓｫ〜ムキムキ.wav'), text: "これであなたもぉ〜ムキムキ！" },
+    { src: soundFinish1, text: "これであなたも！ムキムキよ！" },
+    { src: soundFinish2, text: "これであなたもぉ〜ムキムキ！" },
 ];
 
 const SOUNDS = {
-    hipsHigh: { src: getAudioPath('plank/お尻を下げてください。_T01.wav'), text: "お尻を下げて！" },
-    hipsLow: { src: getAudioPath('plank/腰を上げろぉお.wav'), text: "腰を上げろぉお！" },
-    elbowsOnFloor: { src: getAudioPath('plank/肘を床に付ける2_T01.wav'), text: "肘を床につけて！" },
-    // warning: { src: getAudioPath('ﾍｪッ！！_T01.wav'), text: "ヘェッ！！" },
-    kneesStraight: { src: getAudioPath('plank/膝を伸ばす.wav'), text: "膝を伸ばして！" },
+    hipsHigh: { src: soundHipsHigh, text: "お尻を下げて！" },
+    hipsLow: { src: soundHipsLow, text: "腰を上げろぉお！" },
+    elbowsOnFloor: { src: soundElbows, text: "肘を床につけて！" },
+    kneesStraight: { src: soundKneesStraight, text: "膝を伸ばして！" },
 } as const;
 
 type SoundType = keyof typeof SOUNDS | 'good' | 'start' | 'camera' | 'finish';
@@ -50,6 +70,7 @@ export const useTrainer = () => {
     const [trainerMessage, setTrainerMessage] = useState<string | null>(null);
     const audioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
     const lastPlayedRef = useRef<Map<string, number>>(new Map());
+    const playingKeysRef = useRef<Set<string>>(new Set());
 
     // Cooldowns in ms
     const COOLDOWNS: Partial<Record<SoundType, number>> = {
@@ -70,17 +91,22 @@ export const useTrainer = () => {
             audio.load();
 
             // Listeners for speaking state
-            audio.addEventListener('play', () => {
+            const onPlay = () => {
+                playingKeysRef.current.add(key);
                 setIsSpeaking(true);
-            });
-            audio.addEventListener('pause', () => {
-                setIsSpeaking(false);
-                setTrainerMessage(null);
-            });
-            audio.addEventListener('ended', () => {
-                setIsSpeaking(false);
-                setTrainerMessage(null);
-            });
+            };
+
+            const onStop = () => {
+                playingKeysRef.current.delete(key);
+                if (playingKeysRef.current.size === 0) {
+                    setIsSpeaking(false);
+                    setTrainerMessage(null);
+                }
+            };
+
+            audio.addEventListener('play', onPlay);
+            audio.addEventListener('pause', onStop);
+            audio.addEventListener('ended', onStop);
 
             audioRefs.current.set(key, audio);
         };
@@ -101,6 +127,7 @@ export const useTrainer = () => {
         FINISH_SOUNDS.forEach((item, index) => loadAudio(item.src, `finish_${index}`));
 
         return () => {
+            playingKeysRef.current.clear();
             audioRefs.current.forEach(audio => {
                 audio.pause();
                 audio.currentTime = 0;
