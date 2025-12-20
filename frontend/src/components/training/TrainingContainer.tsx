@@ -9,6 +9,14 @@ import { useAuth } from "@/context/AuthContext";
 import trainerImage from "@/assets/mukiyuchiBK.png";
 import client from "@/api/client";
 import yamerunoImage from "@/assets/img/yameruno.png";
+import { playSound } from "@/utils/audio";
+
+import yamerundesuka from "@/assets/sounds/giveup/yamerundesuka.wav";
+import orokamono1 from "@/assets/sounds/giveup/orokamono1.wav";
+import orokamono2 from "@/assets/sounds/giveup/orokamono2.wav";
+import yamenai1 from "@/assets/sounds/giveup/yamenai1.wav";
+import yamenai2 from "@/assets/sounds/giveup/yamenai2.wav";
+import yamenai3 from "@/assets/sounds/giveup/yamenai3.wav";
 
 export type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 
@@ -176,7 +184,10 @@ export const TrainingContainer = ({
                 <Button
                     variant="outline"
                     className="bg-white/80 hover:bg-white border-2 border-orange-500/50 hover:border-orange-500 text-gray-900 font-bold shadow-[0_0_10px_rgba(251,146,60,0.4)] transition-all"
-                    onClick={() => setIsQuitModalOpen(true)}
+                    onClick={() => {
+                        playSound(yamerundesuka);
+                        setIsQuitModalOpen(true);
+                    }}
                 >
                     やめる
                 </Button>
@@ -282,17 +293,29 @@ export const TrainingContainer = ({
                         <h3 className="text-2xl font-bold text-center mb-4 text-gray-900">
                             やめるんですか？
                         </h3>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 w-full">
                             <Button
                                 variant="outline"
-                                className="flex-1 border-gray-300"
-                                onClick={onQuit}
+                                className="flex-1 border-gray-300 py-6 text-lg"
+                                onClick={async () => {
+                                    // Play random "orokamono" sound
+                                    const sounds = [orokamono1, orokamono2];
+                                    const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+                                    await playSound(randomSound);
+                                    onQuit();
+                                }}
                             >
                                 やめる
                             </Button>
                             <Button
-                                className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-none shadow-lg"
-                                onClick={() => setIsQuitModalOpen(false)}
+                                className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-none shadow-lg py-6 text-lg"
+                                onClick={async () => {
+                                    // Play random "yamenai" sound
+                                    const sounds = [yamenai1, yamenai2, yamenai3];
+                                    const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+                                    await playSound(randomSound);
+                                    setIsQuitModalOpen(false);
+                                }}
                             >
                                 やめない
                             </Button>
