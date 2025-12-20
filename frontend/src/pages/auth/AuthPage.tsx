@@ -1,8 +1,8 @@
 import { useState, useEffect, type FormEvent, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import bgImage from "@/assets/img/doubleyuttin.png";
-import soundFile from "@/assets/sounds/へへっ_T01.wav";
-import backSoundFile from "@/assets/sounds/ﾍｪッ！！_T01.wav";
+import soundFile from "@/assets/sounds/hehe_T01.wav";
+import backSoundFile from "@/assets/sounds/he-sound_T01.wav";
 import {
   Card,
   CardContent,
