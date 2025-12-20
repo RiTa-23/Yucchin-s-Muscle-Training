@@ -22,9 +22,6 @@ export const CollectionPage: React.FC = () => {
   const navigate = useNavigate();
   const [displayList, setDisplayList] = useState<DisplayYucchin[]>([]);
   const [loading, setLoading] = useState(true);
-  // Pagination state (for future use as requested)
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 20; // Example limit
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,30 +50,12 @@ export const CollectionPage: React.FC = () => {
     fetchData();
   }, []);
 
- // Pagination Logic
- // 1. Separate all items by rarity first
- const allNormals = displayList.filter((i) => i.rarity === "NORMAL");
- const allRares = displayList.filter((i) => i.rarity === "RARE");
- const allSRs = displayList.filter((i) => i.rarity === "SR");
- const allURs = displayList.filter((i) => i.rarity === "UR");
- const allSecrets = displayList.filter((i) => i.rarity === "SECRET");
-
- // 2. Combine them to ensure specific order (Normal -> Rare -> SR -> UR -> Secret)
- const allSortedItems = [...allNormals, ...allRares, ...allSRs, ...allURs, ...allSecrets];
-
- // 3. Paginate the sorted list
- const totalPages = Math.ceil(allSortedItems.length / ITEMS_PER_PAGE) || 1;
- const currentItems = allSortedItems.slice(
-   (currentPage - 1) * ITEMS_PER_PAGE,
-   currentPage * ITEMS_PER_PAGE
- );
-
- // 4. Split current page items for rendering
- const normalItems = currentItems.filter((i) => i.rarity === "NORMAL");
- const rareItems = currentItems.filter((i) => i.rarity === "RARE");
- const srItems = currentItems.filter((i) => i.rarity === "SR");
- const urItems = currentItems.filter((i) => i.rarity === "UR");
- const secretItems = currentItems.filter((i) => i.rarity === "SECRET");
+  // Rarity buckets (ordered as in master data)
+  const normalItems = displayList.filter((i) => i.rarity === "NORMAL");
+  const rareItems = displayList.filter((i) => i.rarity === "RARE");
+  const srItems = displayList.filter((i) => i.rarity === "SR");
+  const urItems = displayList.filter((i) => i.rarity === "UR");
+  const secretItems = displayList.filter((i) => i.rarity === "SECRET");
 
   const renderGrid = (items: DisplayYucchin[]) => (
     <div className="grid grid-cols-6 gap-4">
@@ -178,30 +157,30 @@ export const CollectionPage: React.FC = () => {
               </section>
             )}
             {srItems.length > 0 && (
-            <section>
+              <section>
                 <h2 className="font-bold text-lg mb-2 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-                ★★SR
+                  ★★SR
                 </h2>
                 {renderGrid(srItems)}
-            </section>
+              </section>
             )}
 
             {urItems.length > 0 && (
-            <section>
+              <section>
                 <h2 className="font-bold text-lg mb-2 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-                ★★★UR
+                  ★★★UR
                 </h2>
                 {renderGrid(urItems)}
-            </section>
+              </section>
             )}
 
             {secretItems.length > 0 && (
-            <section>
+              <section>
                 <h2 className="font-bold text-lg mb-2 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
-                🔥Secret
+                  🔥Secret
                 </h2>
                 {renderGrid(secretItems)}
-            </section>
+              </section>
             )}
           </div>
         </div>
