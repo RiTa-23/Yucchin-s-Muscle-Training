@@ -119,7 +119,7 @@ export default function PushupPage() {
             }
         }
 
-    }, [calculateAngle, pushupState, safeSetMessage]);
+    }, [calculateAngle, pushupState, safeSetMessage, cameraAngle]);
 
     const onPoseDetected = useCallback((results: Results) => {
         setLastResults(results);
