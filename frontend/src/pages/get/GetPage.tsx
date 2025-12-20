@@ -34,6 +34,13 @@ const RARITY_THEMES = {
     particleColor: '#ffffff',
     confettiColors: ['#ff0000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#ff00ff'],
   },
+  SECRET: {
+    accentColor: 'from-purple-600 via-pink-600 via-yellow-500 to-purple-600',
+    glowColor: 'rgba(255, 215, 0, 1)', 
+    sunburst: 'conic-gradient(from 0deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000)',
+    particleColor: '#ffff00',
+    confettiColors: ['#ff0000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#ff00ff', '#ffffff', '#ffd700'],
+  },
 };
 
 // 浮遊パーティクルコンポーネント (強化版)
@@ -129,45 +136,62 @@ const GodRays: React.FC<{ color: string; rotate?: boolean }> = ({ color, rotate 
 };
 
 // レアリティバッジコンポーネント (豪華版)
-const RarityBadge: React.FC<{ rarity: YucchinMaster['rarity'] }> = ({ rarity }) => {
-  const badgeLabel = rarity === 'NORMAL' ? 'N' : rarity === 'RARE' ? 'R' : rarity;
+const RarityBadge: React.FC<{ rarity: YucchinMaster['rarity'] | 'SECRET' }> = ({ rarity }) => {
+  const badgeLabel = rarity === 'NORMAL' ? 'N' : rarity === 'RARE' ? 'R' : rarity === 'SECRET' ? 'SECRET' : rarity;
   
   return (
     <div className={`relative flex items-center justify-center scale-90 md:scale-110`}>
-      {/* Decorative Elements for UR */}
-      {rarity === 'UR' && (
-        <div className="absolute inset-x-0 -inset-y-4 pointer-events-none select-none">
-          {/* Stars Only (Wings removed) */}
-          <div className="absolute -top-4 left-0 text-yellow-300 text-xl">✦</div>
-          <div className="absolute -top-4 right-0 text-yellow-300 text-xl">✦</div>
-        </div>
-      )}
 
-      {/* Main Badge Text (Horizon Metallic Style) */}
+      {/* Main Badge Text (Blocky Metallic Style) */}
       <div className={`
-        relative px-6 py-2 rounded-xl font-black text-6xl leading-none tracking-normal
-        ${rarity === 'UR' ? 'rarity-ur' : rarity === 'SR' ? 'rarity-sr' : rarity === 'RARE' ? 'rarity-rare' : 'rarity-normal'}
-        filter drop-shadow-[0_4px_15px_rgba(0,0,0,0.8)]
+        relative px-6 py-2 font-black text-6xl leading-none
+        ${rarity === 'SECRET' ? 'rarity-secret' : rarity === 'UR' ? 'rarity-ur' : rarity === 'SR' ? 'rarity-sr' : rarity === 'RARE' ? 'rarity-rare' : 'rarity-normal'}
       `} style={{ 
-          fontFamily: '"Kanit", sans-serif',
+          fontFamily: '"Bebas Neue", "Impact", "Arial Black", sans-serif',
           fontWeight: 900,
-          // 3D内側ベベルをシミュレートする多層シャドウ
-          textShadow: rarity !== 'NORMAL' ? `
-            2px 2px 0px rgba(255,255,255,0.4),
+          letterSpacing: '0.2em',
+          textTransform: 'uppercase',
+          transform: 'scaleX(1.1)',
+          transformOrigin: 'center',
+          // 3Dメタリック効果のテキストシャドウ
+          textShadow: rarity === 'SECRET' ? `
+            3px 3px 0px rgba(255,255,255,1),
+            -2px -2px 0px rgba(0,0,0,0.9),
+            0px 0px 20px rgba(255,215,0,0.8),
+            0px 0px 40px rgba(255,215,0,0.6)
+          ` : rarity === 'UR' ? `
+            2px 2px 0px rgba(255,255,255,0.9),
+            -1px -1px 0px rgba(0,0,0,0.8),
+            0px 0px 10px rgba(255,255,255,0.5)
+          ` : rarity === 'SR' ? `
+            2px 2px 0px rgba(255,255,255,0.8),
             -1px -1px 0px rgba(0,0,0,0.6),
-            0px 0px 8px rgba(0,0,0,0.5)
-          ` : 'none'
+            0px 0px 8px rgba(135,206,235,0.6)
+          ` : rarity === 'RARE' ? `
+            1px 1px 0px rgba(255,255,255,0.6),
+            -1px -1px 0px rgba(0,0,0,0.5)
+          ` : `
+            1px 1px 0px rgba(255,255,255,0.5),
+            -1px -1px 0px rgba(0,0,0,0.4)
+          `
       }}>
         <span className="relative z-10">{badgeLabel}</span>
         
-        {/* Fill Layer (ハイライトの入り方を調整) */}
+        {/* Metallic highlight layers */}
         {rarity !== 'NORMAL' && (
           <span 
             className="absolute inset-0 bg-clip-text text-transparent pointer-events-none px-6 py-2 select-none z-20"
             style={{
               WebkitBackgroundClip: 'text',
-              backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.6) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.4) 100%)',
-              WebkitTextStroke: '0'
+              backgroundImage: rarity === 'SECRET'
+                ? 'linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,215,0,0.95) 15%, rgba(255,255,255,0.9) 30%, rgba(255,215,0,0.9) 45%, rgba(255,255,255,0.95) 50%, rgba(255,215,0,0.9) 55%, rgba(255,255,255,0.9) 70%, rgba(255,215,0,0.95) 85%, rgba(255,255,255,1) 100%)'
+                : rarity === 'UR' 
+                ? 'linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.3) 100%)'
+                : rarity === 'SR'
+                ? 'linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.2) 100%)'
+                : 'linear-gradient(to bottom, rgba(255,255,255,0.7) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.2) 100%)',
+              WebkitTextStroke: '0',
+              animation: rarity === 'SECRET' ? 'metallicShineText 2s infinite' : 'none'
             }}
           >
             {badgeLabel}
@@ -187,6 +211,7 @@ const GetPage: React.FC = () => {
   const [revealStart, setRevealStart] = useState(false); // フラッシュ除去・背景開始
   const [revealBadge, setRevealBadge] = useState(false); // 名前バッジ
   const [revealQuote, setRevealQuote] = useState(false); // セリフ
+  const [quoteFadeOut, setQuoteFadeOut] = useState(false); // セリフのフェードアウト
   const [revealImage, setRevealImage] = useState(false); // キャラクター画像
   const [revealText, setRevealText] = useState(false);   // GET!!テキスト
 
@@ -204,21 +229,16 @@ const GetPage: React.FC = () => {
     // 演出タイマーの設定
     if (targetYucchin) {
       const isHighRarity = targetYucchin.rarity === 'SR' || targetYucchin.rarity === 'UR';
+      const isSecret = targetYucchin.rarity === 'SECRET';
       
-      // 1. 最初のアクション: フラッシュ除去 (500ms)
-      setTimeout(() => setRevealStart(true), 500);
+      // 1. 最初のアクション: フラッシュ除去 (500ms) - シークレットの場合は少し長め
+      setTimeout(() => setRevealStart(true), isSecret ? 800 : 500);
 
-      if (isHighRarity && targetYucchin.quote) {
-        // SR/UR の場合: セリフあり演出
-        // 2. セリフ表示 (1500ms)
-        setTimeout(() => setRevealQuote(true), 1500);
-        // 3. 画像 ＆ 名前バッジ 表示 (3500ms) - セリフを2秒見せる
-        setTimeout(() => {
-          setRevealImage(true);
-          setRevealBadge(true);
-        }, 3500);
-        // 4. テキスト表示 (4500ms)
-        setTimeout(() => setRevealText(true), 4500);
+      if ((isHighRarity || isSecret) && targetYucchin.quote) {
+        // SR/UR/SECRET の場合: セリフあり演出
+        // 2. セリフ表示 (1500ms) - シークレットの場合は少し長め
+        setTimeout(() => setRevealQuote(true), isSecret ? 2000 : 1500);
+        // 3-4のタイマーは削除 - 音声終了後にフェードアウト→次の画面へ
       } else {
         // NORMAL/RARE の場合: 従来通りのテンポ
         // 2. 画像 ＆ 名前バッジ 表示 (1500ms)
@@ -231,6 +251,83 @@ const GetPage: React.FC = () => {
       }
     }
   }, [location, searchParams]);
+
+  // セリフ表示時に音声を再生し、音声終了後にフェードアウト→次の画面へ
+  useEffect(() => {
+    if (revealQuote && !quoteFadeOut) {
+      if (yucchin?.audioUrl) {
+        // 音声がある場合
+        const audio = new Audio(yucchin.audioUrl);
+        audio.volume = 0.7;
+        audio.preload = 'auto';
+        
+        // 音声終了時の処理
+        audio.onended = () => {
+          // フェードアウトを開始
+          setQuoteFadeOut(true);
+          
+          // フェードアウト完了後（500ms後）に次の画面へ
+          setTimeout(() => {
+            setRevealImage(true);
+            setRevealBadge(true);
+            // テキスト表示は画像表示の少し後（500ms後）
+            setTimeout(() => setRevealText(true), 500);
+          }, 500);
+        };
+        
+        // 音声の読み込みが完了してから再生
+        const handleCanPlayThrough = () => {
+          audio.play().catch((error) => {
+            console.error('音声の再生に失敗しました:', error);
+            // エラー時も次の画面へ進む
+            setQuoteFadeOut(true);
+            setTimeout(() => {
+              setRevealImage(true);
+              setRevealBadge(true);
+              setTimeout(() => setRevealText(true), 500);
+            }, 500);
+          });
+        };
+        
+        // 既に読み込み済みの場合も考慮
+        if (audio.readyState >= 3) { // HAVE_FUTURE_DATA
+          handleCanPlayThrough();
+        } else {
+          audio.addEventListener('canplaythrough', handleCanPlayThrough, { once: true });
+        }
+        
+        // エラー時の処理
+        audio.onerror = () => {
+          console.error('音声の読み込みに失敗しました');
+          setQuoteFadeOut(true);
+          setTimeout(() => {
+            setRevealImage(true);
+            setRevealBadge(true);
+            setTimeout(() => setRevealText(true), 500);
+          }, 500);
+        };
+        
+        // クリーンアップ関数で音声を停止
+        return () => {
+          audio.removeEventListener('canplaythrough', handleCanPlayThrough);
+          audio.pause();
+          audio.src = '';
+        };
+      } else {
+        // 音声がない場合、一定時間（2秒）後に次の画面へ
+        const timer = setTimeout(() => {
+          setQuoteFadeOut(true);
+          setTimeout(() => {
+            setRevealImage(true);
+            setRevealBadge(true);
+            setTimeout(() => setRevealText(true), 500);
+          }, 500);
+        }, 2000);
+        
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [revealQuote, yucchin?.audioUrl, quoteFadeOut]);
 
   const theme = useMemo(() => {
     if (!yucchin) return RARITY_THEMES.NORMAL;
@@ -266,27 +363,27 @@ const GetPage: React.FC = () => {
         <>
           <FloatingParticles 
             color={theme.particleColor} 
-            count={yucchin.rarity === 'UR' ? 60 : yucchin.rarity === 'NORMAL' ? 12 : 30} 
+            count={yucchin.rarity === 'SECRET' ? 80 : yucchin.rarity === 'UR' ? 60 : yucchin.rarity === 'NORMAL' ? 12 : 30} 
             rarity={yucchin.rarity} 
           />
           <TwinkleStars 
-            count={yucchin.rarity === 'UR' ? 40 : yucchin.rarity === 'NORMAL' ? 6 : 20} 
+            count={yucchin.rarity === 'SECRET' ? 60 : yucchin.rarity === 'UR' ? 40 : yucchin.rarity === 'NORMAL' ? 6 : 20} 
           />
         </>
       )}
 
       {/* Confetti */}
-      {(yucchin.rarity === 'UR' || yucchin.rarity === 'SR' || yucchin.rarity === 'RARE') && revealImage && (
-        <Confetti colors={theme.confettiColors} count={yucchin.rarity === 'RARE' ? 40 : 80} />
+      {(yucchin.rarity === 'SECRET' || yucchin.rarity === 'UR' || yucchin.rarity === 'SR' || yucchin.rarity === 'RARE') && revealImage && (
+        <Confetti colors={theme.confettiColors} count={yucchin.rarity === 'SECRET' ? 100 : yucchin.rarity === 'RARE' ? 40 : 80} />
       )}
 
       {/* Screen Flash Overlay */}
       <div 
-        className={`fixed inset-0 z-50 pointer-events-none transition-opacity duration-1000 ${revealStart ? 'opacity-0' : 'opacity-100'} ${yucchin.rarity === 'UR' ? 'bg-gradient-to-br from-purple-400 via-white to-pink-400' : 'bg-white'}`}
+        className={`fixed inset-0 z-50 pointer-events-none transition-opacity duration-1000 ${revealStart ? 'opacity-0' : 'opacity-100'} ${yucchin.rarity === 'SECRET' ? 'bg-gradient-to-br from-yellow-400 via-white to-orange-400' : yucchin.rarity === 'UR' ? 'bg-gradient-to-br from-purple-400 via-white to-pink-400' : 'bg-white'}`}
       />
 
       {/* Main Container - Removed square frame/border as requested */}
-      <Card className={`w-full h-full border-none bg-transparent shadow-none rounded-none overflow-visible relative z-10 transition-all duration-1000 ${revealStart ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} ${yucchin.rarity === 'UR' && revealStart ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}>
+      <Card className={`w-full h-full border-none bg-transparent shadow-none rounded-none overflow-visible relative z-10 transition-all duration-1000 ${revealStart ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} ${(yucchin.rarity === 'UR' || yucchin.rarity === 'SECRET') && revealStart ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}>
         <CardContent className="h-full relative flex flex-col items-center py-12 justify-between">
         
           {/* Unified Muscle Name Badge */}
@@ -308,7 +405,7 @@ const GetPage: React.FC = () => {
               {/* Quote Reveal (SR/UR Only) */}
               {revealQuote && !revealImage && yucchin.quote && (
                 <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 flex justify-center z-30 px-4">
-                  <div className="max-w-[90vw] animate-[fadeIn_0.5s_ease-out]">
+                  <div className={`max-w-[90vw] transition-opacity duration-500 ${quoteFadeOut ? 'opacity-0' : 'opacity-100 animate-[fadeIn_0.5s_ease-out]'}`}>
                     <p className="text-4xl sm:text-5xl font-black text-white italic drop-shadow-[0_4px_12px_rgba(251,146,60,0.8)] text-center leading-none whitespace-nowrap" style={{ fontFamily: '"Inter", sans-serif' }}>
                       「{yucchin.quote}」
                     </p>
@@ -318,34 +415,41 @@ const GetPage: React.FC = () => {
 
                {/* Rarity Aura & God Rays */}
                <div className={`absolute inset-0 flex items-center justify-center transition-all duration-1500 ${revealImage ? 'scale-125 opacity-100' : 'scale-0 opacity-0'}`}>
-                  {(yucchin.rarity === 'UR' || yucchin.rarity === 'SR') && <GodRays color={theme.glowColor} rotate={yucchin.rarity === 'UR'} />}
+                  {(yucchin.rarity === 'SECRET' || yucchin.rarity === 'UR' || yucchin.rarity === 'SR') && <GodRays color={theme.glowColor} rotate={yucchin.rarity === 'UR' || yucchin.rarity === 'SECRET'} />}
                   
                   {/* Multi-layered Aura Pulse */}
-                  <div className={`absolute w-[35rem] h-[35rem] rounded-full blur-[120px] ${yucchin.rarity === 'UR' ? '' : 'animate-pulse'} opacity-60`}
+                  <div className={`absolute w-[35rem] h-[35rem] rounded-full blur-[120px] ${(yucchin.rarity === 'UR' || yucchin.rarity === 'SECRET') ? '' : 'animate-pulse'} opacity-60`}
                        style={{ backgroundColor: theme.glowColor }}></div>
-                  {yucchin.rarity === 'UR' && (
+                  {(yucchin.rarity === 'UR' || yucchin.rarity === 'SECRET') && (
                     <div className={`absolute w-[45rem] h-[45rem] rounded-full blur-[100px] opacity-30`}
+                         style={{ backgroundColor: theme.glowColor }}></div>
+                  )}
+                  {yucchin.rarity === 'SECRET' && (
+                    <div className={`absolute w-[55rem] h-[55rem] rounded-full blur-[80px] opacity-20`}
                          style={{ backgroundColor: theme.glowColor }}></div>
                   )}
 
                   <div className="absolute w-[20rem] h-[20rem] bg-white rounded-full blur-[80px] opacity-60"></div>
                   
-                  {/* UR Unique Inner Spark - Multi-layered */}
-                  {yucchin.rarity === 'UR' && (
+                  {/* UR/SECRET Unique Inner Spark - Multi-layered */}
+                  {(yucchin.rarity === 'UR' || yucchin.rarity === 'SECRET') && (
                      <div className="absolute inset-0 flex items-center justify-center">
                        <div className="w-[12rem] h-[12rem] bg-white rounded-full blur-[20px] animate-ping opacity-30"></div>
                        <div className="w-[8rem] h-[8rem] bg-white rounded-full blur-[15px] animate-ping opacity-40 delay-500"></div>
+                       {yucchin.rarity === 'SECRET' && (
+                         <div className="w-[6rem] h-[6rem] bg-yellow-300 rounded-full blur-[10px] animate-ping opacity-50 delay-1000"></div>
+                       )}
                      </div>
                   )}
                </div>
 
               <div className={`relative transition-all duration-1000 cubic-bezier(0.175, 0.885, 0.32, 1.275) transform ${revealImage ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>
-                  {/* Luxury Ripple Waves (No Gaps) - Shared for SR and UR - Moved to background of image */}
-                  {(yucchin.rarity === 'UR' || yucchin.rarity === 'SR') && revealImage && (
+                  {/* Luxury Ripple Waves (No Gaps) - Shared for SR, UR and SECRET - Moved to background of image */}
+                  {(yucchin.rarity === 'SECRET' || yucchin.rarity === 'UR' || yucchin.rarity === 'SR') && revealImage && (
                     <div className="absolute inset-0 pointer-events-none z-0">
-                      {/* Rainbow Rotating Ring - Only for UR */}
-                      {yucchin.rarity === 'UR' && (
-                        <div className="absolute inset-[-20%] rounded-full border-4 border-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500 animate-[spin_5s_linear_infinite] opacity-20 blur-[2px]" style={{ maskImage: 'linear-gradient(white, white), linear-gradient(white, white)', maskClip: 'padding-box, border-box', maskComposite: 'exclude' }}></div>
+                      {/* Rainbow Rotating Ring - Only for UR and SECRET */}
+                      {(yucchin.rarity === 'UR' || yucchin.rarity === 'SECRET') && (
+                        <div className={`absolute inset-[-20%] rounded-full border-4 border-transparent ${yucchin.rarity === 'SECRET' ? 'bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-600' : 'bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-500'} animate-[spin_5s_linear_infinite] opacity-20 blur-[2px]`} style={{ maskImage: 'linear-gradient(white, white), linear-gradient(white, white)', maskClip: 'padding-box, border-box', maskComposite: 'exclude' }}></div>
                       )}
                       
                       {/* Continuous Ripple Waves */}
@@ -409,7 +513,7 @@ const GetPage: React.FC = () => {
       </Card>
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@900&family=Montserrat:wght@900&family=Bungee&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@900&family=Montserrat:wght@900&family=Bungee&family=Bebas+Neue&display=swap');
 
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(10px); }
@@ -450,45 +554,74 @@ const GetPage: React.FC = () => {
           0% { background-position: -200% 0; }
           20%, 100% { background-position: 200% 0; }
         }
+        @keyframes shineSweep {
+          0% { background-position: -200% -200%; }
+          50% { background-position: 200% 200%; }
+          100% { background-position: -200% -200%; }
+        }
 
         .rarity-normal {
           background: linear-gradient(to bottom, 
-            #e2e8f0 0%, #ffffff 40%, #475569 45%, #94a3b8 50%, #f1f5f9 60%, #4b5563 100%
+            #e8e8e8 0%, #d0d0d0 20%, #b8b8b8 40%, #a0a0a0 50%, #888888 60%, #707070 70%, #585858 80%, #404040 90%, #282828 100%
           );
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          -webkit-text-stroke: 1.5px #1e293b;
-          opacity: 0.9;
+          -webkit-text-stroke: 1.5px #d0d0d0;
+          filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
         }
         .rarity-rare {
           background: linear-gradient(to bottom, 
-            #fef3c7 0%, #fde68a 40%, #78350f 45%, #ea580c 50%, #fef3c7 60%, #451a03 100%
+            #cd7f32 0%, #b87333 15%, #a0662f 30%, #8b5a2b 45%, #764d27 50%, #614023 55%, #4d331f 70%, #392615 85%, #251a0d 100%
           );
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          -webkit-text-stroke: 1.5px #431407;
-          filter: drop-shadow(0 0 10px rgba(251, 146, 60, 0.5));
+          -webkit-text-stroke: 2.5px #d4a574;
+          filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
         }
         .rarity-sr {
           background: linear-gradient(to bottom, 
-            #e0f2fe 0%, #7dd3fc 40%, #0c4a6e 45%, #38bdf8 50%, #e0f2fe 60%, #1e3a8a 100%
+            #b0e0e6 0%, #87ceeb 15%, #7ec8e3 30%, #6bb6ff 45%, #5ba3f5 50%, #4a90e2 55%, #3a7dd0 70%, #2a6abd 85%, #1a58aa 100%
           );
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          -webkit-text-stroke: 1.5px #0f172a;
-          filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.6));
+          -webkit-text-stroke: 3px #87ceeb;
+          filter: 
+            drop-shadow(0 0 8px rgba(135, 206, 235, 0.8))
+            drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
         }
         .rarity-ur {
-          background: linear-gradient(to bottom, 
-            #ffffff 0%, #fff9c4 30%, #fde047 40%, #7c2d12 45%, #fb923c 50%, #ffffff 55%, #ef4444 75%, #7e22ce 100%
+          background: linear-gradient(to right, 
+            #ff0000 0%, #ff4500 12.5%, #ffa500 25%, #ffd700 37.5%, #ffff00 50%, #90ee90 62.5%, #00bfff 75%, #0000ff 87.5%, #8b00ff 100%
           );
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          -webkit-text-stroke: 1.5px #450a0a;
-          filter: 
-            drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) 
-            drop-shadow(0 0 40px rgba(251, 191, 36, 0.6));
+          -webkit-text-stroke: 3px rgba(173, 216, 230, 0.8);
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
           font-weight: 900;
+        }
+        .rarity-secret {
+          background: linear-gradient(to right, 
+            #ffd700 0%, #ffed4e 12.5%, #fff700 25%, #ffd700 37.5%, #ffed4e 50%, #fff700 62.5%, #ffd700 75%, #ffed4e 87.5%, #ffd700 100%
+          );
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          -webkit-text-stroke: 4px #ffffff;
+          filter: 
+            drop-shadow(0 0 20px rgba(255, 215, 0, 0.9))
+            drop-shadow(0 0 40px rgba(255, 215, 0, 0.7))
+            drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+          font-weight: 900;
+          background-size: 200% 100%;
+          animation: secretShimmer 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes secretShimmer {
+          0% {
+            background-position: -100% 0;
+          }
+          100% {
+            background-position: 100% 0;
+          }
         }
       `}</style>
     </div>

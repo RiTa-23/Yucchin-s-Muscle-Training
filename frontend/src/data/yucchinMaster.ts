@@ -21,13 +21,23 @@ import yucchin202 from '../assets/img/yucchins/egg.png';
 import yucchin203 from '../assets/img/yucchins/sika_kakusei.png';
 // UR
 import yucchin301 from '../assets/img/yucchins/angel.png';
+// SECRET
+import yucchin401 from '../assets/img/yucchins/rentogen.png';
+
+// Audio imports
+import audio201 from '../assets/sounds/もゥまぢ無理_T01.wav';
+import audio202 from '../assets/sounds/どうせならオムライスにしてほしい.wav';
+import audio203 from '../assets/sounds/奈良に行きたい_T01.wav';
+import audio301 from '../assets/sounds/聖なる筋肉_T01.wav';
+import audio401 from '../assets/sounds/ゴレ゛！ア゛ダジのｼﾝｿﾞｩ！！_T01.wav';
 
 export interface YucchinMaster {
     type: number;
     name: string;
-    rarity: 'NORMAL' | 'RARE' | 'SR' | 'UR';
+    rarity: 'NORMAL' | 'RARE' | 'SR' | 'UR' | 'SECRET';
     imageUrl: string; 
     quote?: string; // キャラクター登場時のセリフ
+    audioUrl?: string; // セリフの音声ファイル
 }
 
 // Temporary placeholder data based on the design intuition
@@ -50,12 +60,13 @@ export const YUCCHIN_MASTER: YucchinMaster[] = [
     { type: 104, name: "花火ゆっちん", rarity: 'RARE', imageUrl: yucchin104 },
     { type: 105, name: "愛の伝道師ゆっちん", rarity: 'RARE', imageUrl: yucchin105 },
     // SR
-    { type: 201, name: "リスカゆっちん", rarity: 'SR', imageUrl: yucchin201, quote: "もうマジ無理…リスカしよ。" },
-    { type: 202, name: "たまごゆっちん", rarity: 'SR', imageUrl: yucchin202, quote: "どうせならオムライスにしてほしいです。" },
-    { type: 203, name: "しかゆっちん【神鹿】", rarity: 'SR', imageUrl: yucchin203, quote: "もし行くなら…奈良に行きたいかな。" },
+    { type: 201, name: "リスカゆっちん", rarity: 'SR', imageUrl: yucchin201, quote: "もうマジ無理…リスカしよ。", audioUrl: audio201 },
+    { type: 202, name: "たまごゆっちん", rarity: 'SR', imageUrl: yucchin202, quote: "どうせならオムライスにしてほしいです。", audioUrl: audio202 },
+    { type: 203, name: "しかゆっちん【神鹿】", rarity: 'SR', imageUrl: yucchin203, quote: "もし行くなら…奈良に行きたいかな。", audioUrl: audio203 },
     // UR
-    { type: 301, name: "エンジェルゆっちん", rarity: 'UR', imageUrl: yucchin301, quote: "聖なる筋肉が、あなたを勝利へと導くでしょう。" },
-    // secret
+    { type: 301, name: "エンジェルゆっちん", rarity: 'UR', imageUrl: yucchin301, quote: "聖なる筋肉が、あなたを勝利へと導くでしょう。", audioUrl: audio301 },
+    // SECRET
+    { type: 401, name: "レントゲンゆっちん", rarity: 'SECRET', imageUrl: yucchin401, quote: "ゴレ゛！ア゛ダジのｼﾝｿﾞｩ！！", audioUrl: audio401 },
     
 
 ];
