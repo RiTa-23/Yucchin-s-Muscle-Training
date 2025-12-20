@@ -131,8 +131,8 @@ export const CollectionPage: React.FC = () => {
         }}
       ></div>
       {/* Header / Title */}
-      <div className="max-w-5xl mx-auto pt-4 relative z-10">
-        <div className="flex justify-between items-center mb-4">
+      <div className="max-w-5xl mx-auto pt-8 relative z-10">
+        <div className="flex justify-between items-center mb-2">
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
             集めたゆっちん
           </h1>
