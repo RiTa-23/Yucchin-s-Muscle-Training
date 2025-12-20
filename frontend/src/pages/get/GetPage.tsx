@@ -2,6 +2,9 @@ import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
 import { YUCCHIN_MASTER, type YucchinMaster } from '../../data/yucchinMaster';
+import pepeSound from '../../assets/sounds/pepe.wav';
+import yucchinVoice from '../../assets/sounds/yucchin_T01.wav';
+import startSound from '../../assets/sounds/he-sound_T01.wav';
 
 
 // レアリティごとのスタイル定義（ダークテーマベースのアクセント）
@@ -214,7 +217,12 @@ const GetPage: React.FC = () => {
   const [quoteFadeOut, setQuoteFadeOut] = useState(false); // セリフのフェードアウト
   const [revealImage, setRevealImage] = useState(false); // キャラクター画像
   const [revealText, setRevealText] = useState(false);   // GET!!テキスト
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isStarted, setIsStarted] = useState(false);     // ユーザーが開始をタップしたか
+  const audioRef = useRef<HTMLAudioElement | null>(null);          // セリフ音声用
+  const startAudioRef = useRef<HTMLAudioElement | null>(null);     // 開始音用
+  const pepeAudioRef = useRef<HTMLAudioElement | null>(null);      // 登場音用
+  const voiceAudioRef = useRef<HTMLAudioElement | null>(null);     // ボイス用
+  const settingsRef = useRef({ isSoundEnabled: true, volume: 0.7 });
 
   useEffect(() => {
     const stateYucchin = (location as any).state?.yucchin as YucchinMaster | undefined;
@@ -227,40 +235,87 @@ const GetPage: React.FC = () => {
 
     setYucchin(targetYucchin);
 
-    // 音声の事前読み込み
-    if (targetYucchin?.audioUrl) {
-      const audio = new Audio(targetYucchin.audioUrl);
-      audio.volume = 0.7;
-      audio.preload = 'auto';
-      audio.load();
-      audioRef.current = audio;
+    // 音声の事前読み込みと設定の反映
+    let isSoundEnabled = true;
+    let volume = 0.7;
+
+    try {
+      const enabled = localStorage.getItem("settings_yucchinSound");
+      if (enabled === "false") isSoundEnabled = false;
+
+      const rawVolume = localStorage.getItem("settings_bgmVolume");
+      if (rawVolume) {
+        volume = Number(rawVolume) / 100;
+      }
+    } catch (e) {
+      console.warn("Settings load failed", e);
     }
+    const currentVolume = Math.max(0, Math.min(1, volume));
+    settingsRef.current = { isSoundEnabled, volume: currentVolume };
 
-    // 演出タイマーの設定
-    if (targetYucchin) {
-      const isHighRarity = targetYucchin.rarity === 'SR' || targetYucchin.rarity === 'UR';
-      const isSecret = targetYucchin.rarity === 'SECRET';
-      
-      // 1. 最初のアクション: フラッシュ除去 (500ms) - シークレットの場合は少し長め
-      setTimeout(() => setRevealStart(true), isSecret ? 800 : 500);
+    if (isSoundEnabled) {
+      // 共通音声のプリロード
+      const createPreloadedAudio = (src: string) => {
+        const a = new Audio(src);
+        a.volume = currentVolume;
+        a.preload = 'auto';
+        a.load();
+        return a;
+      };
 
-      if ((isHighRarity || isSecret) && targetYucchin.quote) {
-        // SR/UR/SECRET の場合: セリフあり演出
-        // 2. セリフ表示 (1500ms) - シークレットの場合は少し長め
-        setTimeout(() => setRevealQuote(true), isSecret ? 2000 : 1500);
-        // 3-4のタイマーは削除 - 音声終了後にフェードアウト→次の画面へ
-      } else {
-        // NORMAL/RARE の場合: 従来通りのテンポ
-        // 2. 画像 ＆ 名前バッジ 表示 (1500ms)
-        setTimeout(() => {
-          setRevealImage(true);
-          setRevealBadge(true);
-        }, 1500);
-        // 3. テキスト表示 (2500ms)
-        setTimeout(() => setRevealText(true), 2500);
+      startAudioRef.current = createPreloadedAudio(startSound);
+      pepeAudioRef.current = createPreloadedAudio(pepeSound);
+      voiceAudioRef.current = createPreloadedAudio(yucchinVoice);
+
+      // 個別のセリフ音声
+      if (targetYucchin?.audioUrl) {
+        const audio = new Audio(targetYucchin.audioUrl);
+        audio.volume = currentVolume;
+        audio.preload = 'auto';
+        audio.load();
+        audioRef.current = audio;
       }
     }
   }, [location, searchParams]);
+
+  // 事前ロード済み音声を再生するヘルパー
+  const playPreloaded = (ref: React.RefObject<HTMLAudioElement | null>) => {
+    if (!settingsRef.current.isSoundEnabled || !ref.current) return;
+    const audio = ref.current;
+    audio.currentTime = 0; // 頭出し
+    audio.play().catch(e => console.warn("Preloaded playback failed", e));
+  };
+
+  // 演出開始時の処理
+  const handleStart = () => {
+    if (isStarted || !yucchin) return;
+    setIsStarted(true);
+    playPreloaded(startAudioRef);
+
+    const isHighRarity = yucchin.rarity === 'SR' || yucchin.rarity === 'UR';
+    const isSecret = yucchin.rarity === 'SECRET';
+    
+    // 1. 最初のアクション: フラッシュ除去 (500ms) - シークレットの場合は少し長め
+    setTimeout(() => setRevealStart(true), isSecret ? 800 : 500);
+
+    if ((isHighRarity || isSecret) && yucchin.quote) {
+      // SR/UR/SECRET の場合: セリフあり演出
+      // 2. セリフ表示 (1500ms) - シークレットの場合は少し長め
+      setTimeout(() => setRevealQuote(true), isSecret ? 2000 : 1500);
+    } else {
+      // NORMAL/RARE の場合: 従来通りのテンポ
+      // 2. 画像 ＆ 名前バッジ 表示 (1500ms)
+      setTimeout(() => {
+        setRevealImage(true);
+        setRevealBadge(true);
+        playPreloaded(pepeAudioRef);
+        setTimeout(() => {
+          playPreloaded(voiceAudioRef);
+          setRevealText(true);
+        }, 1500); // ユーザー調整済みのタイミング
+      }, 1500);
+    }
+  };
 
   // セリフ表示時に音声を再生し、音声終了後にフェードアウト→次の画面へ
   useEffect(() => {
@@ -277,7 +332,11 @@ const GetPage: React.FC = () => {
           setTimeout(() => {
             setRevealImage(true);
             setRevealBadge(true);
-            setTimeout(() => setRevealText(true), 500);
+            playPreloaded(pepeAudioRef);
+            setTimeout(() => {
+              playPreloaded(voiceAudioRef);
+              setRevealText(true);
+            }, 1500); // ユーザー調整済みのタイミング
           }, 500);
         }, remainingTime);
       };
@@ -327,6 +386,24 @@ const GetPage: React.FC = () => {
   return (
     <div className={`w-full h-screen bg-[#0a0a0a] flex items-center justify-center overflow-hidden relative transition-colors duration-1000 uppercase`}>
       
+      {/* Start Interaction Overlay */}
+      {!isStarted && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-500">
+          <button 
+            onClick={handleStart}
+            className="group relative flex flex-col items-center gap-8 transition-transform hover:scale-110 active:scale-95"
+          >
+            <div className="absolute inset-0 bg-orange-500 rounded-full blur-[60px] opacity-40 group-hover:opacity-70 animate-pulse"></div>
+            <div className="relative text-8xl md:text-9xl font-black text-white italic tracking-tighter drop-shadow-[0_0_30px_rgba(251,146,60,1)]" style={{ fontFamily: '"Bungee", cursive' }}>
+              REVEAL!!
+            </div>
+            <div className="text-2xl font-bold text-orange-400 tracking-[0.3em] animate-bounce">
+              CLICK TO GET YOUR YUCCHIN
+            </div>
+          </button>
+        </div>
+      )}
+
       {/* Subtle Background Inner Glow to match screenshots */}
       <div className="fixed inset-0 bg-gradient-to-t from-orange-900/10 via-transparent to-transparent pointer-events-none z-1 overflow-hidden" />
 
