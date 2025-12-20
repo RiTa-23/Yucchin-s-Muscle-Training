@@ -178,6 +178,22 @@ export const TrainingContainer = ({
 
             {/* Top Right Controls Container */}
             <div className="absolute top-4 right-4 z-50 flex flex-col gap-2 items-end">
+                {/* FPS Toggle */}
+                <div className="flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
+                    {[10, 20, 30].map((rate) => (
+                        <button
+                            key={rate}
+                            className={`px-3 py-1 text-sm rounded-md font-bold transition-all ${localFps === rate
+                                ? 'bg-blue-600 text-white shadow-lg'
+                                : 'text-gray-300 hover:text-white'
+                                }`}
+                            onClick={() => handleFpsChange(rate)}
+                        >
+                            {rate}fps
+                        </button>
+                    ))}
+                </div>
+
                 {/* Camera Angle Toggle */}
                 {onCameraAngleChange && cameraAngle && (
                     <div className="flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
@@ -201,22 +217,6 @@ export const TrainingContainer = ({
                         </button>
                     </div>
                 )}
-
-                {/* FPS Toggle */}
-                <div className="flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
-                    {[10, 20, 30].map((rate) => (
-                        <button
-                            key={rate}
-                            className={`px-3 py-1 text-sm rounded-md font-bold transition-all ${localFps === rate
-                                ? 'bg-blue-600 text-white shadow-lg'
-                                : 'text-gray-300 hover:text-white'
-                                }`}
-                            onClick={() => handleFpsChange(rate)}
-                        >
-                            {rate}fps
-                        </button>
-                    ))}
-                </div>
             </div>
 
             {/* Camera FrameContainer */}
