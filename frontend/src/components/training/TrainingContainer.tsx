@@ -6,6 +6,7 @@ import { PoseDetector } from "@/components/camera/PoseDetector";
 import { PoseOverlay } from "@/components/camera/PoseOverlay";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
+import trainerImage from "@/assets/mukiyuchiBK.png";
 
 export type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 
@@ -195,7 +196,7 @@ export const TrainingContainer = ({
                 {/* Character Image (Shaking) */}
                 <div className={isSpeaking ? 'animate-talk-shake' : ''}>
                     <img
-                        src="/src/assets/mukiyuchiBK.png"
+                        src={trainerImage}
                         alt="Trainer"
                         className="w-full h-auto drop-shadow-[0_0_15px_rgba(251,146,60,0.6)]"
                     />

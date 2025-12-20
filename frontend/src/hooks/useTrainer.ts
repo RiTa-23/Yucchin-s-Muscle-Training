@@ -6,37 +6,41 @@ import { useCallback, useRef, useEffect, useState } from 'react';
 // If direct import fails on Japanese chars, we might need to use URL constructor.
 // Let's try URL constructor for safety with special chars/paths.
 
-const ASSETS_BASE = '/src/assets/sounds';
+// Helper to resolve asset paths for Vite
+const getAudioPath = (path: string) => {
+    return new URL(`../assets/sounds/${path}`, import.meta.url).href;
+};
 
 const COMPLIMENTS = [
-    { src: `${ASSETS_BASE}/compliment/天才！.wav`, text: "天才！" },
-    { src: `${ASSETS_BASE}/compliment/輝いてるよ.wav`, text: "輝いてるよ" },
-    { src: `${ASSETS_BASE}/compliment/輝いてるよ！ｲｲﾖｫ！！.wav`, text: "輝いてるよ！イイヨォ！！" },
-    { src: `${ASSETS_BASE}/compliment/ｲｲﾖｫ！！.wav`, text: "イイヨォ！！" },
-    { src: `${ASSETS_BASE}/compliment/びゅーてぃふぉ.wav`, text: "びゅーてぃふぉー！" },
+    { src: getAudioPath('compliment/天才！.wav'), text: "天才！" },
+    { src: getAudioPath('compliment/輝いてるよ.wav'), text: "輝いてるよ" },
+    { src: getAudioPath('compliment/輝いてるよ！ｲｲﾖｫ！！.wav'), text: "輝いてるよ！イイヨォ！！" },
+    { src: getAudioPath('compliment/ｲｲﾖｫ！！.wav'), text: "イイヨォ！！" },
+    { src: getAudioPath('compliment/びゅーてぃふぉ.wav'), text: "びゅーてぃふぉー！" },
 ];
 
 const PLANK_STARTS = [
-    { src: `${ASSETS_BASE}/plank/プランク1_T01.wav`, text: "プランク！" },
-    { src: `${ASSETS_BASE}/plank/プﾙﾙｧンクのｼｾｲ_T01.wav`, text: "プﾙﾙｧンクのｼｾｲ！" },
+    { src: getAudioPath('plank/プランク1_T01.wav'), text: "プランク！" },
+    { src: getAudioPath('plank/プﾙﾙｧンクのｼｾｲ_T01.wav'), text: "プﾙﾙｧンクのｼｾｲ！" },
 ];
 
 const CAMERA_ALERTS = [
-    { src: `${ASSETS_BASE}/体をカメラにおさめてね1_T01.wav`, text: "体をカメラにおさめてね" },
-    { src: `${ASSETS_BASE}/体をカメラにおさめてね2_T01.wav`, text: "体をカメラにおさめてね！" },
-    { src: `${ASSETS_BASE}/縮めｪ！！_T01.wav`, text: "縮めェ！！" },
+    { src: getAudioPath('体をカメラにおさめてね1_T01.wav'), text: "体をカメラにおさめてね" },
+    { src: getAudioPath('体をカメラにおさめてね2_T01.wav'), text: "体をカメラにおさめてね！" },
+    { src: getAudioPath('縮めｪ！！_T01.wav'), text: "縮めェ！！" },
 ];
 
 const FINISH_SOUNDS = [
-    { src: `${ASSETS_BASE}/これであなたも！ムキムキよ！_T01.wav`, text: "これであなたも！ムキムキよ！" },
-    { src: `${ASSETS_BASE}/ｺﾚﾃﾞｱﾅﾀﾓｫ〜ムキムキ.wav`, text: "これであなたもぉ〜ムキムキ！" },
+    { src: getAudioPath('これであなたも！ムキムキよ！_T01.wav'), text: "これであなたも！ムキムキよ！" },
+    { src: getAudioPath('ｺﾚﾃﾞｱﾅﾀﾓｫ〜ムキムキ.wav'), text: "これであなたもぉ〜ムキムキ！" },
 ];
 
 const SOUNDS = {
-    hipsHigh: { src: `${ASSETS_BASE}/plank/お尻を下げてください。_T01.wav`, text: "お尻を下げて！" },
-    hipsLow: { src: `${ASSETS_BASE}/plank/腰を上げろぉお.wav`, text: "腰を上げろぉお！" },
-    elbowsOnFloor: { src: `${ASSETS_BASE}/plank/肘を床に付ける2_T01.wav`, text: "肘を床につけて！" },
-    kneesStraight: { src: `${ASSETS_BASE}/plank/膝を伸ばす.wav`, text: "膝を伸ばして！" },
+    hipsHigh: { src: getAudioPath('plank/お尻を下げてください。_T01.wav'), text: "お尻を下げて！" },
+    hipsLow: { src: getAudioPath('plank/腰を上げろぉお.wav'), text: "腰を上げろぉお！" },
+    elbowsOnFloor: { src: getAudioPath('plank/肘を床に付ける2_T01.wav'), text: "肘を床につけて！" },
+    // warning: { src: getAudioPath('ﾍｪッ！！_T01.wav'), text: "ヘェッ！！" },
+    kneesStraight: { src: getAudioPath('plank/膝を伸ばす.wav'), text: "膝を伸ばして！" },
 } as const;
 
 type SoundType = keyof typeof SOUNDS | 'good' | 'start' | 'camera' | 'finish';
