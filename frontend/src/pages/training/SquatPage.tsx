@@ -26,6 +26,8 @@ export default function SquatPage() {
 
     // Refs for stable state access in callbacks
     const lastMessageRef = useRef<string>("");
+    const lastCompletionTime = useRef<number>(0);
+    const shallowSquatStartTime = useRef<number>(0);
 
     const safeSetMessage = useCallback((msg: string) => {
         if (lastMessageRef.current !== msg) {
@@ -78,11 +80,31 @@ export default function SquatPage() {
                 safeSetMessage("Good! そのまま立ち上がって！");
                 play('squatUp');
                 setIsGood(true);
+                shallowSquatStartTime.current = 0; // Reset
             } else if (kneeAngle < 140) {
+                // Only prompt for depth if they are actually crouching appropriately
+                // And only if they stay in this "shallow" state for > 2 seconds
+                if (shallowSquatStartTime.current === 0) {
+                    shallowSquatStartTime.current = Date.now();
+                }
+
                 safeSetMessage("もっと深く！");
-                play('squatDeep');
+
+                if (Date.now() - shallowSquatStartTime.current > 1500) {
+                    play('squatDeep');
+                }
                 setIsGood(true); // Encouraging
+            } else if (kneeAngle > 150) {
+                shallowSquatStartTime.current = 0; // Reset
+                safeSetMessage("しゃがんでください");
+                // Only play "squat down" if some time has passed since they stood up
+                // to avoid interrupting the success message
+                if (Date.now() - lastCompletionTime.current > 3000) {
+                    play('squatDown');
+                }
+                setIsGood(true);
             } else {
+                shallowSquatStartTime.current = 0; // Reset
                 safeSetMessage("しゃがんでください");
                 play('squatDown');
                 setIsGood(true);
@@ -91,6 +113,7 @@ export default function SquatPage() {
             if (kneeAngle > UP_THRESHOLD) {
                 setSquatState("UP");
                 setCount(prev => prev + 1);
+                lastCompletionTime.current = Date.now(); // Record completion time
                 safeSetMessage("ナイススクワット！");
                 if (Math.random() < 0.5) {
                     play('niceSquat');
