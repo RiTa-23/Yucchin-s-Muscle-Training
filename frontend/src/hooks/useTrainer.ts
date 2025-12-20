@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef, useEffect, useState } from 'react';
 
 // Import audio files
 // Note: Using dynamic imports or URL handling might be needed depending on Vite config, 
@@ -42,6 +42,8 @@ const SOUNDS = {
 type SoundType = keyof typeof SOUNDS | 'good' | 'start' | 'camera' | 'finish';
 
 export const useTrainer = () => {
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [trainerMessage, setTrainerMessage] = useState<string | null>(null);
     const audioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
     const lastPlayedRef = useRef<Map<string, number>>(new Map());
 
@@ -58,40 +60,41 @@ export const useTrainer = () => {
     };
 
     useEffect(() => {
-        // Preload standard sounds
-        Object.entries(SOUNDS).forEach(([key, src]) => {
+        // Helper to load and attach listeners
+        const loadAudio = (src: string, key: string) => {
             const audio = new Audio(src);
             audio.load();
+
+            // Listeners for speaking state
+            audio.addEventListener('play', () => {
+                setIsSpeaking(true);
+            });
+            audio.addEventListener('pause', () => {
+                setIsSpeaking(false);
+                setTrainerMessage(null);
+            });
+            audio.addEventListener('ended', () => {
+                setIsSpeaking(false);
+                setTrainerMessage(null);
+            });
+
             audioRefs.current.set(key, audio);
-        });
+        };
+
+        // Preload standard sounds
+        Object.entries(SOUNDS).forEach(([key, src]) => loadAudio(src, key));
 
         // Preload compliments
-        COMPLIMENTS.forEach((src, index) => {
-            const audio = new Audio(src);
-            audio.load();
-            audioRefs.current.set(`good_${index}`, audio);
-        });
+        COMPLIMENTS.forEach((src, index) => loadAudio(src, `good_${index}`));
 
         // Preload starts
-        PLANK_STARTS.forEach((src, index) => {
-            const audio = new Audio(src);
-            audio.load();
-            audioRefs.current.set(`start_${index}`, audio);
-        });
+        PLANK_STARTS.forEach((src, index) => loadAudio(src, `start_${index}`));
 
         // Preload camera alerts
-        CAMERA_ALERTS.forEach((src, index) => {
-            const audio = new Audio(src);
-            audio.load();
-            audioRefs.current.set(`camera_${index}`, audio);
-        });
+        CAMERA_ALERTS.forEach((src, index) => loadAudio(src, `camera_${index}`));
 
         // Preload finish sounds
-        FINISH_SOUNDS.forEach((src, index) => {
-            const audio = new Audio(src);
-            audio.load();
-            audioRefs.current.set(`finish_${index}`, audio);
-        });
+        FINISH_SOUNDS.forEach((src, index) => loadAudio(src, `finish_${index}`));
 
         return () => {
             audioRefs.current.forEach(audio => {
@@ -101,7 +104,7 @@ export const useTrainer = () => {
         };
     }, []);
 
-    const play = useCallback((type: SoundType) => {
+    const play = useCallback((type: SoundType, message?: string) => {
         let audioKey = type as string;
 
         if (type === 'good') {
@@ -130,6 +133,10 @@ export const useTrainer = () => {
             return;
         }
 
+        if (message) {
+            setTrainerMessage(message);
+        }
+
         // Reset and play
         audio.currentTime = 0;
         audio.play().catch(e => console.error(`Failed to play sound ${type}:`, e));
@@ -137,5 +144,5 @@ export const useTrainer = () => {
         lastPlayedRef.current.set(type, now);
     }, []);
 
-    return { play };
+    return { play, isSpeaking, trainerMessage };
 };

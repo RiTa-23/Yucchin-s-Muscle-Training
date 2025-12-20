@@ -43,6 +43,7 @@ interface TrainingContainerProps {
 
     // Trainer
     isSpeaking?: boolean;
+    trainerMessage?: string | null;
 
     // Navigation (Quit)
     onQuit: () => void;
@@ -69,6 +70,7 @@ export const TrainingContainer = ({
     resultSubTitle,
     onRetry,
     isSpeaking,
+    trainerMessage,
     onQuit
 }: TrainingContainerProps) => {
     const { user } = useAuth();
@@ -174,7 +176,21 @@ export const TrainingContainer = ({
             </div>
 
             {/* Trainer Avatar */}
-            <div className={`absolute bottom-0 right-4 z-40 w-48 transition-transform duration-300 ${isSpeaking ? 'animate-talk-shake' : ''}`}>
+            <div className={`absolute bottom-0 right-4 z-40 w-48 ${isSpeaking ? 'animate-talk-shake' : ''}`}>
+
+                {/* Speech Bubble */}
+                {isSpeaking && trainerMessage && (
+                    <div className="absolute -top-32 right-10 w-64 bg-white p-4 rounded-2xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="relative">
+                            <p className="text-gray-900 font-bold text-lg text-center leading-relaxed">
+                                {trainerMessage}
+                            </p>
+                            {/* Tailwind Triangle for Bubble Tail */}
+                            <div className="absolute -bottom-6 right-8 w-0 h-0 border-l-[10px] border-l-transparent border-t-[10px] border-t-white border-r-[10px] border-r-transparent"></div>
+                        </div>
+                    </div>
+                )}
+
                 <img
                     src="/src/assets/mukiyuchiBK.png"
                     alt="Trainer"

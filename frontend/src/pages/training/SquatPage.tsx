@@ -4,12 +4,14 @@ import { type Results, type NormalizedLandmark } from "@mediapipe/pose";
 import { useAuth } from "@/context/AuthContext";
 import { trainingApi } from "@/api/training";
 import { TrainingContainer, type GameState } from "@/components/training/TrainingContainer";
+import { useTrainer } from "@/hooks/useTrainer";
 
 type SquatState = "UP" | "DOWN";
 
 export default function SquatPage() {
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { play, isSpeaking, trainerMessage } = useTrainer();
 
     const [error, setError] = useState<string | null>(null);
     const [gameState, setGameState] = useState<GameState>("GUIDE");
@@ -73,6 +75,7 @@ export default function SquatPage() {
             if (kneeAngle < DOWN_THRESHOLD) {
                 setSquatState("DOWN");
                 safeSetMessage("Good! そのまま立ち上がって！");
+                play('good', "Good! そのまま立ち上がって！");
                 setIsGood(true);
             } else if (kneeAngle < 140) {
                 safeSetMessage("もっと深く！");
@@ -86,6 +89,7 @@ export default function SquatPage() {
                 setSquatState("UP");
                 setCount(prev => prev + 1);
                 safeSetMessage("ナイススクワット！");
+                play('good', "ナイススクワット！");
                 setIsGood(true);
             } else {
                 safeSetMessage("立ち上がって！");
@@ -116,6 +120,7 @@ export default function SquatPage() {
         setCount(0);
         setSquatState("UP");
         setGameState("ACTIVE");
+        play('start', "さあ、始めるよ！");
     };
 
     // Save result when game finishes
@@ -135,6 +140,7 @@ export default function SquatPage() {
                 }
             };
             saveResult();
+            play('finish', "お疲れ様！ナイスファイト！");
         }
     }, [gameState, targetCount, count]);
 
@@ -198,6 +204,10 @@ export default function SquatPage() {
 
             // Navigation
             onQuit={handleQuit}
+
+            // Trainer
+            isSpeaking={isSpeaking}
+            trainerMessage={trainerMessage}
         />
     );
 }
