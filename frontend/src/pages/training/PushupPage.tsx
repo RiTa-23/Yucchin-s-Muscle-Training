@@ -10,7 +10,7 @@ type PushupState = "UP" | "DOWN";
 
 export default function PushupPage() {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    // const { user } = useAuth(); // Unused
 
     // Use Trainer Hook
     const { play, isSpeaking, trainerMessage } = useTrainer();
