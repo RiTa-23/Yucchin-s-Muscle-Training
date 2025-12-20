@@ -38,6 +38,10 @@ import soundSquatUp from '@/assets/sounds/squat/立ち上がぁれぇ_T01.wav
 import soundSquatDeep from '@/assets/sounds/squat/マリアナ海溝のように深く_T01.wav';
 import soundNiceSquat from '@/assets/sounds/squat/ナイススクワットｫ.wav';
 
+// Pushup Sounds
+import soundPushupDown from '@/assets/sounds/pushup/お沈みあそばせ⤴︎︎︎_T01.wav';
+import soundNicePushup from '@/assets/sounds/pushup/ナイスプッシュアップ.wav';
+
 const COMPLIMENTS = [
     { src: soundTensai, text: "天才！" },
     { src: soundKagayaiteru, text: "輝いてるよ" },
@@ -48,7 +52,7 @@ const COMPLIMENTS = [
 
 const PLANK_POSTURE_PROMPTS = [
     { src: soundPlankStart, text: "プランク！" },
-    { src: soundPlankPosture, text: "プﾙﾙｧンクのｼｾｲ！" },
+    { src: soundPlankPosture, text: "プランクの姿勢をとって！" },
 ];
 
 const CAMERA_ALERTS = [
@@ -63,18 +67,34 @@ const FINISH_SOUNDS = [
 ];
 
 const SOUNDS = {
-    hipsHigh: { src: soundHipsHigh, text: "お尻を下げて！" },
-    hipsLow: { src: soundHipsLow, text: "腰を上げろぉお！" },
-    elbowsOnFloor: { src: soundElbows, text: "肘を床につけて！" },
+    // Compliments (handled specially)
+    good: { src: '', text: '' }, // Placeholder type
+
+    // Plank
+    plankPosture: { src: soundPlankPosture, text: "プランクの姿勢をとって！" }, // Placeholder type
+    hipsHigh: { src: soundHipsHigh, text: "お尻を下げてください" },
+    hipsLow: { src: soundHipsLow, text: "腰を上げろぉお" },
+    elbowsOnFloor: { src: soundElbows, text: "肘を床につけて" },
     kneesStraight: { src: soundKneesStraight, text: "膝を伸ばして！" },
+
     // Squat
     squatDown: { src: soundSquatDown, text: "しゃがめ！！" },
-    squatUp: { src: soundSquatUp, text: "立ち上がれ！" },
-    squatDeep: { src: soundSquatDeep, text: "マリアナ海溝のように深く！" },
-    niceSquat: { src: soundNiceSquat, text: "ナイススクワット！" },
+    squatUp: { src: soundSquatUp, text: "立ち上がぁれぇ" },
+    squatDeep: { src: soundSquatDeep, text: "マリアナ海溝のように深く" },
+    niceSquat: { src: soundNiceSquat, text: "ナイススクワット！！" },
+
+    // Pushup
+    pushupDown: { src: soundPushupDown, text: "お沈みあそばせ" },
+    nicePushup: { src: soundNicePushup, text: "ナイスプッシュアップ！！" },
+
+    // Camera
+    camera: { src: '', text: "体をカメラにおさめてね" }, // Logic handles src selection
+
+    // Finish
+    finish: { src: soundFinish1, text: "お疲れ様でした！" },
 } as const;
 
-type SoundType = keyof typeof SOUNDS | 'good' | 'plankPosture' | 'camera' | 'finish';
+export type SoundType = keyof typeof SOUNDS;
 
 export const useTrainer = () => {
     const [isSpeaking, setIsSpeaking] = useState(false);
@@ -85,19 +105,24 @@ export const useTrainer = () => {
 
     // Cooldowns in ms
     const COOLDOWNS: Partial<Record<SoundType, number>> = {
+        plankPosture: 5000,
         hipsHigh: 5000,
         hipsLow: 5000,
         elbowsOnFloor: 5000,
         kneesStraight: 5000,
-        camera: 10000, // Longer cooldown for system-like message
+        camera: 10000,
         good: 3000,
-        plankPosture: 5000,
         finish: 0,
+
         // Squat
         squatDown: 4000,
         squatUp: 4000,
         squatDeep: 5000,
         niceSquat: 3000,
+
+        // Pushup
+        pushupDown: 3000,
+        nicePushup: 3000,
     };
 
     useEffect(() => {
