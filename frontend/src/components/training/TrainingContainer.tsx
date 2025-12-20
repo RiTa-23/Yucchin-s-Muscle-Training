@@ -4,9 +4,19 @@ import { TrainingGuide, type GoalConfig } from "./TrainingGuide";
 import { TrainingResult } from "./TrainingResult";
 import { PoseDetector } from "@/components/camera/PoseDetector";
 import { PoseOverlay } from "@/components/camera/PoseOverlay";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import trainerImage from "@/assets/mukiyuchiBK.png";
+import client from "@/api/client";
+import yamerunoImage from "@/assets/img/yameruno.png";
+import { playSound } from "@/utils/audio";
+
+import yamerundesuka from "@/assets/sounds/giveup/yamerundesuka.wav";
+import orokamono1 from "@/assets/sounds/giveup/orokamono1.wav";
+import orokamono2 from "@/assets/sounds/giveup/orokamono2.wav";
+import yamenai1 from "@/assets/sounds/giveup/yamenai1.wav";
+import yamenai2 from "@/assets/sounds/giveup/yamenai2.wav";
+import yamenai3 from "@/assets/sounds/giveup/yamenai3.wav";
 
 export type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 
@@ -17,6 +27,7 @@ interface TrainingContainerProps {
     // Guide Props
     title: string;
     description: React.ReactNode;
+    descriptionPlacement?: "top" | "bottom";
     illustration?: React.ReactNode;
     goalConfig?: GoalConfig;
     onStart: (goalValue?: number) => void;
@@ -30,6 +41,7 @@ interface TrainingContainerProps {
     stats: {
         label: string;
         value: string | number;
+        target?: number;
         unit: string;
     };
     cameraError: string | null;
@@ -58,10 +70,10 @@ export const TrainingContainer = ({
     gameState,
     title,
     description,
+    descriptionPlacement,
     illustration,
     goalConfig,
     onStart,
-    interval,
     onPoseDetected,
     overlayResults,
     feedbackMessage,
@@ -80,13 +92,38 @@ export const TrainingContainer = ({
     cameraAngle,
     onCameraAngleChange
 }: TrainingContainerProps) => {
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
 
     const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
 
-    // Default FPS logic if not provided
-    const fps = useMemo(() => user?.settings?.fps || 20, [user?.settings?.fps]);
-    const effectiveInterval = useMemo(() => interval || Math.floor(1000 / fps), [interval, fps]);
+    // FPS Control
+    const [localFps, setLocalFps] = useState<number>(user?.settings?.fps || 20);
+    const effectiveInterval = useMemo(() => Math.floor(1000 / localFps), [localFps]);
+
+    // Sync localFps with user settings when they load or change
+    useEffect(() => {
+        if (user?.settings?.fps) {
+            setLocalFps(user.settings.fps);
+        }
+    }, [user?.settings?.fps]);
+
+    // Reset modal state when gameState changes (e.g. Retry)
+    useEffect(() => {
+        setIsQuitModalOpen(false);
+    }, [gameState]);
+
+    const handleFpsChange = async (rate: number) => {
+        const previousFps = localFps;
+        setLocalFps(rate);
+        try {
+            await client.put("/settings/me", { fps: rate });
+            await refreshUser();
+        } catch (error) {
+            console.error("Failed to save FPS setting:", error);
+            setLocalFps(previousFps);
+            alert("FPS設定の保存に失敗しました。");
+        }
+    };
 
     // Error View
     if (cameraError) {
@@ -107,6 +144,7 @@ export const TrainingContainer = ({
             <TrainingGuide
                 title={title}
                 description={description}
+                descriptionPlacement={descriptionPlacement}
                 onStart={onStart}
                 illustration={illustration}
                 goalConfig={goalConfig}
@@ -158,35 +196,57 @@ export const TrainingContainer = ({
                 <Button
                     variant="outline"
                     className="bg-white/80 hover:bg-white border-2 border-orange-500/50 hover:border-orange-500 text-gray-900 font-bold shadow-[0_0_10px_rgba(251,146,60,0.4)] transition-all"
-                    onClick={() => setIsQuitModalOpen(true)}
+                    onClick={() => {
+                        playSound(yamerundesuka);
+                        setIsQuitModalOpen(true);
+                    }}
                 >
                     やめる
                 </Button>
             </div>
 
-            {/* Camera Angle Toggle (Top Right) */}
-            {onCameraAngleChange && cameraAngle && (
-                <div className="absolute top-4 right-4 z-50 flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
-                    <button
-                        className={`px-4 py-2 rounded-md font-bold transition-all ${cameraAngle === 'front'
-                                ? 'bg-orange-500 text-white shadow-lg'
+            {/* Top Right Controls Container */}
+            <div className="absolute top-4 right-4 z-50 flex flex-col gap-2 items-end">
+                {/* FPS Toggle */}
+                <div className="flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
+                    {[10, 20, 30].map((rate) => (
+                        <button
+                            key={rate}
+                            className={`px-3 py-1 text-sm rounded-md font-bold transition-all ${localFps === rate
+                                ? 'bg-blue-600 text-white shadow-lg'
                                 : 'text-gray-300 hover:text-white'
-                            }`}
-                        onClick={() => onCameraAngleChange('front')}
-                    >
-                        正面
-                    </button>
-                    <button
-                        className={`px-4 py-2 rounded-md font-bold transition-all ${cameraAngle === 'side'
-                                ? 'bg-orange-500 text-white shadow-lg'
-                                : 'text-gray-300 hover:text-white'
-                            }`}
-                        onClick={() => onCameraAngleChange('side')}
-                    >
-                        横
-                    </button>
+                                }`}
+                            onClick={() => handleFpsChange(rate)}
+                        >
+                            {rate}fps
+                        </button>
+                    ))}
                 </div>
-            )}
+
+                {/* Camera Angle Toggle */}
+                {onCameraAngleChange && cameraAngle && (
+                    <div className="flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
+                        <button
+                            className={`px-4 py-2 rounded-md font-bold transition-all ${cameraAngle === 'front'
+                                ? 'bg-orange-500 text-white shadow-lg'
+                                : 'text-gray-300 hover:text-white'
+                                }`}
+                            onClick={() => onCameraAngleChange('front')}
+                        >
+                            正面
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-md font-bold transition-all ${cameraAngle === 'side'
+                                ? 'bg-orange-500 text-white shadow-lg'
+                                : 'text-gray-300 hover:text-white'
+                                }`}
+                            onClick={() => onCameraAngleChange('side')}
+                        >
+                            横
+                        </button>
+                    </div>
+                )}
+            </div>
 
             {/* Camera FrameContainer */}
             <div className="relative w-full max-w-6xl aspect-video border-4 border-orange-500/50 rounded-xl shadow-[0_0_60px_rgba(251,146,60,0.6)] overflow-hidden bg-black z-10">
@@ -207,7 +267,6 @@ export const TrainingContainer = ({
             </div>
 
             {/* Trainer Avatar */}
-            {/* Trainer Avatar Area */}
             <div className="absolute bottom-0 right-4 z-40 w-48">
 
                 {/* Speech Bubble (Static, Larger) */}
@@ -218,7 +277,7 @@ export const TrainingContainer = ({
                                 {trainerMessage}
                             </p>
                         </div>
-                        {/* Tailwind Triangle for Bubble Tail - Moved to parent relative context */}
+                        {/* Tailwind Triangle for Bubble Tail */}
                         <div className="absolute top-full right-24 w-0 h-0 border-l-[20px] border-l-transparent border-t-[30px] border-t-white border-r-[20px] border-r-transparent drop-shadow-sm"></div>
                     </div>
                 )}
@@ -236,21 +295,38 @@ export const TrainingContainer = ({
             {/* Quit Confirmation Modal */}
             {isQuitModalOpen && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-50 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-xl p-6 max-w-xs w-full shadow-2xl scale-in-95 animate-in zoom-in-95 duration-200 border-4 border-orange-500">
-                        <h3 className="text-xl font-bold text-center mb-6 text-gray-900">
-                            やめちゃうの？
+                    <div className="bg-white rounded-xl p-5 max-w-lg w-full shadow-2xl scale-in-95 animate-in zoom-in-95 duration-200 border-4 border-orange-500 flex flex-col items-center">
+                        <img
+                            src={yamerunoImage}
+                            alt="やめるんですか？"
+                            className="w-full h-auto mb-4"
+                        />
+                        <h3 className="text-2xl font-bold text-center mb-4 text-gray-900">
+                            やめるんですか？
                         </h3>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 w-full">
                             <Button
                                 variant="outline"
-                                className="flex-1 border-gray-300"
-                                onClick={onQuit}
+                                className="flex-1 border-gray-300 py-6 text-lg"
+                                onClick={async () => {
+                                    // Play random "orokamono" sound
+                                    const sounds = [orokamono1, orokamono2];
+                                    const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+                                    await playSound(randomSound);
+                                    onQuit();
+                                }}
                             >
                                 やめる
                             </Button>
                             <Button
-                                className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-none shadow-lg"
-                                onClick={() => setIsQuitModalOpen(false)}
+                                className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-none shadow-lg py-6 text-lg"
+                                onClick={async () => {
+                                    // Play random "yamenai" sound
+                                    const sounds = [yamenai1, yamenai2, yamenai3];
+                                    const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+                                    await playSound(randomSound);
+                                    setIsQuitModalOpen(false);
+                                }}
                             >
                                 やめない
                             </Button>
@@ -258,9 +334,6 @@ export const TrainingContainer = ({
                     </div>
                 </div>
             )}
-
-            {/* アニメーション用のスタイル */}
-
         </div>
     );
 };

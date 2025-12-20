@@ -8,13 +8,29 @@ const client = axios.create({
     },
 });
 
+// Interceptor to add Bearer token
+client.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem("access_token");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
+
 // Interceptor to handle 401 Unauthorized errors
 client.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
             // Prevent infinite redirect loop if already on auth page
-            if (window.location.pathname !== "/auth") {
+            // Also ignore 401 on /users/me (initial auth check)
+            if (
+                window.location.pathname !== "/auth" &&
+                !error.config?.url?.includes("/users/me")
+            ) {
                 window.location.href = "/auth";
             }
         }

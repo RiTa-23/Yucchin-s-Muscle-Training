@@ -58,7 +58,7 @@ export const CollectionPage: React.FC = () => {
   const secretItems = displayList.filter((i) => i.rarity === "SECRET");
 
   const renderGrid = (items: DisplayYucchin[]) => (
-    <div className="grid grid-cols-6 gap-4">
+    <div className="grid grid-cols-5 gap-4">
       {items.map((item) => (
         <div key={item.type} className="flex flex-col items-center">
           {/* 写真フレーム：サイズは維持 (w-24 h-32) */}

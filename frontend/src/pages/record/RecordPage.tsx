@@ -148,8 +148,8 @@ export default function RecordPage() {
         }}
       ></div>
 
-      <div className="max-w-md mx-auto space-y-8 relative z-10 w-full">
-        <div className="flex justify-between items-center mb-8">
+      <div className="w-full relative z-10 px-4 md:px-0">
+        <div className="max-w-3xl mx-auto flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
             頑張りの歴史
           </h1>
@@ -165,7 +165,7 @@ export default function RecordPage() {
             戻る
           </Button>
         </div>
-        <div className="space-y-8 pb-20">
+        <div className="max-w-md mx-auto space-y-8 pb-20">
           {/* Total Section */}
           <div className="space-y-4">
             <h2 className="text-2xl font-bold text-center mb-4 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">

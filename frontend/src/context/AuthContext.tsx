@@ -43,8 +43,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const login = async (email: string, password: string) => {
         // Send email/password as JSON body
-        // Cookie is set by backend automatically
-        await client.post("/token", { email, password });
+        // Cookie is set by backend automatically, but we also get token for mobile fallback
+        const response = await client.post("/token", { email, password });
+        if (response.data.access_token) {
+            localStorage.setItem("access_token", response.data.access_token);
+        }
 
         // Fetch user immediately after login
         await fetchUser();
@@ -62,8 +65,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (error) {
             console.error("Logout failed", error);
         } finally {
+            localStorage.removeItem("access_token");
             setUser(null);
-            // No need to clear localStorage
         }
     };
 
