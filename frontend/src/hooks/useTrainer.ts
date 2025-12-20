@@ -166,9 +166,9 @@ export const useTrainer = () => {
             specificText = FINISH_SOUNDS[randomIndex].text;
         } else if (type in SOUNDS) {
             // Handle standard named sounds
-            // @ts-ignore - TS doesn't fully narrow the type here effectively but it's safe
-            specificText = SOUNDS[type as keyof typeof SOUNDS].text;
-            audioKey = type;
+            const key = type as keyof typeof SOUNDS;
+            specificText = SOUNDS[key].text;
+            audioKey = key;
         }
 
         const audio = audioRefs.current.get(audioKey);
