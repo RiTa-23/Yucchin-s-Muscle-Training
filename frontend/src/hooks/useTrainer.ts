@@ -80,7 +80,7 @@ export const useTrainer = () => {
         kneesStraight: 5000,
         camera: 10000, // Longer cooldown for system-like message
         good: 3000,
-        start: 0,
+        start: 5000,
         finish: 0,
     };
 

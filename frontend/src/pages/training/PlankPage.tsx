@@ -76,6 +76,7 @@ export default function PlankPage() {
 
         if (!isHorizontal) {
             setMessage("プランクの姿勢をとってください");
+            play('start');
             setIsGood(false);
             return;
         }
@@ -165,7 +166,6 @@ export default function PlankPage() {
             setTimeLeft(duration);
         }
         setGameState("ACTIVE");
-        play('start', "さあ、始めるよ！");
     };
 
     // Save Logic
