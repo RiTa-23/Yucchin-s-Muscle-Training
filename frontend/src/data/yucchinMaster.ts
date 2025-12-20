@@ -8,6 +8,7 @@ import yucchin6 from "../assets/img/yucchins/blue_corner.png";
 import yucchin7 from "../assets/img/yucchins/purple.png";
 import yucchin8 from "../assets/img/yucchins/purple_corner.png";
 import yucchin9 from "../assets/img/yucchins/debiruman.png";
+import yucchin10 from "../assets/img/yucchins/uma.png";
 
 // R
 import yucchin101 from "../assets/img/yucchins/sika.png";
@@ -63,6 +64,7 @@ export const YUCCHIN_MASTER: YucchinMaster[] = [
   { type: 7, name: "パープルゆっちん", rarity: "NORMAL", imageUrl: yucchin7 },
   { type: 8, name: "紫鬼ゆっちん", rarity: "NORMAL", imageUrl: yucchin8 },
   { type: 9, name: "デビルマンゆっちん", rarity: "NORMAL", imageUrl: yucchin9 },
+  { type: 10, name: "ウマゆっちん", rarity: "NORMAL", imageUrl: yucchin10 },
   // RARE
   { type: 101, name: "しかゆっちん", rarity: "RARE", imageUrl: yucchin101 },
   { type: 102, name: "トリケラトユチン", rarity: "RARE", imageUrl: yucchin102 },
