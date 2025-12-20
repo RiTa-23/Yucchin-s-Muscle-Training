@@ -43,27 +43,27 @@ import soundPushupDown from '@/assets/sounds/pushup/pushup_down.wav';
 import soundNicePushup from '@/assets/sounds/pushup/nice_pushup.wav';
 
 const COMPLIMENTS = [
-  { src: soundTensai, text: "天才！" },
-  { src: soundKagayaiteru, text: "輝いてるよ" },
-  { src: soundKagayaiteruIi, text: "輝いてるよ！ イイヨォ！！" },
-  { src: soundIi, text: "イイヨォ！！" },
-  { src: soundBeautiful, text: "びゅーてぃふぉー！" },
+    { src: soundTensai, text: "天才！" },
+    { src: soundKagayaiteru, text: "輝いてるよ" },
+    { src: soundKagayaiteruIi, text: "輝いてるよ！ イイヨォ！！" },
+    { src: soundIi, text: "イイヨォ！！" },
+    { src: soundBeautiful, text: "びゅーてぃふぉー！" },
 ];
 
 const PLANK_POSTURE_PROMPTS = [
-  { src: soundPlankStart, text: "プランク！" },
-  { src: soundPlankPosture, text: "プﾙﾙｧンクのｼｾｲ！" },
+    { src: soundPlankStart, text: "プランク！" },
+    { src: soundPlankPosture, text: "プﾙﾙｧンクのｼｾｲ！" },
 ];
 
 const CAMERA_ALERTS = [
-  { src: soundCamera1, text: "体をカメラにおさめてね" },
-  { src: soundCamera2, text: "体をカメラにおさめてね！" },
-  { src: soundShrink, text: "縮めェ！！" },
+    { src: soundCamera1, text: "体をカメラにおさめてね" },
+    { src: soundCamera2, text: "体をカメラにおさめてね！" },
+    { src: soundShrink, text: "縮めェ！！" },
 ];
 
 const FINISH_SOUNDS = [
-  { src: soundFinish1, text: "これであなたも！ムキムキよ！" },
-  { src: soundFinish2, text: "これであなたもぉ〜ムキムキ！" },
+    { src: soundFinish1, text: "これであなたも！ムキムキよ！" },
+    { src: soundFinish2, text: "これであなたもぉ〜ムキムキ！" },
 ];
 
 const SOUNDS = {
@@ -211,107 +211,31 @@ export const useTrainer = () => {
             specificText = SOUNDS[key].text;
             audioKey = key;
         }
-      };
 
-      audio.addEventListener("play", onPlay);
-      audio.addEventListener("pause", onStop);
-      audio.addEventListener("ended", onStop);
+        const audio = audioRefs.current.get(audioKey);
+        if (!audio) return;
 
-      cleanupFns.push(() => {
-        audio.removeEventListener("play", onPlay);
-        audio.removeEventListener("pause", onStop);
-        audio.removeEventListener("ended", onStop);
-      });
+        const now = Date.now();
+        // Check cooldown by usage type (e.g. 'good'), not specific file key
+        const lastPlayed = lastPlayedRef.current.get(type) || 0;
+        const cooldown = COOLDOWNS[type] || 0;
 
-      audioRefs.current.set(key, audio);
-    };
+        if (now - lastPlayed < cooldown) {
+            return;
+        }
 
-    // Preload standard sounds
-    Object.entries(SOUNDS).forEach(([key, item]) => loadAudio(item.src, key));
+        // Use specific text if available, otherwise fallback to provided message
+        const displayMessage = specificText || message;
+        if (displayMessage) {
+            setTrainerMessage(displayMessage);
+        }
 
-    // Preload compliments
-    COMPLIMENTS.forEach((item, index) => loadAudio(item.src, `good_${index}`));
-
-    // Preload plank posture prompts
-    PLANK_POSTURE_PROMPTS.forEach((item, index) =>
-      loadAudio(item.src, `plankPosture_${index}`)
-    );
-
-    // Preload camera alerts
-    CAMERA_ALERTS.forEach((item, index) =>
-      loadAudio(item.src, `camera_${index}`)
-    );
-
-    // Preload finish sounds
-    FINISH_SOUNDS.forEach((item, index) =>
-      loadAudio(item.src, `finish_${index}`)
-    );
-
-    return () => {
-      playingKeysRef.current.clear();
-      cleanupFns.forEach((fn) => fn());
-      audioRefs.current.forEach((audio) => {
-        audio.pause();
+        // Reset and play
         audio.currentTime = 0;
-      });
-    };
-  }, []);
+        audio.play().catch(e => console.error(`Failed to play sound ${type}:`, e));
 
-  const play = useCallback((type: SoundType, message?: string) => {
-    let audioKey = type as string;
-    let specificText: string | null = null;
+        lastPlayedRef.current.set(type, now);
+    }, []);
 
-    if (type === "good") {
-      const randomIndex = Math.floor(Math.random() * COMPLIMENTS.length);
-      audioKey = `good_${randomIndex}`;
-      specificText = COMPLIMENTS[randomIndex].text;
-    } else if (type === "plankPosture") {
-      const randomIndex = Math.floor(
-        Math.random() * PLANK_POSTURE_PROMPTS.length
-      );
-      audioKey = `plankPosture_${randomIndex}`;
-      specificText = PLANK_POSTURE_PROMPTS[randomIndex].text;
-    } else if (type === "camera") {
-      const randomIndex = Math.floor(Math.random() * CAMERA_ALERTS.length);
-      audioKey = `camera_${randomIndex}`;
-      specificText = CAMERA_ALERTS[randomIndex].text;
-    } else if (type === "finish") {
-      const randomIndex = Math.floor(Math.random() * FINISH_SOUNDS.length);
-      audioKey = `finish_${randomIndex}`;
-      specificText = FINISH_SOUNDS[randomIndex].text;
-    } else if (type in SOUNDS) {
-      // Handle standard named sounds
-      const key = type as keyof typeof SOUNDS;
-      specificText = SOUNDS[key].text;
-      audioKey = key;
-    }
-
-    const audio = audioRefs.current.get(audioKey);
-    if (!audio) return;
-
-    const now = Date.now();
-    // Check cooldown by usage type (e.g. 'good'), not specific file key
-    const lastPlayed = lastPlayedRef.current.get(type) || 0;
-    const cooldown = COOLDOWNS[type] || 0;
-
-    if (now - lastPlayed < cooldown) {
-      return;
-    }
-
-    // Use specific text if available, otherwise fallback to provided message
-    const displayMessage = specificText || message;
-    if (displayMessage) {
-      setTrainerMessage(displayMessage);
-    }
-
-    // Reset and play
-    audio.currentTime = 0;
-    audio
-      .play()
-      .catch((e) => console.error(`Failed to play sound ${type}:`, e));
-
-    lastPlayedRef.current.set(type, now);
-  }, []);
-
-  return { play, isSpeaking, trainerMessage };
+    return { play, isSpeaking, trainerMessage };
 };
