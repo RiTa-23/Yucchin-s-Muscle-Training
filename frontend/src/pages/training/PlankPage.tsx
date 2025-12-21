@@ -8,6 +8,8 @@ import {
   type GameState,
 } from "@/components/training/TrainingContainer";
 import { useTrainer } from "@/hooks/useTrainer";
+import { useOrientation } from "@/hooks/useOrientation";
+import PortraitOverlay from "@/components/training/PortraitOverlay";
 import plankIllustration from "@/assets/img/41.png";
 
 // Helper to calculate angle between three points
@@ -23,7 +25,9 @@ export default function PlankPage() {
   const [lastResults, setLastResults] = useState<Results | null>(null);
   const [message, setMessage] = useState<string>("");
   const [isGood, setIsGood] = useState<boolean>(false);
-  const [unlockedYucchinTypes, setUnlockedYucchinTypes] = useState<number[]>([]);
+  const [unlockedYucchinTypes, setUnlockedYucchinTypes] = useState<number[]>(
+    []
+  );
 
   // Plank specific state
   const [targetDuration, setTargetDuration] = useState<number>(30);
@@ -209,7 +213,10 @@ export default function PlankPage() {
             duration: performedDuration,
             count: 0,
           });
-          if (response.unlocked_yucchin_types && response.unlocked_yucchin_types.length > 0) {
+          if (
+            response.unlocked_yucchin_types &&
+            response.unlocked_yucchin_types.length > 0
+          ) {
             setUnlockedYucchinTypes(response.unlocked_yucchin_types);
           }
           console.log("Training log saved!", performedDuration);
@@ -250,56 +257,57 @@ export default function PlankPage() {
     }
   }, [navigate]);
 
+  // Orientation detection (portrait vs landscape)
+  const isPortrait = useOrientation();
+
   return (
-    <TrainingContainer
-      gameState={gameState}
-      // Guide
-      title="プランク"
-      description={
-        <>
-          両肘とつま先を床につき、体を一直線に保ちます。
-          <br />
-          お尻が上がったり下がったりしないように注意しましょう！
-        </>
-      }
-      descriptionPlacement="bottom"
-      illustration={
-        <img
-          src={plankIllustration}
-          alt="Plank illustration"
-          className="w-full h-full max-h-[400px] object-contain"
-        />
-      }
-      goalConfig={{
-        type: "time",
-        min: 10,
-        max: 120,
-        default: 30,
-        step: 10,
-        unit: "秒",
-      }}
-      onStart={handleStart}
-      // Active
-      onPoseDetected={onPoseDetected}
-      overlayResults={lastResults}
-      feedbackMessage={message}
-      isGoodPose={isGood}
-      stats={{
-        label: "残り時間",
-        value: timeLeft,
-        unit: "秒",
-      }}
-      cameraError={error}
-      onError={handleError}
-      // Result
-      score={`${targetDuration - timeLeft}秒`}
-      onRetry={handleRetry}
-      unlockedYucchinTypes={unlockedYucchinTypes}
-      // Navigation
-      onQuit={handleQuit}
-      // Trainer
-      isSpeaking={isSpeaking}
-      trainerMessage={trainerMessage}
-    />
+    <>
+      {isPortrait && <PortraitOverlay />}
+      <TrainingContainer
+        gameState={gameState}
+        title="プランク"
+        description={
+          <>
+            両肘とつま先を床につき、体を一直線に保ちます。
+            <br />
+            お尻が上がったり下がったりしないように注意しましょう！
+          </>
+        }
+        descriptionPlacement="bottom"
+        illustration={
+          <img
+            src={plankIllustration}
+            alt="Plank illustration"
+            className="w-full h-full max-h-[400px] object-contain"
+          />
+        }
+        goalConfig={{
+          type: "time",
+          min: 10,
+          max: 120,
+          default: 30,
+          step: 10,
+          unit: "秒",
+        }}
+        onStart={handleStart}
+        onPoseDetected={onPoseDetected}
+        overlayResults={lastResults}
+        feedbackMessage={message}
+        isGoodPose={isGood}
+        stats={{
+          label: "残り時間",
+          value: timeLeft,
+          unit: "秒",
+        }}
+        cameraError={error}
+        onError={handleError}
+        score={`${targetDuration - timeLeft}秒`}
+        onRetry={handleRetry}
+        unlockedYucchinTypes={unlockedYucchinTypes}
+        onQuit={handleQuit}
+        isSpeaking={isSpeaking}
+        trainerMessage={trainerMessage}
+      />
+    </>
   );
 }

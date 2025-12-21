@@ -7,6 +7,8 @@ import {
   type GameState,
 } from "@/components/training/TrainingContainer";
 import { useTrainer } from "@/hooks/useTrainer";
+import { useOrientation } from "@/hooks/useOrientation";
+import PortraitOverlay from "@/components/training/PortraitOverlay";
 import squatIllustration from "@/assets/img/yucchins/suquwato.png";
 
 type SquatState = "UP" | "DOWN";
@@ -21,7 +23,9 @@ export default function SquatPage() {
   const [lastResults, setLastResults] = useState<Results | null>(null);
   const [message, setMessage] = useState<string>("");
   const [isGood, setIsGood] = useState<boolean>(false);
-  const [unlockedYucchinTypes, setUnlockedYucchinTypes] = useState<number[]>([]);
+  const [unlockedYucchinTypes, setUnlockedYucchinTypes] = useState<number[]>(
+    []
+  );
 
   // Squat specific states
   const [count, setCount] = useState<number>(0);
@@ -230,7 +234,10 @@ export default function SquatPage() {
             duration: 0,
             count: count,
           });
-          if (response.unlocked_yucchin_types && response.unlocked_yucchin_types.length > 0) {
+          if (
+            response.unlocked_yucchin_types &&
+            response.unlocked_yucchin_types.length > 0
+          ) {
             setUnlockedYucchinTypes(response.unlocked_yucchin_types);
           }
           console.log("Training log saved!");
@@ -263,60 +270,66 @@ export default function SquatPage() {
     }
   };
 
+  // Orientation detection (portrait vs landscape)
+  const isPortrait = useOrientation();
+
   return (
-    <TrainingContainer
-      gameState={gameState}
-      // Guide
-      title="スクワット"
-      description={
-        <>
-          足を肩幅に開き、背筋を伸ばして立ちます。
-          <br />
-          お尻を後ろに引くように深くしゃがみ込みましょう！
-        </>
-      }
-      descriptionPlacement="bottom"
-      illustration={
-        <img
-          src={squatIllustration}
-          alt="Squat illustration"
-          className="w-full h-full max-h-[400px] object-contain"
-        />
-      }
-      goalConfig={{
-        type: "count",
-        min: 5,
-        max: 50,
-        default: 10,
-        step: 5,
-        unit: "回",
-      }}
-      onStart={handleStart}
-      // Active
-      onPoseDetected={onPoseDetected}
-      overlayResults={lastResults}
-      feedbackMessage={message}
-      isGoodPose={isGood}
-      stats={{
-        label: "回数",
-        value: count,
-        target: targetCount,
-        unit: "回",
-      }}
-      cameraError={error}
-      onError={handleError}
-      // Result
-      score={`${count}回`}
-      onRetry={handleRetry}
-      unlockedYucchinTypes={unlockedYucchinTypes}
-      // Navigation
-      onQuit={handleQuit}
-      // Trainer
-      isSpeaking={isSpeaking}
-      trainerMessage={trainerMessage}
-      // Camera Toggle
-      cameraAngle={cameraAngle}
-      onCameraAngleChange={setCameraAngle}
-    />
+    <>
+      {isPortrait && <PortraitOverlay />}
+      <TrainingContainer
+        gameState={gameState}
+        // Guide
+        title="スクワット"
+        description={
+          <>
+            足を肩幅に開き、背筋を伸ばして立ちます。
+            <br />
+            お尻を後ろに引くように深くしゃがみ込みましょう！
+          </>
+        }
+        descriptionPlacement="bottom"
+        illustration={
+          <img
+            src={squatIllustration}
+            alt="Squat illustration"
+            className="w-full h-full max-h-[400px] object-contain"
+          />
+        }
+        goalConfig={{
+          type: "count",
+          min: 5,
+          max: 50,
+          default: 10,
+          step: 5,
+          unit: "回",
+        }}
+        onStart={handleStart}
+        // Active
+        onPoseDetected={onPoseDetected}
+        overlayResults={lastResults}
+        feedbackMessage={message}
+        isGoodPose={isGood}
+        stats={{
+          label: "回数",
+          value: count,
+          target: targetCount,
+          unit: "回",
+        }}
+        cameraError={error}
+        onError={handleError}
+        // Result
+        score={`${count}回`}
+        onRetry={handleRetry}
+        unlockedYucchinTypes={unlockedYucchinTypes}
+        // Navigation
+        onQuit={handleQuit}
+        // Trainer
+        isSpeaking={isSpeaking}
+        trainerMessage={trainerMessage}
+        // Camera Toggle
+        cameraAngle={cameraAngle}
+        onCameraAngleChange={setCameraAngle}
+      />
+    </>
   );
 }
