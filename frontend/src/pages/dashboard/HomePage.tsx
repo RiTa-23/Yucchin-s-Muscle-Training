@@ -100,11 +100,11 @@ export default function HomePage() {
       )}
       <div className="max-w-none mx-auto space-y-8 relative z-10">
         <div className="border-4 border-orange-500/50 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl p-3 sm:p-4 shadow-[0_0_40px_rgba(251,146,60,0.6)]">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 items-center lg:flex lg:flex-row lg:items-center lg:justify-between">
             <Button
               variant="outline"
               onClick={handleSettings}
-              className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 [@media(hover:hover)and(pointer:fine)]:hover:scale-105"
+              className="w-full lg:w-[220px] xl:w-[260px] bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 [@media(hover:hover)and(pointer:fine)]:hover:scale-105"
             >
               <Settings className="w-4 h-4 mr-2" />
               設定
@@ -112,7 +112,7 @@ export default function HomePage() {
             <Button
               variant="outline"
               onClick={handleHistory}
-              className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 [@media(hover:hover)and(pointer:fine)]:hover:scale-105"
+              className="w-full lg:w-[220px] xl:w-[260px] bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 [@media(hover:hover)and(pointer:fine)]:hover:scale-105"
             >
               <History className="w-4 h-4 mr-2" />
               頑張りの歴史
@@ -120,12 +120,12 @@ export default function HomePage() {
             <Button
               variant="outline"
               onClick={handleCollection}
-              className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 [@media(hover:hover)and(pointer:fine)]:hover:scale-105"
+              className="w-full lg:w-[220px] xl:w-[260px] bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 [@media(hover:hover)and(pointer:fine)]:hover:scale-105"
             >
               <Trophy className="w-4 h-4 mr-2" />
               集めたゆっちん
             </Button>
-            <div className="w-full flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2">
+            <div className="w-full flex flex-row md:flex-col items-center md:items-end justify-between md:justify-center gap-2 lg:w-auto lg:items-end lg:justify-center">
               {user && (
                 <span className="text-white font-bold text-sm drop-shadow-[0_0_5px_rgba(251,146,60,0.8)] whitespace-nowrap">
                   {user.username} さん
