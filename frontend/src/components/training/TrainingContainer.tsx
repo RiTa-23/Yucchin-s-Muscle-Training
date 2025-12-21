@@ -4,7 +4,7 @@ import { TrainingGuide, type GoalConfig } from "./TrainingGuide";
 import { TrainingResult } from "./TrainingResult";
 import { PoseDetector } from "@/components/camera/PoseDetector";
 import { PoseOverlay } from "@/components/camera/PoseOverlay";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import trainerImage from "@/assets/mukiyuchiBK.png";
 import client from "@/api/client";
@@ -21,319 +21,337 @@ import yamenai3 from "@/assets/sounds/giveup/yamenai3.wav";
 export type GameState = "GUIDE" | "ACTIVE" | "FINISHED";
 
 interface TrainingContainerProps {
-    // Current state
-    gameState: GameState;
+  // Current state
+  gameState: GameState;
 
-    // Guide Props
-    title: string;
-    description: React.ReactNode;
-    descriptionPlacement?: "top" | "bottom";
-    illustration?: React.ReactNode;
-    goalConfig?: GoalConfig;
-    onStart: (goalValue?: number) => void;
+  // Guide Props
+  title: string;
+  description: React.ReactNode;
+  descriptionPlacement?: "top" | "bottom";
+  illustration?: React.ReactNode;
+  goalConfig?: GoalConfig;
+  onStart: (goalValue?: number) => void;
 
-    // Active Props (Pose Detection & Overlay)
-    interval?: number; // Optional, defaults to user settings or 20fps
-    onPoseDetected: (results: Results) => void;
-    overlayResults: Results | null;
-    feedbackMessage: string;
-    isGoodPose: boolean;
-    stats: {
-        label: string;
-        value: string | number;
-        target?: number;
-        unit: string;
-    };
-    cameraError: string | null;
-    onError: (error: any) => void;
+  // Active Props (Pose Detection & Overlay)
+  interval?: number; // Optional, defaults to user settings or 20fps
+  onPoseDetected: (results: Results) => void;
+  overlayResults: Results | null;
+  feedbackMessage: string;
+  isGoodPose: boolean;
+  stats: {
+    label: string;
+    value: string | number;
+    target?: number;
+    unit: string;
+  };
+  cameraError: string | null;
+  onError: (error: unknown) => void;
 
-    // Result Props
-    score: string | number;
-    scoreLabel?: string;
-    resultTitle?: string;
-    resultSubTitle?: string;
-    onRetry: () => void;
+  // Result Props
+  score: string | number;
+  scoreLabel?: string;
+  resultTitle?: string;
+  resultSubTitle?: string;
+  onRetry: () => void;
+  unlockedYucchinTypes?: number[];
 
-    // Trainer
-    isSpeaking?: boolean;
-    trainerMessage?: string | null;
+  // Trainer
+  isSpeaking?: boolean;
+  trainerMessage?: string | null;
 
-    // Navigation (Quit)
-    onQuit: () => void;
+  // Navigation (Quit)
+  onQuit: () => void;
 
-    // Camera Angle Toggle
-    cameraAngle?: 'front' | 'side';
-    onCameraAngleChange?: (angle: 'front' | 'side') => void;
+  // Camera Angle Toggle
+  cameraAngle?: "front" | "side";
+  onCameraAngleChange?: (angle: "front" | "side") => void;
 }
 
 export const TrainingContainer = ({
-    gameState,
-    title,
-    description,
-    descriptionPlacement,
-    illustration,
-    goalConfig,
-    onStart,
-    onPoseDetected,
-    overlayResults,
-    feedbackMessage,
-    isGoodPose,
-    stats,
-    cameraError,
-    onError,
-    score,
-    scoreLabel,
-    resultTitle,
-    resultSubTitle,
-    onRetry,
-    isSpeaking,
-    trainerMessage,
-    onQuit,
-    cameraAngle,
-    onCameraAngleChange
+  gameState,
+  title,
+  description,
+  descriptionPlacement,
+  illustration,
+  goalConfig,
+  onStart,
+  interval,
+  onPoseDetected,
+  overlayResults,
+  feedbackMessage,
+  isGoodPose,
+  stats,
+  cameraError,
+  onError,
+  score,
+  scoreLabel,
+  resultTitle,
+  resultSubTitle,
+  onRetry,
+  unlockedYucchinTypes,
+  isSpeaking,
+  trainerMessage,
+  onQuit,
+  cameraAngle,
+  onCameraAngleChange,
 }: TrainingContainerProps) => {
-    const { user, refreshUser } = useAuth();
+  const { user, refreshUser } = useAuth();
 
-    const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
+  const [isQuitModalOpen, setIsQuitModalOpen] = useState(false);
+  const isQuitModalVisible = gameState === "ACTIVE" && isQuitModalOpen;
 
-    // FPS Control
-    const [localFps, setLocalFps] = useState<number>(user?.settings?.fps || 20);
-    const effectiveInterval = useMemo(() => Math.floor(1000 / localFps), [localFps]);
+  // FPS Control
+  const userFps = user?.settings?.fps ?? 20;
+  const [overrideFps, setOverrideFps] = useState<number | null>(null);
+  const [isSavingFps, setIsSavingFps] = useState(false);
+  const localFps = overrideFps ?? userFps;
+  const effectiveInterval = useMemo(
+    () => interval ?? Math.floor(1000 / localFps),
+    [interval, localFps]
+  );
 
-    // Sync localFps with user settings when they load or change
-    useEffect(() => {
-        if (user?.settings?.fps) {
-            setLocalFps(user.settings.fps);
-        }
-    }, [user?.settings?.fps]);
-
-    // Reset modal state when gameState changes (e.g. Retry)
-    useEffect(() => {
-        setIsQuitModalOpen(false);
-    }, [gameState]);
-
-    const handleFpsChange = async (rate: number) => {
-        const previousFps = localFps;
-        setLocalFps(rate);
-        try {
-            await client.put("/settings/me", { fps: rate });
-            await refreshUser();
-        } catch (error) {
-            console.error("Failed to save FPS setting:", error);
-            setLocalFps(previousFps);
-            alert("FPS設定の保存に失敗しました。");
-        }
-    };
-
-    // Error View
-    if (cameraError) {
-        return (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-30">
-                <div className="bg-white p-8 rounded-lg max-w-md text-center">
-                    <p className="text-red-600 mb-4 font-bold">カメラエラーが発生しました</p>
-                    <p className="text-gray-700 mb-6">{cameraError}</p>
-                    <Button onClick={onQuit}>ホームに戻る</Button>
-                </div>
-            </div>
-        );
+  const handleFpsChange = async (rate: number) => {
+    if (isSavingFps) return;
+    setIsSavingFps(true);
+    setOverrideFps(rate);
+    try {
+      await client.put("/settings/me", { fps: rate });
+    } catch (error) {
+      console.error("Failed to save FPS setting:", error);
+      setOverrideFps(null);
+      setIsSavingFps(false);
+      alert("FPS設定の保存に失敗しました。");
+      return;
     }
 
-    // Guide View
-    if (gameState === "GUIDE") {
-        return (
-            <TrainingGuide
-                title={title}
-                description={description}
-                descriptionPlacement={descriptionPlacement}
-                onStart={onStart}
-                illustration={illustration}
-                goalConfig={goalConfig}
-            />
-        );
+    try {
+      await refreshUser();
+      setOverrideFps(null);
+    } catch (error) {
+      // Saved on server, but user refresh failed: keep optimistic UI.
+      console.warn("Failed to refresh user after saving FPS:", error);
+    } finally {
+      setIsSavingFps(false);
     }
+  };
 
-    // Result View
-    if (gameState === "FINISHED") {
-        return (
-            <TrainingResult
-                title={resultTitle}
-                subTitle={resultSubTitle}
-                score={score}
-                scoreLabel={scoreLabel || "記録"}
-                onRetry={onRetry}
-            />
-        );
-    }
-
-    // Active (Camera) View
+  // Error View
+  if (cameraError) {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden flex flex-col items-center justify-center p-4">
-            {/* 背景の装飾 */}
-            <div className="absolute inset-0 opacity-20 pointer-events-none">
-                <div className="absolute top-20 left-20 w-96 h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
-                <div
-                    className="absolute bottom-20 right-20 w-[500px] h-[500px] bg-red-600 rounded-full blur-3xl animate-pulse"
-                    style={{ animationDelay: "1s" }}
-                ></div>
-                <div
-                    className="absolute top-1/2 left-1/2 w-96 h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse"
-                    style={{ animationDelay: "1.5s" }}
-                ></div>
-            </div>
-
-            {/* グリッド背景 */}
-            <div
-                className="absolute inset-0 opacity-5 pointer-events-none"
-                style={{
-                    backgroundImage:
-                        "linear-gradient(rgba(255,165,0,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,165,0,0.3) 1px, transparent 1px)",
-                    backgroundSize: "50px 50px",
-                }}
-            ></div>
-
-            {/* Quit Button (Top Left) */}
-            <div className="absolute top-4 left-4 z-50">
-                <Button
-                    variant="outline"
-                    className="bg-white/80 hover:bg-white border-2 border-orange-500/50 hover:border-orange-500 text-gray-900 font-bold shadow-[0_0_10px_rgba(251,146,60,0.4)] transition-all"
-                    onClick={() => {
-                        playSound(yamerundesuka);
-                        setIsQuitModalOpen(true);
-                    }}
-                >
-                    やめる
-                </Button>
-            </div>
-
-            {/* Top Right Controls Container */}
-            <div className="absolute top-4 right-4 z-50 flex flex-col gap-2 items-end">
-                {/* FPS Toggle */}
-                <div className="flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
-                    {[10, 20, 30].map((rate) => (
-                        <button
-                            key={rate}
-                            className={`px-3 py-1 text-sm rounded-md font-bold transition-all ${localFps === rate
-                                ? 'bg-blue-600 text-white shadow-lg'
-                                : 'text-gray-300 hover:text-white'
-                                }`}
-                            onClick={() => handleFpsChange(rate)}
-                        >
-                            {rate}fps
-                        </button>
-                    ))}
-                </div>
-
-                {/* Camera Angle Toggle */}
-                {onCameraAngleChange && cameraAngle && (
-                    <div className="flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
-                        <button
-                            className={`px-4 py-2 rounded-md font-bold transition-all ${cameraAngle === 'front'
-                                ? 'bg-orange-500 text-white shadow-lg'
-                                : 'text-gray-300 hover:text-white'
-                                }`}
-                            onClick={() => onCameraAngleChange('front')}
-                        >
-                            正面
-                        </button>
-                        <button
-                            className={`px-4 py-2 rounded-md font-bold transition-all ${cameraAngle === 'side'
-                                ? 'bg-orange-500 text-white shadow-lg'
-                                : 'text-gray-300 hover:text-white'
-                                }`}
-                            onClick={() => onCameraAngleChange('side')}
-                        >
-                            横
-                        </button>
-                    </div>
-                )}
-            </div>
-
-            {/* Camera FrameContainer */}
-            <div className="relative w-full max-w-6xl aspect-video border-4 border-orange-500/50 rounded-xl shadow-[0_0_60px_rgba(251,146,60,0.6)] overflow-hidden bg-black z-10">
-                {/* Camera Layer */}
-                <PoseDetector
-                    onPoseDetected={onPoseDetected}
-                    interval={effectiveInterval}
-                    onError={onError}
-                />
-
-                {/* Overlay Layer */}
-                <PoseOverlay
-                    results={overlayResults}
-                    feedback={feedbackMessage}
-                    isGoodPose={isGoodPose}
-                    stats={stats}
-                />
-            </div>
-
-            {/* Trainer Avatar */}
-            <div className="absolute bottom-0 right-4 z-40 w-48">
-
-                {/* Speech Bubble (Static, Larger) */}
-                {isSpeaking && trainerMessage && (
-                    <div className="absolute -top-60 right-10 w-[800px] max-w-[90vw] bg-white p-10 rounded-3xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <div className="relative">
-                            <p className="text-gray-900 font-bold text-4xl text-center leading-relaxed">
-                                {trainerMessage}
-                            </p>
-                        </div>
-                        {/* Tailwind Triangle for Bubble Tail */}
-                        <div className="absolute top-full right-24 w-0 h-0 border-l-[20px] border-l-transparent border-t-[30px] border-t-white border-r-[20px] border-r-transparent drop-shadow-sm"></div>
-                    </div>
-                )}
-
-                {/* Character Image (Shaking) */}
-                <div className={isSpeaking ? 'animate-talk-shake' : ''}>
-                    <img
-                        src={trainerImage}
-                        alt="Trainer"
-                        className="w-full h-auto drop-shadow-[0_0_15px_rgba(251,146,60,0.6)]"
-                    />
-                </div>
-            </div>
-
-            {/* Quit Confirmation Modal */}
-            {isQuitModalOpen && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-50 animate-in fade-in duration-200">
-                    <div className="bg-white rounded-xl p-5 max-w-lg w-full shadow-2xl scale-in-95 animate-in zoom-in-95 duration-200 border-4 border-orange-500 flex flex-col items-center">
-                        <img
-                            src={yamerunoImage}
-                            alt="やめるんですか？"
-                            className="w-full h-auto mb-4"
-                        />
-                        <h3 className="text-2xl font-bold text-center mb-4 text-gray-900">
-                            やめるんですか？
-                        </h3>
-                        <div className="flex gap-3 w-full">
-                            <Button
-                                variant="outline"
-                                className="flex-1 border-gray-300 py-6 text-lg"
-                                onClick={async () => {
-                                    // Play random "orokamono" sound
-                                    const sounds = [orokamono1, orokamono2];
-                                    const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
-                                    await playSound(randomSound);
-                                    onQuit();
-                                }}
-                            >
-                                やめる
-                            </Button>
-                            <Button
-                                className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-none shadow-lg py-6 text-lg"
-                                onClick={async () => {
-                                    // Play random "yamenai" sound
-                                    const sounds = [yamenai1, yamenai2, yamenai3];
-                                    const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
-                                    await playSound(randomSound);
-                                    setIsQuitModalOpen(false);
-                                }}
-                            >
-                                やめない
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
+      <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-30">
+        <div className="bg-white p-8 rounded-lg max-w-md text-center">
+          <p className="text-red-600 mb-4 font-bold">
+            カメラエラーが発生しました
+          </p>
+          <p className="text-gray-700 mb-6">{cameraError}</p>
+          <Button onClick={onQuit}>ホームに戻る</Button>
         </div>
+      </div>
     );
+  }
+
+  // Guide View
+  if (gameState === "GUIDE") {
+    return (
+      <TrainingGuide
+        title={title}
+        description={description}
+        descriptionPlacement={descriptionPlacement}
+        onStart={onStart}
+        illustration={illustration}
+        goalConfig={goalConfig}
+      />
+    );
+  }
+
+  // Result View
+  if (gameState === "FINISHED") {
+    return (
+      <TrainingResult
+        title={resultTitle}
+        subTitle={resultSubTitle}
+        score={score}
+        scoreLabel={scoreLabel || "記録"}
+        onRetry={onRetry}
+        unlockedYucchinTypes={unlockedYucchinTypes}
+      />
+    );
+  }
+
+  // Active (Camera) View
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 pt-20 sm:pt-6 lg:pt-4">
+      {/* 背景の装飾 */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="absolute top-20 left-20 w-96 h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
+        <div
+          className="absolute bottom-20 right-20 w-[500px] h-[500px] bg-red-600 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1s" }}
+        ></div>
+        <div
+          className="absolute top-1/2 left-1/2 w-96 h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse"
+          style={{ animationDelay: "1.5s" }}
+        ></div>
+      </div>
+
+      {/* グリッド背景 */}
+      <div
+        className="absolute inset-0 opacity-5 pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,165,0,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,165,0,0.3) 1px, transparent 1px)",
+          backgroundSize: "50px 50px",
+        }}
+      ></div>
+
+      {/* Quit Button (Top Left) */}
+      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-50">
+        <Button
+          variant="outline"
+          className="bg-white/80 hover:bg-white border-2 border-orange-500/50 hover:border-orange-500 text-gray-900 font-bold shadow-[0_0_10px_rgba(251,146,60,0.4)] transition-all text-sm sm:text-base"
+          onClick={() => {
+            playSound(yamerundesuka);
+            setIsQuitModalOpen(true);
+          }}
+        >
+          やめる
+        </Button>
+      </div>
+
+      {/* Top Right Controls Container */}
+      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-50 flex flex-col gap-1 sm:gap-2 items-end">
+        {/* FPS Toggle */}
+        <div className="flex flex-wrap justify-end gap-1 bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
+          {[10, 20, 30].map((rate) => (
+            <button
+              key={rate}
+              disabled={isSavingFps}
+              className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-md font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                localFps === rate
+                  ? "bg-blue-600 text-white shadow-lg"
+                  : "text-gray-300 hover:text-white"
+              }`}
+              onClick={() => handleFpsChange(rate)}
+            >
+              {rate}fps
+            </button>
+          ))}
+        </div>
+
+        {/* Camera Angle Toggle */}
+        {onCameraAngleChange && cameraAngle && (
+          <div className="flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
+            <button
+              className={`px-4 py-2 rounded-md font-bold transition-all ${
+                cameraAngle === "front"
+                  ? "bg-orange-500 text-white shadow-lg"
+                  : "text-gray-300 hover:text-white"
+              }`}
+              onClick={() => onCameraAngleChange("front")}
+            >
+              正面
+            </button>
+            <button
+              className={`px-4 py-2 rounded-md font-bold transition-all ${
+                cameraAngle === "side"
+                  ? "bg-orange-500 text-white shadow-lg"
+                  : "text-gray-300 hover:text-white"
+              }`}
+              onClick={() => onCameraAngleChange("side")}
+            >
+              横
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Camera FrameContainer */}
+      <div className="relative w-full max-w-6xl aspect-video border-4 border-orange-500/50 rounded-lg sm:rounded-xl shadow-[0_0_60px_rgba(251,146,60,0.6)] overflow-hidden bg-black z-10">
+        {/* Camera Layer */}
+        <PoseDetector
+          onPoseDetected={onPoseDetected}
+          interval={effectiveInterval}
+          onError={onError}
+        />
+
+        {/* Overlay Layer */}
+        <PoseOverlay
+          results={overlayResults}
+          feedback={feedbackMessage}
+          isGoodPose={isGoodPose}
+          stats={stats}
+        />
+      </div>
+
+      {/* Trainer Avatar */}
+      <div className="absolute bottom-0 right-2 sm:right-4 z-40 w-24 sm:w-36 md:w-48">
+        {/* Speech Bubble (Static, Larger) */}
+        {isSpeaking && trainerMessage && (
+          <div className="absolute -top-36 sm:-top-52 lg:-top-60 right-0 sm:right-6 lg:right-10 w-[90vw] sm:w-[520px] lg:w-[800px] bg-white p-4 sm:p-6 lg:p-10 rounded-2xl sm:rounded-3xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="relative">
+              <p className="text-gray-900 font-bold text-base sm:text-2xl lg:text-4xl text-center leading-relaxed">
+                {trainerMessage}
+              </p>
+            </div>
+            {/* Tailwind Triangle for Bubble Tail */}
+            <div className="absolute top-full right-8 sm:right-16 lg:right-24 w-0 h-0 border-l-[12px] sm:border-l-[16px] lg:border-l-[20px] border-l-transparent border-t-[18px] sm:border-t-[24px] lg:border-t-[30px] border-t-white border-r-[12px] sm:border-r-[16px] lg:border-r-[20px] border-r-transparent drop-shadow-sm"></div>
+          </div>
+        )}
+
+        {/* Character Image (Shaking) */}
+        <div className={isSpeaking ? "animate-talk-shake" : ""}>
+          <img
+            src={trainerImage}
+            alt="Trainer"
+            className="w-full h-auto drop-shadow-[0_0_15px_rgba(251,146,60,0.6)]"
+          />
+        </div>
+      </div>
+
+      {/* Quit Confirmation Modal */}
+      {isQuitModalVisible && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-50 animate-in fade-in duration-200">
+          <div className="bg-white rounded-xl p-4 sm:p-5 max-w-lg w-full mx-4 shadow-2xl scale-in-95 animate-in zoom-in-95 duration-200 border-4 border-orange-500 flex flex-col items-center">
+            <img
+              src={yamerunoImage}
+              alt="やめるんですか？"
+              className="w-full h-auto mb-4"
+            />
+            <h3 className="text-2xl font-bold text-center mb-4 text-gray-900">
+              やめるんですか？
+            </h3>
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <Button
+                variant="outline"
+                className="flex-1 border-gray-300 py-4 sm:py-6 text-base sm:text-lg"
+                onClick={async () => {
+                  // Play random "orokamono" sound
+                  const sounds = [orokamono1, orokamono2];
+                  const randomSound =
+                    sounds[Math.floor(Math.random() * sounds.length)];
+                  await playSound(randomSound);
+                  onQuit();
+                }}
+              >
+                やめる
+              </Button>
+              <Button
+                className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-none shadow-lg py-4 sm:py-6 text-base sm:text-lg"
+                onClick={async () => {
+                  // Play random "yamenai" sound
+                  const sounds = [yamenai1, yamenai2, yamenai3];
+                  const randomSound =
+                    sounds[Math.floor(Math.random() * sounds.length)];
+                  await playSound(randomSound);
+                  setIsQuitModalOpen(false);
+                }}
+              >
+                やめない
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };

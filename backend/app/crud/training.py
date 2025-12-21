@@ -4,7 +4,9 @@ from sqlalchemy import func, desc, cast, Date
 from datetime import datetime, date, timedelta
 from typing import List, Dict
 from app.models.training import TrainingLog
+from app.models.yucchin import UserYucchin
 from app.schemas.training import TrainingLogCreate, ExerciseStats, TrainingStatsResponse
+import random
 
 async def get_training_logs(db: AsyncSession, user_id: int):
     # Order by performed_at descending to show newest first
@@ -12,17 +14,117 @@ async def get_training_logs(db: AsyncSession, user_id: int):
     return result.scalars().all()
 
 async def create_training_log(db: AsyncSession, log: TrainingLogCreate, user_id: int):
-    db_log = TrainingLog(
+    # 獲得判定のための以前の統計を取得
+    stats_before = await get_training_stats(db, user_id)
+    
+    def get_totals(stats):
+        total_units = sum(s.total_count + s.total_duration for s in stats.total_stats)
+        exercise_map = {s.exercise_name: (s.total_count, s.total_duration) for s in stats.total_stats}
+        return total_units, exercise_map
+
+    old_total, old_exercises = get_totals(stats_before)
+
+    try:
+        db_log = TrainingLog(
+            user_id=user_id,
+            performed_at=log.performed_at,
+            exercise_name=log.exercise_name,
+            count=log.count,
+            duration=log.duration
+        )
+        db.add(db_log)
+        # flushしておかないと、直後の get_training_stats で新レコードが反映されない可能性がある
+        await db.flush()
+
+        # 保存後の統計を取得
+        stats_after = await get_training_stats(db, user_id)
+        new_total, new_exercises = get_totals(stats_after)
+
+        unlocked_ids = await check_and_unlock_yucchin(db, user_id, old_total, new_total, old_exercises, new_exercises)
+        
+        await db.commit()
+        await db.refresh(db_log)
+        
+        # スキーマに合わせて返却するために属性を追加
+        db_log.unlocked_yucchin_types = unlocked_ids
+        return db_log
+    except Exception as e:
+        await db.rollback()
+        raise e
+
+YUCCHIN_NAMES = {
+    1: "ねこゆっちん", 2: "かぶとゆっちん", 3: "ティールゆっちんブーケ", 4: "ブルーゆっちんブーケ", 5: "ブルーゆっちん",
+    6: "青鬼ゆっちん", 7: "パープルゆっちん", 8: "紫鬼ゆっちん", 9: "デビルマンゆっちん", 10: "花火ゆっちん",
+    101: "しかゆっちん", 102: "トリケラトユチン", 103: "カラフルゆっちんブーケ", 104: "ウマゆっちん", 105: "愛の伝道師ゆっちん",
+    201: "リスカゆっちん", 202: "たまごゆっちん", 203: "しかゆっちん【神鹿】", 
+    301: "エンジェルゆっちん", 401: "レントゲンゆっちん"
+}
+
+async def check_and_unlock_yucchin(db: AsyncSession, user_id: int, old_total: int, new_total: int, old_exercises: dict, new_exercises: dict) -> List[int]:
+    # すでに持っているゆっちんを取得
+    owned_result = await db.execute(select(UserYucchin.yucchin_type).where(UserYucchin.user_id == user_id))
+    owned_ids = set(owned_result.scalars().all())
+
+    candidates = []
+    
+    # 全ての条件を独立して判定し、候補リスト(candidates)に集める
+    
+    # Secret: 累計 3000 に到達
+    if old_total < 3000 <= new_total and 401 not in owned_ids:
+        candidates.append(401)
+    
+    # UR: 累計 1000 に到達
+    if old_total < 1000 <= new_total and 301 not in owned_ids:
+        candidates.append(301)
+        
+    # SR: 腕立て 300 (たまご)
+    if old_exercises.get("pushup", (0,0))[0] < 300 <= new_exercises.get("pushup", (0,0))[0] and 202 not in owned_ids:
+        candidates.append(202)
+        
+    # SR: スクワット 300 (リスカ)
+    if old_exercises.get("squat", (0,0))[0] < 300 <= new_exercises.get("squat", (0,0))[0] and 201 not in owned_ids:
+        candidates.append(201)
+        
+    # SR: プランク 300 (神鹿)
+    if old_exercises.get("plank", (0,0))[1] < 300 <= new_exercises.get("plank", (0,0))[1] and 203 not in owned_ids:
+        candidates.append(203)
+        
+    # Rare: 100 ごとに一回
+    if (new_total // 100) > (old_total // 100):
+        available = [i for i in range(101, 106) if i not in owned_ids]
+        if available:
+            candidates.append(random.choice(available))
+            
+    # Normal: 30 ごとに一回
+    if (new_total // 30) > (old_total // 30):
+        available = [i for i in range(1, 11) if i not in owned_ids]
+        if available:
+            candidates.append(random.choice(available))
+
+    if not candidates:
+        return []
+
+    # レアリティによる優先順位付け
+    def get_priority(uid):
+        if uid == 401: return 5  # Secret
+        if uid == 301: return 4  # UR
+        if 200 <= uid < 300: return 3 # SR
+        if 100 <= uid < 200: return 2 # Rare
+        return 1 # Normal
+
+    # 優先順位が高い順にソートして、一番上の1体だけを選択
+    candidates.sort(key=get_priority, reverse=True)
+    unlocked_id = candidates[0]
+    
+    # 1体のみDB保存
+    new_yucchin = UserYucchin(
         user_id=user_id,
-        performed_at=log.performed_at,
-        exercise_name=log.exercise_name,
-        count=log.count,
-        duration=log.duration
+        yucchin_type=unlocked_id,
+        yucchin_name=YUCCHIN_NAMES.get(unlocked_id, "謎のゆっちん")
     )
-    db.add(db_log)
-    await db.commit()
-    await db.refresh(db_log)
-    return db_log
+    db.add(new_yucchin)
+    
+    return [unlocked_id]
 
 async def get_training_stats(db: AsyncSession, user_id: int) -> TrainingStatsResponse:
     # 1. Total Stats
