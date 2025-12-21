@@ -84,13 +84,24 @@ export default function AuthPage() {
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [isSignupLoading, setIsSignupLoading] = useState(false);
 
+  type ApiErrorDetail = { msg?: string };
+  type ApiErrorResponse = {
+    response?: { data?: { detail?: string | ApiErrorDetail[] } };
+  };
+
+  const isApiErrorResponse = (error: unknown): error is ApiErrorResponse => {
+    return typeof error === "object" && error !== null && "response" in error;
+  };
+
   // Helper to process errors
-  const getErrorMessage = (error: any, defaultMessage: string) => {
-    if (!error.response?.data?.detail) {
+  const getErrorMessage = (error: unknown, defaultMessage: string) => {
+    const detail = isApiErrorResponse(error)
+      ? error.response?.data?.detail
+      : undefined;
+
+    if (!detail) {
       return error instanceof Error ? error.message : defaultMessage;
     }
-
-    const detail = error.response.data.detail;
 
     if (typeof detail === "string") {
       return detail;
@@ -98,9 +109,9 @@ export default function AuthPage() {
 
     if (Array.isArray(detail)) {
       // Pydantic validation errors
-      return detail
-        .map((d: any) => {
-          const msg = d.msg;
+      const messages = detail
+        .map((d) => {
+          const msg = typeof d?.msg === "string" ? d.msg : "";
           if (msg.includes("valid email"))
             return "有効なメールアドレスを入力してください。";
           if (msg.includes("at least"))
@@ -108,10 +119,12 @@ export default function AuthPage() {
           if (msg.includes("Field required")) return "入力は必須です。";
           return msg;
         })
-        .join("\n");
+        .filter(Boolean);
+
+      return messages.length > 0 ? messages.join("\n") : defaultMessage;
     }
 
-    return JSON.stringify(detail);
+    return defaultMessage;
   };
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
@@ -122,7 +135,7 @@ export default function AuthPage() {
     try {
       await login(loginEmail, loginPassword);
       // navigation is handled by useEffect when user state changes
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login failed:", error);
       setLoginError(getErrorMessage(error, "ログインに失敗しました。"));
     } finally {
@@ -138,7 +151,7 @@ export default function AuthPage() {
     try {
       await signup(signupUsername, signupEmail, signupPassword);
       // navigation is handled by useEffect when user state changes
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Signup failed:", error);
       setSignupError(getErrorMessage(error, "新規登録に失敗しました。"));
     } finally {
@@ -210,7 +223,7 @@ export default function AuthPage() {
                 🔓 ログイン
               </CardTitle>
               <CardDescription className="text-orange-200 font-semibold">
-                おかえり♡今​日も​ゆっちんと​頑張るわよぉん
+                おかえり♡今日もゆっちんと頑張るわよぉん
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleLogin}>
@@ -275,7 +288,7 @@ export default function AuthPage() {
                 ✨ 新規登録
               </CardTitle>
               <CardDescription className="text-orange-200 font-semibold">
-                初めまして♡今​日から​あなたも​ムキムキよぉん
+                初めまして♡今日からあなたもムキムキよぉん
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleSignup}>
