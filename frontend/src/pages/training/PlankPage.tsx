@@ -23,7 +23,9 @@ export default function PlankPage() {
   const [lastResults, setLastResults] = useState<Results | null>(null);
   const [message, setMessage] = useState<string>("");
   const [isGood, setIsGood] = useState<boolean>(false);
-  const [unlockedYucchinTypes, setUnlockedYucchinTypes] = useState<number[]>([]);
+  const [unlockedYucchinTypes, setUnlockedYucchinTypes] = useState<number[]>(
+    []
+  );
 
   // Plank specific state
   const [targetDuration, setTargetDuration] = useState<number>(30);
@@ -209,7 +211,10 @@ export default function PlankPage() {
             duration: performedDuration,
             count: 0,
           });
-          if (response.unlocked_yucchin_types && response.unlocked_yucchin_types.length > 0) {
+          if (
+            response.unlocked_yucchin_types &&
+            response.unlocked_yucchin_types.length > 0
+          ) {
             setUnlockedYucchinTypes(response.unlocked_yucchin_types);
           }
           console.log("Training log saved!", performedDuration);
@@ -250,56 +255,80 @@ export default function PlankPage() {
     }
   }, [navigate]);
 
+  // Orientation detection (portrait vs landscape)
+  const [isPortrait, setIsPortrait] = useState<boolean>(false);
+  useEffect(() => {
+    const updateOrientation = () => {
+      setIsPortrait(window.innerWidth < window.innerHeight);
+    };
+    updateOrientation();
+    window.addEventListener("resize", updateOrientation);
+    window.addEventListener("orientationchange", updateOrientation);
+    return () => {
+      window.removeEventListener("resize", updateOrientation);
+      window.removeEventListener("orientationchange", updateOrientation);
+    };
+  }, []);
+
   return (
-    <TrainingContainer
-      gameState={gameState}
-      // Guide
-      title="プランク"
-      description={
-        <>
-          両肘とつま先を床につき、体を一直線に保ちます。
-          <br />
-          お尻が上がったり下がったりしないように注意しましょう！
-        </>
-      }
-      descriptionPlacement="bottom"
-      illustration={
-        <img
-          src={plankIllustration}
-          alt="Plank illustration"
-          className="w-full h-full max-h-[400px] object-contain"
-        />
-      }
-      goalConfig={{
-        type: "time",
-        min: 10,
-        max: 120,
-        default: 30,
-        step: 10,
-        unit: "秒",
-      }}
-      onStart={handleStart}
-      // Active
-      onPoseDetected={onPoseDetected}
-      overlayResults={lastResults}
-      feedbackMessage={message}
-      isGoodPose={isGood}
-      stats={{
-        label: "残り時間",
-        value: timeLeft,
-        unit: "秒",
-      }}
-      cameraError={error}
-      onError={handleError}
-      // Result
-      score={`${targetDuration - timeLeft}秒`}
-      onRetry={handleRetry}
-      unlockedYucchinTypes={unlockedYucchinTypes}
-      // Navigation
-      onQuit={handleQuit}
-      // Trainer
-      isSpeaking={isSpeaking}
-      trainerMessage={trainerMessage}
-    />
+    <>
+      {isPortrait && (
+        <div className="fixed inset-0 z-[100] bg-black/70 flex items-center justify-center p-4">
+          <div className="max-w-sm w-full text-center border-4 border-orange-500/50 rounded-2xl bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl shadow-[0_0_40px_rgba(251,146,60,0.8)] p-6">
+            <p className="text-2xl font-bold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent mb-2">
+              画面を横にしてください
+            </p>
+            <p className="text-orange-200">
+              横向きにすると最適な表示になります。
+            </p>
+          </div>
+        </div>
+      )}
+      <TrainingContainer
+        gameState={gameState}
+        title="プランク"
+        description={
+          <>
+            両肘とつま先を床につき、体を一直線に保ちます。
+            <br />
+            お尻が上がったり下がったりしないように注意しましょう！
+          </>
+        }
+        descriptionPlacement="bottom"
+        illustration={
+          <img
+            src={plankIllustration}
+            alt="Plank illustration"
+            className="w-full h-full max-h-[400px] object-contain"
+          />
+        }
+        goalConfig={{
+          type: "time",
+          min: 10,
+          max: 120,
+          default: 30,
+          step: 10,
+          unit: "秒",
+        }}
+        onStart={handleStart}
+        onPoseDetected={onPoseDetected}
+        overlayResults={lastResults}
+        feedbackMessage={message}
+        isGoodPose={isGood}
+        stats={{
+          label: "残り時間",
+          value: timeLeft,
+          unit: "秒",
+        }}
+        cameraError={error}
+        onError={handleError}
+        score={`${targetDuration - timeLeft}秒`}
+        onRetry={handleRetry}
+        unlockedYucchinTypes={unlockedYucchinTypes}
+        onQuit={handleQuit}
+        isSpeaking={isSpeaking}
+        trainerMessage={trainerMessage}
+      />
+    </>
   );
 }
