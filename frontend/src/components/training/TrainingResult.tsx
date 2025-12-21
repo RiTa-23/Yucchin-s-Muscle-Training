@@ -60,7 +60,7 @@ export const TrainingResult = ({
                         </Button>
                     )}
 
-                    {onRetry && (
+                    {onRetry && !(unlockedYucchinTypes && unlockedYucchinTypes.length > 0) && (
                         <Button
                             variant="outline"
                             size="lg"
