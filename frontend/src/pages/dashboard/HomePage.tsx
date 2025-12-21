@@ -5,6 +5,8 @@ import mukiyuchiImg from "@/assets/mukiyuchiBK.png";
 import clickSound from "@/assets/sounds/hehe_T01.wav";
 import backSound from "@/assets/sounds/he-sound_T01.wav";
 import squatStartSound from "@/assets/sounds/squat/squat-start_T01.wav";
+import plankStartSound from "@/assets/sounds/plank/plank1_T01.wav";
+import pushupStartSound from "@/assets/sounds/pushup/udetate.wav";
 import { Settings, History, Trophy, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { playSound } from "@/utils/audio";
@@ -177,7 +179,7 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   onClick={async () => {
-                    await playSound(clickSound);
+                    await playSound(plankStartSound);
                     navigate("/training/plank");
                   }}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-orange-500/50 hover:border-yellow-400 p-4 bg-gradient-to-br from-gray-700/90 to-gray-800/90 backdrop-blur-xl flex items-center justify-center text-white aspect-video h-auto shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_40px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 hover:-translate-y-2"
@@ -191,7 +193,7 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   onClick={async () => {
-                    await playSound(clickSound);
+                    await playSound(pushupStartSound);
                     navigate("/training/pushup");
                   }}
                   className="hover:bg-accent hover:text-accent-foreground border-4 border-orange-500/50 hover:border-yellow-400 p-4 bg-gradient-to-br from-gray-700/90 to-gray-800/90 backdrop-blur-xl flex items-center justify-center text-white aspect-video h-auto shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_40px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-110 hover:-translate-y-2"
