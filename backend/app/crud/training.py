@@ -42,7 +42,7 @@ async def create_training_log(db: AsyncSession, log: TrainingLogCreate, user_id:
     unlocked_ids = await check_and_unlock_yucchin(db, user_id, old_total, new_total, old_exercises, new_exercises)
     
     # スキーマに合わせて返却するために属性を追加
-    setattr(db_log, 'unlocked_yucchin_types', unlocked_ids)
+    db_log.unlocked_yucchin_types = unlocked_ids
     return db_log
 
 YUCCHIN_NAMES = {
