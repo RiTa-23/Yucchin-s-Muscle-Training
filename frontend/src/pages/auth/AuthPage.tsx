@@ -89,10 +89,15 @@ export default function AuthPage() {
     response?: { data?: { detail?: string | ApiErrorDetail[] } };
   };
 
+  const isApiErrorResponse = (error: unknown): error is ApiErrorResponse => {
+    return typeof error === "object" && error !== null && "response" in error;
+  };
+
   // Helper to process errors
   const getErrorMessage = (error: unknown, defaultMessage: string) => {
-    const apiError = error as ApiErrorResponse;
-    const detail = apiError.response?.data?.detail;
+    const detail = isApiErrorResponse(error)
+      ? error.response?.data?.detail
+      : undefined;
 
     if (!detail) {
       return error instanceof Error ? error.message : defaultMessage;
