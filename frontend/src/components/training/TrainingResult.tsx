@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Trophy, RefreshCcw, Home } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface TrainingResultProps {
   title?: string;
@@ -20,18 +21,42 @@ export const TrainingResult = ({
   unlockedYucchinTypes,
 }: TrainingResultProps) => {
   const navigate = useNavigate();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = "training-result-title";
+
+  useEffect(() => {
+    // フォーカスをダイアログに移動
+    dialogRef.current?.focus();
+
+    // Escキーでホームに戻る
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        navigate("/home");
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [navigate]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center p-4 animate-in fade-in duration-500 overflow-hidden">
+    <div
+      ref={dialogRef}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      tabIndex={-1}
+      className="fixed inset-0 z-50 bg-gradient-to-br from-gray-900 via-black to-gray-800 flex items-center justify-center p-4 animate-in fade-in duration-500 overflow-hidden"
+    >
       {/* 背景の装飾 */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-20 left-20 w-96 h-96 bg-orange-600 rounded-full blur-3xl motion-safe:animate-pulse"></div>
         <div
-          className="absolute bottom-20 right-20 w-[500px] h-[500px] bg-red-600 rounded-full blur-3xl animate-pulse"
+          className="absolute bottom-20 right-20 w-[500px] h-[500px] bg-red-600 rounded-full blur-3xl motion-safe:animate-pulse"
           style={{ animationDelay: "1s" }}
         ></div>
         <div
-          className="absolute top-1/2 left-1/2 w-96 h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse"
+          className="absolute top-1/2 left-1/2 w-96 h-96 bg-yellow-500 rounded-full blur-3xl motion-safe:animate-pulse"
           style={{ animationDelay: "1.5s" }}
         ></div>
       </div>
@@ -53,13 +78,16 @@ export const TrainingResult = ({
           </div>
         </div>
 
-        <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+        <h1
+          id={titleId}
+          className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent"
+        >
           {title}
         </h1>
         <p className="text-orange-200 mb-8">{subTitle}</p>
 
         {unlockedYucchinTypes && unlockedYucchinTypes.length > 0 && (
-          <div className="mb-6 animate-bounce">
+          <div className="mb-6 motion-safe:animate-bounce">
             <span className="bg-gradient-to-r from-orange-400 to-red-500 text-white px-4 py-2 rounded-full font-bold shadow-[0_0_20px_rgba(251,146,60,0.8)] text-lg border-2 border-yellow-400/50">
               🎉 新しいゆっちんを発見！
             </span>
@@ -78,35 +106,11 @@ export const TrainingResult = ({
         )}
 
         <div className="space-y-3">
-          {!(unlockedYucchinTypes && unlockedYucchinTypes.length > 0) && (
-            <Button
-              size="lg"
-              className="w-full gap-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
-              onClick={() => navigate("/home")}
-            >
-              <Home className="h-4 w-4" />
-              ホームに戻る
-            </Button>
-          )}
-
-          {onRetry &&
-            !(unlockedYucchinTypes && unlockedYucchinTypes.length > 0) && (
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full gap-2 bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 text-yellow-300 hover:text-yellow-200 font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105 backdrop-blur-xl"
-                onClick={onRetry}
-              >
-                <RefreshCcw className="h-4 w-4" />
-                もう一度する
-              </Button>
-            )}
-
-          {unlockedYucchinTypes && unlockedYucchinTypes.length > 0 && (
+          {unlockedYucchinTypes && unlockedYucchinTypes.length > 0 ? (
             <Button
               size="lg"
               variant="secondary"
-              className="w-full gap-2 bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white border-2 border-yellow-400/50 font-bold shadow-[0_0_20px_rgba(251,146,60,0.8)] hover:shadow-[0_0_30px_rgba(251,146,60,1)] animate-pulse mt-4"
+              className="w-full gap-2 bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white border-2 border-yellow-400/50 font-bold shadow-[0_0_20px_rgba(251,146,60,0.8)] hover:shadow-[0_0_30px_rgba(251,146,60,1)] motion-safe:animate-pulse mt-4"
               onClick={() =>
                 navigate(`/get?types=${unlockedYucchinTypes.join(",")}`)
               }
@@ -114,6 +118,29 @@ export const TrainingResult = ({
               <Trophy className="h-5 w-5" />
               新しいゆっちんをゲットする！
             </Button>
+          ) : (
+            <>
+              <Button
+                size="lg"
+                className="w-full gap-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 motion-safe:hover:scale-105"
+                onClick={() => navigate("/home")}
+              >
+                <Home className="h-4 w-4" />
+                ホームに戻る
+              </Button>
+
+              {onRetry && (
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full gap-2 bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 text-yellow-300 hover:text-yellow-200 font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 motion-safe:hover:scale-105 backdrop-blur-xl"
+                  onClick={onRetry}
+                >
+                  <RefreshCcw className="h-4 w-4" />
+                  もう一度する
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>
