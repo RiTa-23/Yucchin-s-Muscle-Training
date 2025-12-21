@@ -218,18 +218,32 @@ const GetPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const [yucchin, setYucchin] = useState<YucchinMaster | null>(null);
 
   // 複数対応のステート
   const types = useMemo(() => {
     const typesStr = searchParams.get('types') || searchParams.get('type');
     if (!typesStr) return [];
-    return typesStr.split(',').map(Number).filter(n => !isNaN(n));
+    const parsed = typesStr.split(',').map(Number).filter(n => !isNaN(n));
+    console.log("GetPage: Parsed yucchin types:", parsed);
+    return parsed;
   }, [searchParams]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isValidating, setIsValidating] = useState(true);
   const [isValid, setIsValid] = useState(false);
+
+  // 現在のゆっちんデータを同期的(memo)に取得
+  const yucchin = useMemo(() => {
+    if (!isValid || currentIndex >= types.length) return null;
+    const targetId = types[currentIndex];
+    return YUCCHIN_MASTER.find(y => y.type === targetId) || null;
+  }, [isValid, currentIndex, types]);
+
+  useEffect(() => {
+    if (yucchin) {
+      console.log("GetPage: Showing yucchin:", yucchin.name, "(index:", currentIndex, "/", types.length, ")");
+    }
+  }, [yucchin, currentIndex, types.length]);
   
   // 演出フェーズのステート
   const [revealStart, setRevealStart] = useState(false); // フラッシュ除去・背景開始
@@ -290,22 +304,10 @@ const GetPage: React.FC = () => {
     validate();
   }, [types, navigate]);
 
-  // yucchin の設定 (currentIndex が変わるたびに更新)
+  // 音声の事前読み込みと設定の反映
   useEffect(() => {
-    if (!isValid || currentIndex >= types.length) return;
-    
-    const targetId = types[currentIndex];
-    const targetYucchin = YUCCHIN_MASTER.find(y => y.type === targetId);
-    
-    if (!targetYucchin) {
-      console.error(`Yucchin data not found for type: ${targetId}`);
-      if (types.length === 1) navigate('/home'); // 1体のみで失敗した場合は戻す
-      return;
-    }
+    if (!yucchin) return;
 
-    setYucchin(targetYucchin);
-
-    // 音声の事前読み込みと設定の反映
     let isSoundEnabled = true;
     let volume = 0.7;
 
@@ -324,7 +326,6 @@ const GetPage: React.FC = () => {
     settingsRef.current = { isSoundEnabled, volume: currentVolume };
 
     if (isSoundEnabled) {
-      // 共通音声のプリロード
       const createPreloadedAudio = (src: string) => {
         const a = new Audio(src);
         a.volume = currentVolume;
@@ -337,9 +338,8 @@ const GetPage: React.FC = () => {
       pepeAudioRef.current = createPreloadedAudio(pepeSound);
       voiceAudioRef.current = createPreloadedAudio(yucchinVoice);
 
-      // 個別のセリフ音声
-      if (targetYucchin?.audioUrl) {
-        const audio = new Audio(targetYucchin.audioUrl);
+      if (yucchin.audioUrl) {
+        const audio = new Audio(yucchin.audioUrl);
         audio.volume = currentVolume;
         audio.preload = 'auto';
         audio.load();
@@ -347,7 +347,6 @@ const GetPage: React.FC = () => {
       }
     }
 
-    // クリーンアップ処理: コンポーネントのアンマウント時や再レンダリング時に音声を停止
     return () => {
       const cleanupAudio = (ref: React.RefObject<HTMLAudioElement | null>) => {
         if (ref.current) {
@@ -364,11 +363,10 @@ const GetPage: React.FC = () => {
       cleanupAudio(voiceAudioRef);
       cleanupAudio(audioRef);
 
-      // タイマーの解除
       timeoutIdsRef.current.forEach(clearTimeout);
       timeoutIdsRef.current = [];
     };
-  }, [isValid, currentIndex, types, navigate]);
+  }, [yucchin]);
 
   // 安全に setTimeout を実行し、管理対象に追加するヘルパー
   const safeSetTimeout = useCallback((handler: () => void, delay?: number) => {
