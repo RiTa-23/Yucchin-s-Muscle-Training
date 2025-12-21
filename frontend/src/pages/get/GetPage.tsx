@@ -557,20 +557,20 @@ const GetPage: React.FC = () => {
         className={`fixed inset-0 z-50 pointer-events-none transition-opacity duration-1000 ${revealStart ? 'opacity-0' : 'opacity-100'} ${yucchin.rarity === 'SECRET' ? 'bg-gradient-to-br from-yellow-400 via-white to-orange-400' : yucchin.rarity === 'UR' ? 'bg-gradient-to-br from-purple-400 via-white to-pink-400' : 'bg-white'}`}
       />
 
-      {/* Main Container - Removed square frame/border as requested */}
+      {/* Main Container */}
       <Card className={`w-full h-full border-none bg-transparent shadow-none rounded-none overflow-visible relative z-10 transition-all duration-1000 ${revealStart ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} ${(yucchin.rarity === 'UR' || yucchin.rarity === 'SECRET') && revealStart ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}>
-        <CardContent className="h-full relative flex flex-col items-center py-12 justify-between">
+        <CardContent className="h-full relative flex flex-col items-center py-6 md:py-12 justify-around">
         
           {/* Unified Muscle Name Badge */}
-          <div className={`relative z-20 transition-all duration-1000 transform ${revealBadge ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
+          <div className={`relative z-20 mb-4 transition-all duration-1000 transform ${revealBadge ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
             <div className={`absolute inset-0 bg-orange-500 rounded-full blur-[40px] opacity-60 ${yucchin.rarity === 'UR' ? '' : 'animate-pulse'}`}></div>
-            <div className="relative bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 border-2 border-orange-300 rounded-full px-12 py-4 shadow-[0_0_40px_rgba(251,146,60,1)] overflow-hidden">
-              <div className="flex items-center gap-6">
-                <span className="text-3xl filter drop-shadow-md">💪</span>
-                <span className="text-3xl md:text-4xl font-black text-white tracking-widest drop-shadow-lg" style={{ fontFamily: '"Montserrat", sans-serif' }}>
+            <div className="relative bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 border-2 border-orange-300 rounded-full px-8 md:px-12 py-3 md:py-4 shadow-[0_0_40px_rgba(251,146,60,1)] overflow-hidden">
+              <div className="flex items-center gap-4 md:gap-6">
+                <span className="text-2xl md:text-3xl filter drop-shadow-md">💪</span>
+                <span className="text-2xl md:text-4xl font-black text-white tracking-widest drop-shadow-lg" style={{ fontFamily: '"Montserrat", sans-serif' }}>
                   {yucchin.name}
                 </span>
-                <span className="text-3xl filter drop-shadow-md">💪</span>
+                <span className="text-2xl md:text-3xl filter drop-shadow-md">💪</span>
               </div>
             </div>
           </div>
@@ -652,12 +652,12 @@ const GetPage: React.FC = () => {
           </div>
 
           {/* GET Text with Unified Muscle Style */}
-          <div className={`mt-4 mb-20 transition-all duration-1000 delay-500 transform ${revealText ? 'opacity-100 scale-100' : 'opacity-0 scale-150'}`}>
+          <div className={`mt-2 mb-8 md:mb-12 transition-all duration-1000 delay-500 transform ${revealText ? 'opacity-100 scale-100' : 'opacity-0 scale-125'}`}>
             <div className="relative text-center">
               {/* Outer Glow for GET!! */}
               <div className={`absolute inset-0 bg-orange-600 blur-[40px] opacity-40 animate-pulse`}></div>
               <h1 
-                className={`text-8xl md:text-9xl font-black tracking-tighter inline-block relative z-10`}
+                className={`text-6xl md:text-9xl font-black tracking-tighter inline-block relative z-10`}
                 style={{ 
                   fontFamily: '"Bungee", cursive',
                   filter: 'drop-shadow(0 0 30px rgba(251,146,60,1)) drop-shadow(0 10px 10px rgba(0,0,0,0.5))',
@@ -685,29 +685,21 @@ const GetPage: React.FC = () => {
             </div>
           </div>
           
-          {/* Navigation Button (Appears after reveal) */}
-          <div className={`mt-8 transition-all duration-1000 transform ${revealText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
-             <button
-                onClick={handleNext}
-                className="px-10 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-full text-white font-bold text-xl tracking-widest transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
-             >
-                <div className="flex items-center gap-3">
-                   {currentIndex < types.length - 1 ? (
-                     <>
-                       <span>次のゆっちんへ</span>
-                       <span className="text-2xl">→</span>
-                     </>
-                   ) : (
-                     <>
-                       <Home className="w-6 h-6" />
-                       <span>ホームに戻る</span>
-                     </>
-                   )}
-                </div>
-             </button>
-          </div>
         </CardContent>
       </Card>
+
+      {/* Navigation Button (Appears 2s after revealText starts, so after GET!! animation ends) */}
+      <div className={`fixed bottom-8 left-8 z-[100] transition-all duration-1000 delay-[2000ms] transform ${revealText ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10 pointer-events-none'}`}>
+         <button
+            onClick={handleNext}
+            className="px-8 py-3 bg-orange-500/80 hover:bg-orange-600 backdrop-blur-md border-2 border-orange-300 rounded-2xl text-white font-bold text-lg md:text-xl tracking-widest transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(251,146,60,0.4)]"
+         >
+            <div className="flex items-center gap-3">
+               <Home className="w-6 h-6" />
+               <span>ホームに戻る</span>
+            </div>
+         </button>
+      </div>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@900&family=Montserrat:wght@900&family=Bungee&family=Bebas+Neue&display=swap');
