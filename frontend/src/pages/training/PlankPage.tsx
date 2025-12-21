@@ -23,7 +23,7 @@ export default function PlankPage() {
   const [lastResults, setLastResults] = useState<Results | null>(null);
   const [message, setMessage] = useState<string>("");
   const [isGood, setIsGood] = useState<boolean>(false);
-  const [unlockedYucchinType, setUnlockedYucchinType] = useState<number | undefined>();
+  const [unlockedYucchinTypes, setUnlockedYucchinTypes] = useState<number[]>([]);
 
   // Plank specific state
   const [targetDuration, setTargetDuration] = useState<number>(30);
@@ -209,8 +209,8 @@ export default function PlankPage() {
             duration: performedDuration,
             count: 0,
           });
-          if (response.unlocked_yucchin_type) {
-            setUnlockedYucchinType(response.unlocked_yucchin_type);
+          if (response.unlocked_yucchin_types && response.unlocked_yucchin_types.length > 0) {
+            setUnlockedYucchinTypes(response.unlocked_yucchin_types);
           }
           console.log("Training log saved!", performedDuration);
         } catch (err) {
@@ -294,7 +294,7 @@ export default function PlankPage() {
       // Result
       score={`${targetDuration - timeLeft}秒`}
       onRetry={handleRetry}
-      unlockedYucchinType={unlockedYucchinType}
+      unlockedYucchinTypes={unlockedYucchinTypes}
       // Navigation
       onQuit={handleQuit}
       // Trainer

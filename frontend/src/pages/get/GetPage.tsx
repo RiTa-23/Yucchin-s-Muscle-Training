@@ -1,10 +1,18 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
 import { YUCCHIN_MASTER, type YucchinMaster } from '../../data/yucchinMaster';
 import pepeSound from '../../assets/sounds/pepe.wav';
 import yucchinVoice from '../../assets/sounds/yucchin_T01.wav';
 import startSound from '../../assets/sounds/he-sound_T01.wav';
+import client from '../../api/client';
+
+interface UserYucchinResponse {
+  id: number;
+  yucchin_type: number;
+  yucchin_name: string;
+  obtained_at: string;
+}
 
 
 // レアリティごとのスタイル定義（ダークテーマベースのアクセント）
@@ -206,9 +214,21 @@ const RarityBadge: React.FC<{ rarity: YucchinMaster['rarity'] | 'SECRET' }> = ({
 };
 
 const GetPage: React.FC = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [yucchin, setYucchin] = useState<YucchinMaster | null>(null);
+
+  // 複数対応のステート
+  const types = useMemo(() => {
+    const typesStr = searchParams.get('types') || searchParams.get('type');
+    if (!typesStr) return [];
+    return typesStr.split(',').map(Number).filter(n => !isNaN(n));
+  }, [searchParams]);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isValidating, setIsValidating] = useState(true);
+  const [isValid, setIsValid] = useState(false);
   
   // 演出フェーズのステート
   const [revealStart, setRevealStart] = useState(false); // フラッシュ除去・背景開始
@@ -225,14 +245,62 @@ const GetPage: React.FC = () => {
   const timeoutIdsRef = useRef<number[]>([]);
   const settingsRef = useRef({ isSoundEnabled: true, volume: 0.7 });
 
+  // 演出リセット用の関数
+  const resetReveal = useCallback(() => {
+    setRevealStart(false);
+    setRevealBadge(false);
+    setRevealQuote(false);
+    setQuoteFadeOut(false);
+    setRevealImage(false);
+    setRevealText(false);
+    setIsStarted(false);
+    
+    // タイマー消去
+    timeoutIdsRef.current.forEach(clearTimeout);
+    timeoutIdsRef.current = [];
+  }, []);
+
+  // バリデーション: 全てのIDが所持済みかチェック
   useEffect(() => {
-    const stateYucchin = (location as any).state?.yucchin as YucchinMaster | undefined;
-    const typeParam = searchParams.get('type');
-    const paramYucchin = typeParam 
-      ? YUCCHIN_MASTER.find(y => y.type === parseInt(typeParam))
-      : undefined;
-    const randomYucchin = YUCCHIN_MASTER[Math.floor(Math.random() * YUCCHIN_MASTER.length)];
-    const targetYucchin = stateYucchin || paramYucchin || randomYucchin;
+    const validate = async () => {
+      if (types.length === 0) {
+        navigate('/home');
+        return;
+      }
+
+      try {
+        const res = await client.get<UserYucchinResponse[]>("/yucchins");
+        const ownedIds = new Set(res.data.map(y => y.yucchin_type));
+        
+        const allOwned = types.every(id => ownedIds.has(id));
+        if (!allOwned) {
+          console.error("Access denied: One or more yucchins not in collection.");
+          navigate('/home');
+          return;
+        }
+        
+        setIsValid(true);
+        setIsValidating(false);
+      } catch (err) {
+        console.error("Validation failed", err);
+        navigate('/home');
+      }
+    };
+    validate();
+  }, [types, navigate]);
+
+  // yucchin の設定 (currentIndex が変わるたびに更新)
+  useEffect(() => {
+    if (!isValid || currentIndex >= types.length) return;
+    
+    const targetId = types[currentIndex];
+    const targetYucchin = YUCCHIN_MASTER.find(y => y.type === targetId);
+    
+    if (!targetYucchin) {
+      console.error(`Yucchin data not found for type: ${targetId}`);
+      if (types.length === 1) navigate('/home'); // 1体のみで失敗した場合は戻す
+      return;
+    }
 
     setYucchin(targetYucchin);
 
@@ -299,7 +367,7 @@ const GetPage: React.FC = () => {
       timeoutIdsRef.current.forEach(clearTimeout);
       timeoutIdsRef.current = [];
     };
-  }, [location, searchParams]);
+  }, [isValid, currentIndex, types, navigate]);
 
   // 安全に setTimeout を実行し、管理対象に追加するヘルパー
   const safeSetTimeout = useCallback((handler: () => void, delay?: number) => {
@@ -315,6 +383,16 @@ const GetPage: React.FC = () => {
     audio.currentTime = 0; // 頭出し
     audio.play().catch(e => console.warn("Preloaded playback failed", e));
   }, []);
+
+  // 次へボタンの処理
+  const handleNext = () => {
+    if (currentIndex < types.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+      resetReveal();
+    } else {
+      navigate('/home');
+    }
+  };
 
   // 演出開始時の処理
   const handleStart = () => {
@@ -407,9 +485,10 @@ const GetPage: React.FC = () => {
     return RARITY_THEMES[yucchin.rarity as keyof typeof RARITY_THEMES] || RARITY_THEMES.NORMAL;
   }, [yucchin]);
 
-  if (!yucchin) {
-    return <div className="w-full h-screen bg-[#0a0a0a] flex items-center justify-center">
-      <p className="text-2xl font-bold text-white">読み込み中...</p>
+  if (isValidating || !yucchin) {
+    return <div className="w-full h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-4">
+      <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-2xl font-bold text-white tracking-widest">VALIDATING...</p>
     </div>;
   }
 
@@ -605,6 +684,16 @@ const GetPage: React.FC = () => {
                 </span>
               </h1>
             </div>
+          </div>
+          
+          {/* Navigation Button (Appears after reveal) */}
+          <div className={`mt-8 transition-all duration-1000 transform ${revealText ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+             <button
+                onClick={handleNext}
+                className="px-10 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-full text-white font-bold text-xl tracking-widest transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+             >
+                {currentIndex < types.length - 1 ? '次のゆっちんへ →' : 'ホームに戻る'}
+             </button>
           </div>
         </CardContent>
       </Card>

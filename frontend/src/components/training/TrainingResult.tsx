@@ -8,7 +8,7 @@ interface TrainingResultProps {
     score?: string | number;
     scoreLabel?: string;
     onRetry?: () => void;
-    unlockedYucchinType?: number;
+    unlockedYucchinTypes?: number[];
 }
 
 export const TrainingResult = ({
@@ -17,7 +17,7 @@ export const TrainingResult = ({
     score,
     scoreLabel,
     onRetry,
-    unlockedYucchinType
+    unlockedYucchinTypes
 }: TrainingResultProps) => {
     const navigate = useNavigate();
 
@@ -33,7 +33,7 @@ export const TrainingResult = ({
                 <h1 className="text-3xl font-bold mb-2 text-gray-900">{title}</h1>
                 <p className="text-gray-600 mb-8">{subTitle}</p>
 
-                {unlockedYucchinType && (
+                {unlockedYucchinTypes && unlockedYucchinTypes.length > 0 && (
                     <div className="mb-6 animate-bounce">
                         <span className="bg-orange-500 text-white px-4 py-2 rounded-full font-bold shadow-lg text-lg">
                             🎉 新しいゆっちんを発見！
@@ -49,14 +49,16 @@ export const TrainingResult = ({
                 )}
 
                 <div className="space-y-3">
-                    <Button
-                        size="lg"
-                        className="w-full gap-2"
-                        onClick={() => navigate('/home')}
-                    >
-                        <Home className="h-4 w-4" />
-                        ホームに戻る
-                    </Button>
+                    {!(unlockedYucchinTypes && unlockedYucchinTypes.length > 0) && (
+                        <Button
+                            size="lg"
+                            className="w-full gap-2"
+                            onClick={() => navigate('/home')}
+                        >
+                            <Home className="h-4 w-4" />
+                            ホームに戻る
+                        </Button>
+                    )}
 
                     {onRetry && (
                         <Button
@@ -70,12 +72,12 @@ export const TrainingResult = ({
                         </Button>
                     )}
                     
-                    {unlockedYucchinType && (
+                    {unlockedYucchinTypes && unlockedYucchinTypes.length > 0 && (
                         <Button
                             size="lg"
                             variant="secondary"
                             className="w-full gap-2 bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white border-none shadow-lg animate-pulse mt-4"
-                            onClick={() => navigate(`/get?type=${unlockedYucchinType}`)}
+                            onClick={() => navigate(`/get?types=${unlockedYucchinTypes.join(',')}`)}
                         >
                             <Trophy className="h-5 w-5" />
                             新しいゆっちんをゲットする！

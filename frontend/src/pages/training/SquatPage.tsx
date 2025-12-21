@@ -21,7 +21,7 @@ export default function SquatPage() {
   const [lastResults, setLastResults] = useState<Results | null>(null);
   const [message, setMessage] = useState<string>("");
   const [isGood, setIsGood] = useState<boolean>(false);
-  const [unlockedYucchinType, setUnlockedYucchinType] = useState<number | undefined>();
+  const [unlockedYucchinTypes, setUnlockedYucchinTypes] = useState<number[]>([]);
 
   // Squat specific states
   const [count, setCount] = useState<number>(0);
@@ -230,8 +230,8 @@ export default function SquatPage() {
             duration: 0,
             count: count,
           });
-          if (response.unlocked_yucchin_type) {
-            setUnlockedYucchinType(response.unlocked_yucchin_type);
+          if (response.unlocked_yucchin_types && response.unlocked_yucchin_types.length > 0) {
+            setUnlockedYucchinTypes(response.unlocked_yucchin_types);
           }
           console.log("Training log saved!");
         } catch (err) {
@@ -307,7 +307,7 @@ export default function SquatPage() {
       // Result
       score={`${count}回`}
       onRetry={handleRetry}
-      unlockedYucchinType={unlockedYucchinType}
+      unlockedYucchinTypes={unlockedYucchinTypes}
       // Navigation
       onQuit={handleQuit}
       // Trainer

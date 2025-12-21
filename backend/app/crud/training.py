@@ -39,10 +39,10 @@ async def create_training_log(db: AsyncSession, log: TrainingLogCreate, user_id:
     stats_after = await get_training_stats(db, user_id)
     new_total, new_exercises = get_totals(stats_after)
 
-    unlocked_id = await check_and_unlock_yucchin(db, user_id, old_total, new_total, old_exercises, new_exercises)
+    unlocked_ids = await check_and_unlock_yucchin(db, user_id, old_total, new_total, old_exercises, new_exercises)
     
     # スキーマに合わせて返却するために属性を追加
-    setattr(db_log, 'unlocked_yucchin_type', unlocked_id)
+    setattr(db_log, 'unlocked_yucchin_types', unlocked_ids)
     return db_log
 
 YUCCHIN_NAMES = {
@@ -53,58 +53,60 @@ YUCCHIN_NAMES = {
     301: "エンジェルゆっちん", 401: "レントゲンゆっちん"
 }
 
-async def check_and_unlock_yucchin(db: AsyncSession, user_id: int, old_total: int, new_total: int, old_exercises: dict, new_exercises: dict):
+async def check_and_unlock_yucchin(db: AsyncSession, user_id: int, old_total: int, new_total: int, old_exercises: dict, new_exercises: dict) -> List[int]:
     # すでに持っているゆっちんを取得
     owned_result = await db.execute(select(UserYucchin.yucchin_type).where(UserYucchin.user_id == user_id))
     owned_ids = set(owned_result.scalars().all())
 
-    unlocked_id = None
+    unlocked_list = []
     
-    # 判定プライオリティ: Secret > UR > SR > Rare > Normal
+    # 全ての条件を独立して判定
     
     # Secret: 累計 3000 に到達
-    if old_total < 3000 <= new_total:
-        unlocked_id = 401
+    if old_total < 3000 <= new_total and 401 not in owned_ids:
+        unlocked_list.append(401)
+    
     # UR: 累計 1000 に到達
-    elif old_total < 1000 <= new_total:
-        unlocked_id = 301
-    # SR: 腕立て 300
-    elif old_exercises.get("pushup", (0,0))[0] < 300 <= new_exercises.get("pushup", (0,0))[0]:
-        unlocked_id = 202
-    # SR: スクワット 300
-    elif old_exercises.get("squat", (0,0))[0] < 300 <= new_exercises.get("squat", (0,0))[0]:
-        unlocked_id = 201
-    # SR: プランク 300
-    elif old_exercises.get("plank", (0,0))[1] < 300 <= new_exercises.get("plank", (0,0))[1]:
-        unlocked_id = 203
+    if old_total < 1000 <= new_total and 301 not in owned_ids:
+        unlocked_list.append(301)
+        
+    # SR: 腕立て 300 (たまご)
+    if old_exercises.get("pushup", (0,0))[0] < 300 <= new_exercises.get("pushup", (0,0))[0] and 202 not in owned_ids:
+        unlocked_list.append(202)
+        
+    # SR: スクワット 300 (リスカ)
+    if old_exercises.get("squat", (0,0))[0] < 300 <= new_exercises.get("squat", (0,0))[0] and 201 not in owned_ids:
+        unlocked_list.append(201)
+        
+    # SR: プランク 300 (神鹿)
+    if old_exercises.get("plank", (0,0))[1] < 300 <= new_exercises.get("plank", (0,0))[1] and 203 not in owned_ids:
+        unlocked_list.append(203)
+        
     # Rare: 100 ごとに一回
-    elif (new_total // 100) > (old_total // 100):
-        # 101-105 のうち、未所持のものからランダム
-        available = [i for i in range(101, 106) if i not in owned_ids]
+    if (new_total // 100) > (old_total // 100):
+        available = [i for i in range(101, 106) if i not in owned_ids and i not in unlocked_list]
         if available:
-            unlocked_id = random.choice(available)
+            unlocked_list.append(random.choice(available))
+            
     # Normal: 30 ごとに一回
-    elif (new_total // 30) > (old_total // 30):
-        # 1-10 のうち、未所持のものからランダム
-        available = [i for i in range(1, 11) if i not in owned_ids]
+    if (new_total // 30) > (old_total // 30):
+        available = [i for i in range(1, 11) if i not in owned_ids and i not in unlocked_list]
         if available:
-            unlocked_id = random.choice(available)
+            unlocked_list.append(random.choice(available))
 
-    # 固定獲得（SR/UR/Secret）の場合、すでに持っていたら獲得なしにする
-    if unlocked_id in owned_ids:
-        unlocked_id = None
-
-    if unlocked_id:
-        # DB に登録
+    # 全て一度にDB保存
+    for uid in unlocked_list:
         new_yucchin = UserYucchin(
             user_id=user_id,
-            yucchin_type=unlocked_id,
-            yucchin_name=YUCCHIN_NAMES.get(unlocked_id, "謎のゆっちん")
+            yucchin_type=uid,
+            yucchin_name=YUCCHIN_NAMES.get(uid, "謎のゆっちん")
         )
         db.add(new_yucchin)
+    
+    if unlocked_list:
         await db.commit()
         
-    return unlocked_id
+    return unlocked_list
 
 async def get_training_stats(db: AsyncSession, user_id: int) -> TrainingStatsResponse:
     # 1. Total Stats
