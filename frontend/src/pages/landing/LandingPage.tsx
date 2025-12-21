@@ -26,6 +26,11 @@ export default function LandingPage() {
     }
   });
 
+  const [isPortrait, setIsPortrait] = React.useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth < window.innerHeight;
+  });
+
   React.useEffect(() => {
     const checkSoundStatus = () => {
       try {
@@ -56,6 +61,15 @@ export default function LandingPage() {
       // ignore
     }
   };
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      setIsPortrait(window.innerWidth < window.innerHeight);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const features = [
     {
@@ -120,7 +134,13 @@ export default function LandingPage() {
                   >
                     これであなたも
                     <br />
-                    <span className="inline-flex flex-col md:flex-row items-center gap-1 md:gap-3">
+                    <span
+                      className={
+                        isPortrait
+                          ? "inline-flex flex-col items-center gap-3"
+                          : "inline-flex flex-row items-center gap-1 md:gap-3"
+                      }
+                    >
                       ムキムキよぉん
                       <span className="animate-bounce text-yellow-400 text-3xl md:text-5xl lg:text-6xl md:-translate-y-2">
                         💪
