@@ -147,7 +147,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <Card className="border-4 border-orange-500/50 hover:border-yellow-400 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl rounded-none p-4 w-full max-w-4xl min-h-[28rem] sm:h-[30rem] flex flex-col shadow-[0_0_40px_rgba(251,146,60,0.8)] hover:shadow-[0_0_60px_rgba(251,146,60,1)] transition-all duration-300">
+          <Card className="border-4 border-orange-500/50 hover:border-yellow-400 bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl rounded-none p-4 w-full max-w-4xl min-h-[28rem] sm:min-h-[30rem] flex flex-col shadow-[0_0_40px_rgba(251,146,60,0.8)] hover:shadow-[0_0_60px_rgba(251,146,60,1)] transition-all duration-300">
             <CardHeader>
               <div className="flex flex-col justify-center items-center border-4 border-yellow-400/50 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 p-4 mx-auto max-w-xl rounded-lg shadow-[0_0_30px_rgba(251,146,60,0.8)]">
                 <h2
