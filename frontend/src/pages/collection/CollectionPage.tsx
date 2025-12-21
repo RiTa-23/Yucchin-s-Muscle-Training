@@ -58,11 +58,11 @@ export const CollectionPage: React.FC = () => {
   const secretItems = displayList.filter((i) => i.rarity === "SECRET");
 
   const renderGrid = (items: DisplayYucchin[]) => (
-    <div className="grid grid-cols-5 gap-4">
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
       {items.map((item) => (
         <div key={item.type} className="flex flex-col items-center">
-          {/* 写真フレーム：サイズは維持 (w-24 h-32) */}
-          <div className="w-24 h-32 border-2 border-orange-500/50 rounded-md flex items-center justify-center bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl p-1 shadow-[0_0_20px_rgba(251,146,60,0.6)] relative overflow-hidden">
+          {/* 写真フレーム：レスポンシブサイズ */}
+          <div className="w-16 h-20 sm:w-20 sm:h-28 md:w-24 md:h-32 border-2 border-orange-500/50 rounded-md flex items-center justify-center bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl p-1 shadow-[0_0_20px_rgba(251,146,60,0.6)] relative overflow-hidden">
             {/* フレーム内グリッド装飾 */}
             <div
               className="absolute inset-0 opacity-5"
@@ -79,7 +79,7 @@ export const CollectionPage: React.FC = () => {
                 className="max-w-full max-h-full object-contain drop-shadow-[0_0_10px_rgba(251,146,60,0.5)]"
               />
             ) : (
-              <span className="text-4xl font-extrabold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent drop-shadow-[0_0_6px_rgba(251,146,60,0.6)]">
+              <span className="text-2xl sm:text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent drop-shadow-[0_0_6px_rgba(251,146,60,0.6)]">
                 ?
               </span>
             )}
@@ -116,8 +116,8 @@ export const CollectionPage: React.FC = () => {
         }}
       ></div>
       {/* Header / Title */}
-      <div className="max-w-5xl mx-auto pt-8 relative z-10">
-        <div className="flex justify-between items-center mb-2">
+      <div className="max-w-5xl mx-auto pt-8 px-4 relative z-10">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-2">
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
             集めたゆっちん
           </h1>
@@ -127,7 +127,7 @@ export const CollectionPage: React.FC = () => {
               await playSound(backSound);
               navigate("/home");
             }}
-            className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+            className="hidden sm:inline-flex bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
           >
             戻る
           </Button>
@@ -136,7 +136,7 @@ export const CollectionPage: React.FC = () => {
 
       {/* Main Content */}
       <div className="p-4 pb-24 max-w-5xl mx-auto relative z-10">
-        <div className="border-4 border-orange-500/50 hover:border-yellow-400 p-6 rounded-xl bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl shadow-[0_0_40px_rgba(251,146,60,0.6)] relative min-h-[600px] transition-all duration-300">
+        <div className="border-4 border-orange-500/50 hover:border-yellow-400 p-3 sm:p-4 md:p-6 rounded-xl bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-xl shadow-[0_0_40px_rgba(251,146,60,0.6)] relative min-h-[600px] transition-all duration-300">
           {/* Book Content */}
           <div className="space-y-6">
             {normalItems.length > 0 && (
@@ -183,6 +183,20 @@ export const CollectionPage: React.FC = () => {
               </section>
             )}
           </div>
+        </div>
+
+        {/* 小画面用の戻るボタン */}
+        <div className="sm:hidden mt-4">
+          <Button
+            variant="outline"
+            onClick={async () => {
+              await playSound(backSound);
+              navigate("/home");
+            }}
+            className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+          >
+            戻る
+          </Button>
         </div>
       </div>
     </div>
