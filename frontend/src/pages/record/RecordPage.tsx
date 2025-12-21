@@ -149,7 +149,7 @@ export default function RecordPage() {
       ></div>
 
       <div className="w-full relative z-10 px-4 md:px-0">
-        <div className="max-w-3xl mx-auto flex justify-between items-center mb-8">
+        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
             頑張りの歴史
           </h1>
@@ -159,7 +159,7 @@ export default function RecordPage() {
               await playSound(backSound);
               navigate("/home");
             }}
-            className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+            className="hidden sm:inline-flex bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
             aria-label="ホームに戻る"
           >
             戻る
@@ -174,12 +174,12 @@ export default function RecordPage() {
             {totalItems.map((item, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 rounded-lg p-4 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 flex items-center justify-center backdrop-blur-xl"
+                className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 rounded-lg p-4 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 flex flex-col sm:flex-row items-center sm:justify-center gap-2 backdrop-blur-xl"
               >
-                <span className="text-lg font-bold text-yellow-300 w-32 text-left">
+                <span className="text-lg font-bold text-yellow-300 w-full sm:w-32 text-center sm:text-left">
                   {item.label}
                 </span>
-                <span className="text-xl font-extrabold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent w-32 text-right">
+                <span className="text-xl font-extrabold bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent w-full sm:w-32 text-center sm:text-right">
                   {item.value}
                 </span>
               </div>
@@ -195,12 +195,12 @@ export default function RecordPage() {
               todayItems.map((item, index) => (
                 <div
                   key={index}
-                  className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 rounded-lg p-4 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 flex items-center justify-between backdrop-blur-xl"
+                  className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 rounded-lg p-4 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 flex flex-col sm:flex-row items-center justify-between gap-2 backdrop-blur-xl"
                 >
-                  <div className="text-lg font-bold text-orange-400 w-16 text-center border-r-2 border-orange-500/50 mr-4">
+                  <div className="text-lg font-bold text-orange-400 w-full sm:w-16 text-center sm:border-r-2 border-orange-500/50 sm:mr-4">
                     {item.time}
                   </div>
-                  <div className="flex-1 flex justify-between items-center">
+                  <div className="flex-1 w-full flex justify-between items-center">
                     <p className="text-lg font-bold text-yellow-300">
                       {item.exercise}
                     </p>
@@ -226,12 +226,26 @@ export default function RecordPage() {
                 await playSound(clickSound);
                 navigate("/record/history");
               }}
-              className="flex items-center gap-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 rounded-full px-6 py-3 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 rounded-full px-6 py-3 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
             >
               <Calendar className="w-5 h-5 text-white" />
               <span className="font-bold text-white">過去の記録を見る</span>
             </button>
           </div>
+        </div>
+
+        <div className="sm:hidden mt-8 max-w-md mx-auto">
+          <Button
+            variant="outline"
+            onClick={async () => {
+              await playSound(backSound);
+              navigate("/home");
+            }}
+            className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+            aria-label="ホームに戻る"
+          >
+            戻る
+          </Button>
         </div>
       </div>
     </div>
