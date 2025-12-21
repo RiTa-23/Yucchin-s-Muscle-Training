@@ -103,6 +103,7 @@ export const TrainingContainer = ({
   // FPS Control
   const userFps = user?.settings?.fps ?? 20;
   const [overrideFps, setOverrideFps] = useState<number | null>(null);
+  const [isSavingFps, setIsSavingFps] = useState(false);
   const localFps = overrideFps ?? userFps;
   const effectiveInterval = useMemo(
     () => interval ?? Math.floor(1000 / localFps),
@@ -110,17 +111,28 @@ export const TrainingContainer = ({
   );
 
   const handleFpsChange = async (rate: number) => {
+    if (isSavingFps) return;
+    setIsSavingFps(true);
     setOverrideFps(rate);
     try {
       await client.put("/settings/me", { fps: rate });
-      await refreshUser();
     } catch (error) {
       console.error("Failed to save FPS setting:", error);
       setOverrideFps(null);
+      setIsSavingFps(false);
       alert("FPS設定の保存に失敗しました。");
       return;
     }
-    setOverrideFps(null);
+
+    try {
+      await refreshUser();
+      setOverrideFps(null);
+    } catch (error) {
+      // Saved on server, but user refresh failed: keep optimistic UI.
+      console.warn("Failed to refresh user after saving FPS:", error);
+    } finally {
+      setIsSavingFps(false);
+    }
   };
 
   // Error View
