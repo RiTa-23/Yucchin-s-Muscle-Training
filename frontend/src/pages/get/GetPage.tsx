@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '../../components/ui/card';
+import { Home } from 'lucide-react';
 import { YUCCHIN_MASTER, type YucchinMaster } from '../../data/yucchinMaster';
 import pepeSound from '../../assets/sounds/pepe.wav';
 import yucchinVoice from '../../assets/sounds/yucchin_T01.wav';
@@ -692,7 +693,19 @@ const GetPage: React.FC = () => {
                 onClick={handleNext}
                 className="px-10 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 rounded-full text-white font-bold text-xl tracking-widest transition-all hover:scale-105 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)]"
              >
-                {currentIndex < types.length - 1 ? '次のゆっちんへ →' : 'ホームに戻る'}
+                <div className="flex items-center gap-3">
+                   {currentIndex < types.length - 1 ? (
+                     <>
+                       <span>次のゆっちんへ</span>
+                       <span className="text-2xl">→</span>
+                     </>
+                   ) : (
+                     <>
+                       <Home className="w-6 h-6" />
+                       <span>ホームに戻る</span>
+                     </>
+                   )}
+                </div>
              </button>
           </div>
         </CardContent>
