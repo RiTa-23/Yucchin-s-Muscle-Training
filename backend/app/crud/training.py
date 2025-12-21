@@ -4,7 +4,9 @@ from sqlalchemy import func, desc, cast, Date
 from datetime import datetime, date, timedelta
 from typing import List, Dict
 from app.models.training import TrainingLog
+from app.models.yucchin import UserYucchin
 from app.schemas.training import TrainingLogCreate, ExerciseStats, TrainingStatsResponse
+import random
 
 async def get_training_logs(db: AsyncSession, user_id: int):
     # Order by performed_at descending to show newest first
@@ -12,6 +14,16 @@ async def get_training_logs(db: AsyncSession, user_id: int):
     return result.scalars().all()
 
 async def create_training_log(db: AsyncSession, log: TrainingLogCreate, user_id: int):
+    # 獲得判定のための以前の統計を取得
+    stats_before = await get_training_stats(db, user_id)
+    
+    def get_totals(stats):
+        total_units = sum(s.total_count + s.total_duration for s in stats.total_stats)
+        exercise_map = {s.exercise_name: (s.total_count, s.total_duration) for s in stats.total_stats}
+        return total_units, exercise_map
+
+    old_total, old_exercises = get_totals(stats_before)
+
     db_log = TrainingLog(
         user_id=user_id,
         performed_at=log.performed_at,
@@ -22,7 +34,63 @@ async def create_training_log(db: AsyncSession, log: TrainingLogCreate, user_id:
     db.add(db_log)
     await db.commit()
     await db.refresh(db_log)
+
+    # 保存後の統計を取得
+    stats_after = await get_training_stats(db, user_id)
+    new_total, new_exercises = get_totals(stats_after)
+
+    unlocked_id = await check_and_unlock_yucchin(db, user_id, old_total, new_total, old_exercises, new_exercises)
+    
+    # スキーマに合わせて返却するために属性を追加
+    setattr(db_log, 'unlocked_yucchin_type', unlocked_id)
     return db_log
+
+YUCCHIN_NAMES = {
+    1: "ねこゆっちん", 2: "かぶとゆっちん", 3: "ティールゆっちんブーケ", 4: "ブルーゆっちんブーケ", 5: "ブルーゆっちん",
+    6: "青鬼ゆっちん", 7: "パープルゆっちん", 8: "紫鬼ゆっちん", 9: "デビルマンゆっちん", 10: "花火ゆっちん",
+    101: "しかゆっちん", 102: "トリケラトユチン", 103: "カラフルゆっちんブーケ", 104: "ウマゆっちん", 105: "愛の伝道師ゆっちん",
+    201: "リスカゆっちん", 202: "たまごゆっちん", 203: "しかゆっちん【神鹿】", 
+    301: "エンジェルゆっちん", 401: "レントゲンゆっちん"
+}
+
+async def check_and_unlock_yucchin(db: AsyncSession, user_id: int, old_total: int, new_total: int, old_exercises: dict, new_exercises: dict):
+    unlocked_id = None
+    
+    # 判定プライオリティ: Secret > UR > SR > Rare > Normal
+    
+    # Secret: 累計 3000 に到達
+    if old_total < 3000 <= new_total:
+        unlocked_id = 401
+    # UR: 累計 1000 に到達
+    elif old_total < 1000 <= new_total:
+        unlocked_id = 301
+    # SR: 腕立て 300
+    elif old_exercises.get("pushup", (0,0))[0] < 300 <= new_exercises.get("pushup", (0,0))[0]:
+        unlocked_id = 202
+    # SR: スクワット 300
+    elif old_exercises.get("squat", (0,0))[0] < 300 <= new_exercises.get("squat", (0,0))[0]:
+        unlocked_id = 201
+    # SR: プランク 300
+    elif old_exercises.get("plank", (0,0))[1] < 300 <= new_exercises.get("plank", (0,0))[1]:
+        unlocked_id = 203
+    # Rare: 100 ごとに一回
+    elif (new_total // 100) > (old_total // 100):
+        unlocked_id = random.randint(101, 105)
+    # Normal: 30 ごとに一回
+    elif (new_total // 30) > (old_total // 30):
+        unlocked_id = random.randint(1, 10)
+
+    if unlocked_id:
+        # DB に登録（重複チェックは一旦せず、獲得履歴として残す）
+        new_yucchin = UserYucchin(
+            user_id=user_id,
+            yucchin_type=unlocked_id,
+            yucchin_name=YUCCHIN_NAMES.get(unlocked_id, "謎のゆっちん")
+        )
+        db.add(new_yucchin)
+        await db.commit()
+        
+    return unlocked_id
 
 async def get_training_stats(db: AsyncSession, user_id: int) -> TrainingStatsResponse:
     # 1. Total Stats
