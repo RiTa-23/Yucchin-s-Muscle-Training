@@ -79,13 +79,13 @@ export default function LandingPage() {
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-900 via-black to-gray-800">
       {/* 背景の装飾 */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-10 left-6 w-56 h-56 sm:w-72 sm:h-72 md:w-96 md:h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
         <div
-          className="absolute bottom-20 right-20 w-[500px] h-[500px] bg-red-600 rounded-full blur-3xl animate-pulse"
+          className="absolute bottom-12 right-6 w-72 h-72 sm:w-[420px] sm:h-[420px] md:w-[500px] md:h-[500px] bg-red-600 rounded-full blur-3xl animate-pulse"
           style={{ animationDelay: "1s" }}
         ></div>
         <div
-          className="absolute top-1/2 left-1/2 w-96 h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse"
+          className="absolute top-1/2 left-1/2 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse"
           style={{ animationDelay: "1.5s" }}
         ></div>
       </div>
@@ -103,14 +103,14 @@ export default function LandingPage() {
       {/* メインコンテンツ */}
       <div className="relative min-h-screen flex flex-col">
         {/* ヒーローセクション */}
-        <div className="flex-1 flex flex-col items-center justify-center px-4 py-20">
-          <div className="w-full max-w-6xl grid md:grid-cols-2 gap-12 items-center">
+        <div className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-12 py-14 lg:py-20">
+          <div className="w-full max-w-6xl grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             {/* 左側：テキストとボタン */}
-            <div className="space-y-8 animate-fade-in">
+            <div className="space-y-8 animate-fade-in text-center md:text-left">
               <div className="space-y-4">
-                <div className="relative -translate-y-33">
+                <div className="relative -translate-y-6 md:-translate-y-8">
                   <h1
-                    className="text-4xl md:text-6xl lg:text-6xl font-black tracking-tight bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(251,146,60,0.8)] leading-tight"
+                    className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(251,146,60,0.8)] leading-tight"
                     style={{
                       fontFamily:
                         '"RocknRoll One", ui-sans-serif, system-ui, sans-serif',
@@ -120,9 +120,9 @@ export default function LandingPage() {
                   >
                     これであなたも
                     <br />
-                    <span className="inline-flex items-center gap-2 md:gap-3">
+                    <span className="inline-flex flex-col md:flex-row items-center gap-1 md:gap-3">
                       ムキムキよぉん
-                      <span className="animate-bounce text-yellow-400 text-3xl md:text-5xl lg:text-6xl -translate-y-2">
+                      <span className="animate-bounce text-yellow-400 text-3xl md:text-5xl lg:text-6xl md:-translate-y-2">
                         💪
                       </span>
                     </span>
@@ -131,7 +131,7 @@ export default function LandingPage() {
                   <div className="absolute inset-0 -z-10 bg-gradient-to-r from-orange-500/20 to-red-500/20 blur-3xl animate-pulse"></div>
                 </div>
                 <p
-                  className="text-xl md:text-2xl text-orange-200 font-bold drop-shadow-lg"
+                  className="text-lg sm:text-xl md:text-2xl text-orange-200 font-bold drop-shadow-lg"
                   style={{ animation: "slideInLeft 0.8s ease-out 0.2s both" }}
                 >
                   ✨ AIがフォームを分析し、
@@ -144,11 +144,11 @@ export default function LandingPage() {
                 className="space-y-4"
                 style={{ animation: "slideInLeft 0.8s ease-out 0.4s both" }}
               >
-                <div className="flex gap-4">
+                <div className="flex gap-4 flex-col sm:flex-row w-full sm:w-auto items-center md:items-start">
                   <Button
                     asChild
                     size="lg"
-                    className="text-2xl px-12 py-8 font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 shadow-[0_0_40px_rgba(251,146,60,0.8)] hover:shadow-[0_0_60px_rgba(251,146,60,1)] transition-all duration-300 hover:scale-110 border-4 border-yellow-300/50 relative overflow-hidden group"
+                    className="text-xl sm:text-2xl px-8 sm:px-12 py-6 sm:py-8 font-black bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 shadow-[0_0_40px_rgba(251,146,60,0.8)] hover:shadow-[0_0_60px_rgba(251,146,60,1)] transition-all duration-300 hover:scale-105 sm:hover:scale-110 border-4 border-yellow-300/50 relative overflow-hidden group w-full sm:w-auto justify-center"
                   >
                     <Link
                       to="/auth"
@@ -192,7 +192,7 @@ export default function LandingPage() {
 
             {/* 右側：画像 */}
             <div
-              className="relative"
+              className="relative w-full max-w-xl mx-auto"
               style={{
                 animation:
                   "slideInRight 0.8s ease-out 0.3s both, float 3s ease-in-out infinite",
@@ -200,13 +200,13 @@ export default function LandingPage() {
             >
               {/* 超強力発光エフェクト */}
               <div className="absolute inset-0 -z-10">
-                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 rounded-3xl blur-[80px] opacity-80 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 rounded-3xl blur-[60px] sm:blur-[80px] opacity-80 animate-pulse"></div>
                 <div
-                  className="absolute inset-0 bg-gradient-to-br from-red-600 to-yellow-400 rounded-3xl blur-[60px] opacity-60 animate-pulse"
+                  className="absolute inset-0 bg-gradient-to-br from-red-600 to-yellow-400 rounded-3xl blur-[50px] sm:blur-[60px] opacity-60 animate-pulse"
                   style={{ animationDelay: "0.5s", animationDuration: "2s" }}
                 ></div>
                 <div
-                  className="absolute inset-0 bg-gradient-to-tr from-orange-500 to-pink-500 rounded-3xl blur-[40px] opacity-50 animate-pulse"
+                  className="absolute inset-0 bg-gradient-to-tr from-orange-500 to-pink-500 rounded-3xl blur-[30px] sm:blur-[40px] opacity-50 animate-pulse"
                   style={{ animationDelay: "1s", animationDuration: "1.5s" }}
                 ></div>
               </div>
@@ -238,7 +238,7 @@ export default function LandingPage() {
               </div>
 
               {/* 画像コンテナ */}
-              <div className="relative rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(251,146,60,1)] border-[10px] border-gradient-to-r from-yellow-300 via-orange-400 to-red-500 hover:scale-[1.15] hover:rotate-3 transition-all duration-500 hover:shadow-[0_0_150px_rgba(251,146,60,1)] group">
+              <div className="relative rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(251,146,60,1)] border-[8px] sm:border-[10px] border-gradient-to-r from-yellow-300 via-orange-400 to-red-500 hover:scale-[1.08] sm:hover:scale-[1.15] hover:rotate-2 sm:hover:rotate-3 transition-all duration-500 hover:shadow-[0_0_150px_rgba(251,146,60,1)] group">
                 {/* 輝きのオーバーレイ */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-500 animate-shimmer"></div>
 

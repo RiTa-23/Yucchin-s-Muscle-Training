@@ -178,7 +178,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 p-8 relative overflow-hidden">
       {/* 背景の装飾（発光の円） */}
-      <div className="absolute inset-0 opacity-20">
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
         <div className="absolute top-20 left-20 w-96 h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
         <div
           className="absolute bottom-20 right-20 w-[500px] h-[500px] bg-red-600 rounded-full blur-3xl animate-pulse"
@@ -192,7 +192,7 @@ export default function SettingsPage() {
 
       {/* グリッド背景 */}
       <div
-        className="absolute inset-0 opacity-5"
+        className="absolute inset-0 opacity-5 pointer-events-none"
         style={{
           backgroundImage:
             "linear-gradient(rgba(255,165,0,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,165,0,0.3) 1px, transparent 1px)",
@@ -200,9 +200,9 @@ export default function SettingsPage() {
         }}
       ></div>
 
-      <div className="max-w-4xl mx-auto space-y-8 relative z-10">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+      <div className="w-full min-h-screen space-y-4 md:space-y-8 relative z-20 px-3 sm:px-6 py-6 max-w-4xl mx-auto">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
             設定
           </h1>
           <Button
@@ -211,19 +211,19 @@ export default function SettingsPage() {
               playSound(backSound);
               navigate(-1);
             }}
-            className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+            className="hidden sm:inline-flex bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
           >
             戻る
           </Button>
         </div>
 
-        <Card className="max-w-3xl mx-auto bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
+        <Card className="w-full bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-yellow-300">【アプリ設定】</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <div className="font-medium text-yellow-300">
                     ユーザーネーム
@@ -231,7 +231,7 @@ export default function SettingsPage() {
                   <div className="text-sm text-orange-200">表示名の設定</div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-48">
+                  <div className="flex-1 sm:w-48">
                     <Input
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
@@ -253,7 +253,7 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <div className="font-medium text-yellow-300">音量</div>
                   <div className="text-sm text-orange-200">
@@ -261,7 +261,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-40">
+                  <div className="flex-1 sm:w-40">
                     <input
                       type="range"
                       min={0}
@@ -312,17 +312,17 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <div className="font-medium text-yellow-300">ログアウト</div>
                   <div className="text-sm text-orange-200">
                     アカウントからログアウトします
                   </div>
                 </div>
-                <div className="pt-4 border-t border-orange-500/50">
+                <div className="pt-4 border-t border-orange-500/50 sm:border-t-0 sm:pt-0 w-full sm:w-auto">
                   <Button
                     variant="outline"
-                    className="text-red-600 border-red-500/50 hover:bg-red-900/20 hover:text-red-500 hover:border-red-400 font-semibold"
+                    className="w-full sm:w-auto text-red-600 border-red-500/50 hover:bg-red-900/20 hover:text-red-500 hover:border-red-400 font-semibold"
                     onClick={async () => {
                       try {
                         await playSound(clickSound);
@@ -339,13 +339,13 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="max-w-3xl mx-auto bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
+        <Card className="w-full bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-yellow-300">【ゆっちん設定】</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <div className="font-medium text-yellow-300">
                     ゆっちんの音
@@ -377,7 +377,7 @@ export default function SettingsPage() {
                 </label>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <div className="font-medium text-yellow-300">
                     ゆっちんを非表示
@@ -410,34 +410,16 @@ export default function SettingsPage() {
                   />
                 </label>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium text-yellow-300">
-                    ゆっちんを変更
-                  </div>
-                  <div className="text-sm text-orange-200">
-                    別のゆっちんに変更します（準備中）
-                  </div>
-                </div>
-                <Button
-                  size="sm"
-                  disabled
-                  className="bg-gradient-to-r from-gray-500 to-gray-600 text-gray-300 font-bold cursor-not-allowed opacity-60"
-                >
-                  準備中
-                </Button>
-              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="max-w-3xl mx-auto bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
+        <Card className="w-full bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 backdrop-blur-xl">
           <CardHeader>
             <CardTitle className="text-yellow-300">【カメラ設定】</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <div className="font-medium text-yellow-300">
                   パフォーマンス (FPS)
@@ -446,7 +428,7 @@ export default function SettingsPage() {
                   解析の滑らかさを調整します
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row sm:flex-nowrap gap-2 w-full sm:w-auto">
                 {[
                   { label: "高 (30fps)", value: 30 },
                   { label: "中 (20fps)", value: 20 },
@@ -460,11 +442,11 @@ export default function SettingsPage() {
                       playSound(clickSound);
                       handleFpsChange(option.value);
                     }}
-                    className={
+                    className={`${
                       fps === option.value
                         ? "bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-white font-bold"
                         : "border-orange-500/50 text-orange-700 hover:bg-orange-500/20 hover:text-orange-600 font-semibold"
-                    }
+                    } w-full sm:w-auto`}
                   >
                     {option.label}
                   </Button>
@@ -473,6 +455,19 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+        {/* モバイル専用の戻るボタン（下部配置） */}
+        <div className="sm:hidden mt-4">
+          <Button
+            variant="outline"
+            onClick={() => {
+              playSound(backSound);
+              navigate(-1);
+            }}
+            className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+          >
+            戻る
+          </Button>
+        </div>
       </div>
     </div>
   );
