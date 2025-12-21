@@ -428,7 +428,7 @@ export default function SettingsPage() {
                   解析の滑らかさを調整します
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-col sm:flex-row sm:flex-nowrap gap-2 w-full sm:w-auto">
                 {[
                   { label: "高 (30fps)", value: 30 },
                   { label: "中 (20fps)", value: 20 },
@@ -442,11 +442,11 @@ export default function SettingsPage() {
                       playSound(clickSound);
                       handleFpsChange(option.value);
                     }}
-                    className={
+                    className={`${
                       fps === option.value
                         ? "bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-white font-bold"
                         : "border-orange-500/50 text-orange-700 hover:bg-orange-500/20 hover:text-orange-600 font-semibold"
-                    }
+                    } w-full sm:w-auto`}
                   >
                     {option.label}
                   </Button>
