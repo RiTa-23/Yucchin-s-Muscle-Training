@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import backSound from "@/assets/sounds/he-sound_T01.wav";
+import startSound from "@/assets/sounds/startoo_T01.wav";
 import { playSound } from "@/utils/audio";
 
 export interface GoalConfig {
@@ -134,7 +135,10 @@ export const TrainingGuide = ({
           <Button
             size="lg"
             className="w-full max-w-xs text-lg py-6 rounded-full shadow-lg hover:shadow-xl transition-all bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] hover:scale-105"
-            onClick={() => onStart(goalConfig ? currentGoal : undefined)}
+            onClick={async () => {
+              await playSound(startSound);
+              onStart(goalConfig ? currentGoal : undefined);
+            }}
           >
             スタート！
           </Button>
