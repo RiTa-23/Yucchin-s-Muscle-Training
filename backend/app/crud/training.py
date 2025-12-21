@@ -54,6 +54,10 @@ YUCCHIN_NAMES = {
 }
 
 async def check_and_unlock_yucchin(db: AsyncSession, user_id: int, old_total: int, new_total: int, old_exercises: dict, new_exercises: dict):
+    # すでに持っているゆっちんを取得
+    owned_result = await db.execute(select(UserYucchin.yucchin_type).where(UserYucchin.user_id == user_id))
+    owned_ids = set(owned_result.scalars().all())
+
     unlocked_id = None
     
     # 判定プライオリティ: Secret > UR > SR > Rare > Normal
@@ -75,13 +79,23 @@ async def check_and_unlock_yucchin(db: AsyncSession, user_id: int, old_total: in
         unlocked_id = 203
     # Rare: 100 ごとに一回
     elif (new_total // 100) > (old_total // 100):
-        unlocked_id = random.randint(101, 105)
+        # 101-105 のうち、未所持のものからランダム
+        available = [i for i in range(101, 106) if i not in owned_ids]
+        if available:
+            unlocked_id = random.choice(available)
     # Normal: 30 ごとに一回
     elif (new_total // 30) > (old_total // 30):
-        unlocked_id = random.randint(1, 10)
+        # 1-10 のうち、未所持のものからランダム
+        available = [i for i in range(1, 11) if i not in owned_ids]
+        if available:
+            unlocked_id = random.choice(available)
+
+    # 固定獲得（SR/UR/Secret）の場合、すでに持っていたら獲得なしにする
+    if unlocked_id in owned_ids:
+        unlocked_id = None
 
     if unlocked_id:
-        # DB に登録（重複チェックは一旦せず、獲得履歴として残す）
+        # DB に登録
         new_yucchin = UserYucchin(
             user_id=user_id,
             yucchin_type=unlocked_id,
