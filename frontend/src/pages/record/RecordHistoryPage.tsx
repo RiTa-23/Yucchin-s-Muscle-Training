@@ -148,8 +148,8 @@ export default function RecordHistoryPage() {
         }}
       ></div>
 
-      <div className="w-full max-w-md space-y-8 relative z-10">
-        <div className="flex justify-between items-center mb-8">
+      <div className="w-full max-w-md space-y-8 relative z-10 px-3 sm:px-0">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
           <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
             過去の記録
           </h1>
@@ -159,7 +159,7 @@ export default function RecordHistoryPage() {
               await playSound(backSound);
               navigate("/record");
             }}
-            className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+            className="hidden sm:inline-flex bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
             aria-label="戻る"
           >
             戻る
@@ -168,20 +168,20 @@ export default function RecordHistoryPage() {
 
         {/* Daily Section */}
         <div className="space-y-4">
-          <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 mb-4 flex-nowrap overflow-x-auto px-1 w-full">
             <button
               onClick={handlePrevDay}
-              className="p-1 rounded-full hover:bg-orange-500/50 transition-colors"
+              className="p-1 rounded-full hover:bg-orange-500/50 transition-colors shrink-0"
               aria-label="前日"
             >
-              <ChevronLeft className="w-8 h-8 text-yellow-400" />
+              <ChevronLeft className="w-7 h-7 sm:w-8 sm:h-8 text-yellow-400" />
             </button>
-            <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
+            <h2 className="text-lg sm:text-2xl font-bold text-center bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">
               {formattedDate}
             </h2>
             <button
               onClick={handleNextDay}
-              className={`p-1 rounded-full transition-colors ${
+              className={`p-1 rounded-full transition-colors shrink-0 ${
                 isToday
                   ? "opacity-30 cursor-not-allowed"
                   : "hover:bg-orange-500/50"
@@ -189,7 +189,7 @@ export default function RecordHistoryPage() {
               disabled={isToday}
               aria-label="翌日"
             >
-              <ChevronRight className="w-8 h-8 text-yellow-400" />
+              <ChevronRight className="w-7 h-7 sm:w-8 sm:h-8 text-yellow-400" />
             </button>
           </div>
 
@@ -197,12 +197,12 @@ export default function RecordHistoryPage() {
             dailyItems.map((item, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 rounded-lg p-4 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 flex items-center justify-between backdrop-blur-xl"
+                className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 border-2 border-orange-500/50 hover:border-yellow-400 rounded-lg p-4 shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 flex flex-col sm:flex-row items-center justify-between gap-2 backdrop-blur-xl"
               >
-                <div className="text-lg font-bold text-orange-400 w-16 text-center border-r-2 border-orange-500/50 mr-4">
+                <div className="text-lg font-bold text-orange-400 w-full sm:w-16 text-center sm:border-r-2 border-orange-500/50 sm:mr-4">
                   {item.time}
                 </div>
-                <div className="flex-1 flex justify-between items-center">
+                <div className="flex-1 w-full flex justify-between items-center">
                   <p className="text-lg font-bold text-yellow-300">
                     {item.exercise}
                   </p>
@@ -217,6 +217,20 @@ export default function RecordHistoryPage() {
               <p className="text-lg font-semibold text-orange-300">記録なし</p>
             </div>
           )}
+        </div>
+
+        <div className="sm:hidden mt-8">
+          <Button
+            variant="outline"
+            onClick={async () => {
+              await playSound(backSound);
+              navigate("/record");
+            }}
+            className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+            aria-label="戻る"
+          >
+            戻る
+          </Button>
         </div>
       </div>
     </div>
