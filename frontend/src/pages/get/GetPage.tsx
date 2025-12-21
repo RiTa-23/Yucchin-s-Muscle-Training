@@ -1,10 +1,19 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent } from '../../components/ui/card';
+import { Home } from 'lucide-react';
 import { YUCCHIN_MASTER, type YucchinMaster } from '../../data/yucchinMaster';
 import pepeSound from '../../assets/sounds/pepe.wav';
 import yucchinVoice from '../../assets/sounds/yucchin_T01.wav';
 import startSound from '../../assets/sounds/he-sound_T01.wav';
+import client from '../../api/client';
+
+interface UserYucchinResponse {
+  id: number;
+  yucchin_type: number;
+  yucchin_name: string;
+  obtained_at: string;
+}
 
 
 // レアリティごとのスタイル定義（ダークテーマベースのアクセント）
@@ -206,9 +215,34 @@ const RarityBadge: React.FC<{ rarity: YucchinMaster['rarity'] | 'SECRET' }> = ({
 };
 
 const GetPage: React.FC = () => {
-  const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [yucchin, setYucchin] = useState<YucchinMaster | null>(null);
+
+  // 複数対応のステート
+  const types = useMemo(() => {
+    const typesStr = searchParams.get('types') || searchParams.get('type');
+    if (!typesStr) return [];
+    const parsed = typesStr.split(',').map(Number).filter(n => !isNaN(n));
+    console.log("GetPage: Parsed yucchin types:", parsed);
+    return parsed;
+  }, [searchParams]);
+
+  const [isValidating, setIsValidating] = useState(true);
+  const [isValid, setIsValid] = useState(false);
+
+  // 現在のゆっちんデータを同期的(memo)に取得
+  const yucchin = useMemo(() => {
+    // For GetPage, we only expect one yucchin at a time, so we take the first one.
+    if (!isValid || types.length === 0) return null;
+    const targetId = types[0]; // Always take the first type for display
+    return YUCCHIN_MASTER.find(y => y.type === targetId) || null;
+  }, [isValid, types]);
+
+  useEffect(() => {
+    if (yucchin) {
+      console.log("GetPage: Showing yucchin:", yucchin.name);
+    }
+  }, [yucchin, types.length]);
   
   // 演出フェーズのステート
   const [revealStart, setRevealStart] = useState(false); // フラッシュ除去・背景開始
@@ -225,18 +259,44 @@ const GetPage: React.FC = () => {
   const timeoutIdsRef = useRef<number[]>([]);
   const settingsRef = useRef({ isSoundEnabled: true, volume: 0.7 });
 
+  // バリデーション: 全てのIDが所持済みかチェック
   useEffect(() => {
-    const stateYucchin = (location as any).state?.yucchin as YucchinMaster | undefined;
-    const typeParam = searchParams.get('type');
-    const paramYucchin = typeParam 
-      ? YUCCHIN_MASTER.find(y => y.type === parseInt(typeParam))
-      : undefined;
-    const randomYucchin = YUCCHIN_MASTER[Math.floor(Math.random() * YUCCHIN_MASTER.length)];
-    const targetYucchin = stateYucchin || paramYucchin || randomYucchin;
+    let active = true;
+    const validate = async () => {
+      if (types.length === 0) {
+        if (active) navigate('/home');
+        return;
+      }
 
-    setYucchin(targetYucchin);
+      try {
+        const res = await client.get<UserYucchinResponse[]>("/yucchins");
+        if (!active) return;
+        
+        const ownedIds = new Set(res.data.map(y => y.yucchin_type));
+        
+        const allOwned = types.every(id => ownedIds.has(id));
+        if (!allOwned) {
+          console.error("Access denied: One or more yucchins not in collection.");
+          navigate('/home');
+          return;
+        }
+        
+        setIsValid(true);
+        setIsValidating(false);
+      } catch (err) {
+        if (!active) return;
+        console.error("Validation failed", err);
+        navigate('/home');
+      }
+    };
+    validate();
+    return () => { active = false; };
+  }, [types, navigate]);
 
-    // 音声の事前読み込みと設定の反映
+  // 音声の事前読み込みと設定の反映
+  useEffect(() => {
+    if (!yucchin) return;
+
     let isSoundEnabled = true;
     let volume = 0.7;
 
@@ -255,7 +315,6 @@ const GetPage: React.FC = () => {
     settingsRef.current = { isSoundEnabled, volume: currentVolume };
 
     if (isSoundEnabled) {
-      // 共通音声のプリロード
       const createPreloadedAudio = (src: string) => {
         const a = new Audio(src);
         a.volume = currentVolume;
@@ -268,9 +327,8 @@ const GetPage: React.FC = () => {
       pepeAudioRef.current = createPreloadedAudio(pepeSound);
       voiceAudioRef.current = createPreloadedAudio(yucchinVoice);
 
-      // 個別のセリフ音声
-      if (targetYucchin?.audioUrl) {
-        const audio = new Audio(targetYucchin.audioUrl);
+      if (yucchin.audioUrl) {
+        const audio = new Audio(yucchin.audioUrl);
         audio.volume = currentVolume;
         audio.preload = 'auto';
         audio.load();
@@ -278,7 +336,6 @@ const GetPage: React.FC = () => {
       }
     }
 
-    // クリーンアップ処理: コンポーネントのアンマウント時や再レンダリング時に音声を停止
     return () => {
       const cleanupAudio = (ref: React.RefObject<HTMLAudioElement | null>) => {
         if (ref.current) {
@@ -295,11 +352,10 @@ const GetPage: React.FC = () => {
       cleanupAudio(voiceAudioRef);
       cleanupAudio(audioRef);
 
-      // タイマーの解除
       timeoutIdsRef.current.forEach(clearTimeout);
       timeoutIdsRef.current = [];
     };
-  }, [location, searchParams]);
+  }, [yucchin]);
 
   // 安全に setTimeout を実行し、管理対象に追加するヘルパー
   const safeSetTimeout = useCallback((handler: () => void, delay?: number) => {
@@ -315,6 +371,11 @@ const GetPage: React.FC = () => {
     audio.currentTime = 0; // 頭出し
     audio.play().catch(e => console.warn("Preloaded playback failed", e));
   }, []);
+
+  // 次へボタンの処理 (常にホームへ戻る)
+  const handleNext = () => {
+    navigate('/home');
+  };
 
   // 演出開始時の処理
   const handleStart = () => {
@@ -407,9 +468,10 @@ const GetPage: React.FC = () => {
     return RARITY_THEMES[yucchin.rarity as keyof typeof RARITY_THEMES] || RARITY_THEMES.NORMAL;
   }, [yucchin]);
 
-  if (!yucchin) {
-    return <div className="w-full h-screen bg-[#0a0a0a] flex items-center justify-center">
-      <p className="text-2xl font-bold text-white">読み込み中...</p>
+  if (isValidating || !yucchin) {
+    return <div className="w-full h-screen bg-[#0a0a0a] flex flex-col items-center justify-center gap-4">
+      <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-2xl font-bold text-white tracking-widest">VALIDATING...</p>
     </div>;
   }
 
@@ -479,20 +541,20 @@ const GetPage: React.FC = () => {
         className={`fixed inset-0 z-50 pointer-events-none transition-opacity duration-1000 ${revealStart ? 'opacity-0' : 'opacity-100'} ${yucchin.rarity === 'SECRET' ? 'bg-gradient-to-br from-yellow-400 via-white to-orange-400' : yucchin.rarity === 'UR' ? 'bg-gradient-to-br from-purple-400 via-white to-pink-400' : 'bg-white'}`}
       />
 
-      {/* Main Container - Removed square frame/border as requested */}
+      {/* Main Container */}
       <Card className={`w-full h-full border-none bg-transparent shadow-none rounded-none overflow-visible relative z-10 transition-all duration-1000 ${revealStart ? 'opacity-100 scale-100' : 'opacity-0 scale-95'} ${(yucchin.rarity === 'UR' || yucchin.rarity === 'SECRET') && revealStart ? 'animate-[shake_0.5s_ease-in-out]' : ''}`}>
-        <CardContent className="h-full relative flex flex-col items-center py-12 justify-between">
+        <CardContent className="h-full relative flex flex-col items-center py-6 md:py-12 justify-around">
         
           {/* Unified Muscle Name Badge */}
-          <div className={`relative z-20 transition-all duration-1000 transform ${revealBadge ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
+          <div className={`relative z-20 mb-4 transition-all duration-1000 transform ${revealBadge ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
             <div className={`absolute inset-0 bg-orange-500 rounded-full blur-[40px] opacity-60 ${yucchin.rarity === 'UR' ? '' : 'animate-pulse'}`}></div>
-            <div className="relative bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 border-2 border-orange-300 rounded-full px-12 py-4 shadow-[0_0_40px_rgba(251,146,60,1)] overflow-hidden">
-              <div className="flex items-center gap-6">
-                <span className="text-3xl filter drop-shadow-md">💪</span>
-                <span className="text-3xl md:text-4xl font-black text-white tracking-widest drop-shadow-lg" style={{ fontFamily: '"Montserrat", sans-serif' }}>
+            <div className="relative bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 border-2 border-orange-300 rounded-full px-8 md:px-12 py-3 md:py-4 shadow-[0_0_40px_rgba(251,146,60,1)] overflow-hidden">
+              <div className="flex items-center gap-4 md:gap-6">
+                <span className="text-2xl md:text-3xl filter drop-shadow-md">💪</span>
+                <span className="text-2xl md:text-4xl font-black text-white tracking-widest drop-shadow-lg" style={{ fontFamily: '"Montserrat", sans-serif' }}>
                   {yucchin.name}
                 </span>
-                <span className="text-3xl filter drop-shadow-md">💪</span>
+                <span className="text-2xl md:text-3xl filter drop-shadow-md">💪</span>
               </div>
             </div>
           </div>
@@ -574,12 +636,12 @@ const GetPage: React.FC = () => {
           </div>
 
           {/* GET Text with Unified Muscle Style */}
-          <div className={`mt-4 mb-20 transition-all duration-1000 delay-500 transform ${revealText ? 'opacity-100 scale-100' : 'opacity-0 scale-150'}`}>
+          <div className={`mt-2 mb-8 md:mb-12 transition-all duration-1000 delay-500 transform ${revealText ? 'opacity-100 scale-100' : 'opacity-0 scale-125'}`}>
             <div className="relative text-center">
               {/* Outer Glow for GET!! */}
               <div className={`absolute inset-0 bg-orange-600 blur-[40px] opacity-40 animate-pulse`}></div>
               <h1 
-                className={`text-8xl md:text-9xl font-black tracking-tighter inline-block relative z-10`}
+                className={`text-6xl md:text-9xl font-black tracking-tighter inline-block relative z-10`}
                 style={{ 
                   fontFamily: '"Bungee", cursive',
                   filter: 'drop-shadow(0 0 30px rgba(251,146,60,1)) drop-shadow(0 10px 10px rgba(0,0,0,0.5))',
@@ -606,8 +668,22 @@ const GetPage: React.FC = () => {
               </h1>
             </div>
           </div>
+          
         </CardContent>
       </Card>
+
+      {/* Navigation Button (Appears 2s after revealText starts, so after GET!! animation ends) */}
+      <div className={`fixed bottom-8 left-8 z-[100] transition-all duration-1000 delay-[2000ms] transform ${revealText ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10 pointer-events-none'}`}>
+         <button
+            onClick={handleNext}
+            className="px-8 py-3 bg-orange-500/80 hover:bg-orange-600 backdrop-blur-md border-2 border-orange-300 rounded-2xl text-white font-bold text-lg md:text-xl tracking-widest transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(251,146,60,0.4)]"
+         >
+            <div className="flex items-center gap-3">
+               <Home className="w-6 h-6" />
+               <span>ホームに戻る</span>
+            </div>
+         </button>
+      </div>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@900&family=Montserrat:wght@900&family=Bungee&family=Bebas+Neue&display=swap');

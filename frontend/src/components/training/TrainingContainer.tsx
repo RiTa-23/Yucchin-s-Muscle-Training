@@ -47,12 +47,13 @@ interface TrainingContainerProps {
     cameraError: string | null;
     onError: (error: any) => void;
 
-    // Result Props
-    score: string | number;
-    scoreLabel?: string;
-    resultTitle?: string;
-    resultSubTitle?: string;
-    onRetry: () => void;
+  // Result Props
+  score: string | number;
+  scoreLabel?: string;
+  resultTitle?: string;
+  resultSubTitle?: string;
+  onRetry: () => void;
+  unlockedYucchinTypes?: number[];
 
     // Trainer
     isSpeaking?: boolean;
@@ -67,30 +68,32 @@ interface TrainingContainerProps {
 }
 
 export const TrainingContainer = ({
-    gameState,
-    title,
-    description,
-    descriptionPlacement,
-    illustration,
-    goalConfig,
-    onStart,
-    onPoseDetected,
-    overlayResults,
-    feedbackMessage,
-    isGoodPose,
-    stats,
-    cameraError,
-    onError,
-    score,
-    scoreLabel,
-    resultTitle,
-    resultSubTitle,
-    onRetry,
-    isSpeaking,
-    trainerMessage,
-    onQuit,
-    cameraAngle,
-    onCameraAngleChange
+  gameState,
+  title,
+  description,
+  descriptionPlacement,
+  illustration,
+  goalConfig,
+  onStart,
+  interval,
+  onPoseDetected,
+  overlayResults,
+  feedbackMessage,
+  isGoodPose,
+  stats,
+  cameraError,
+  onError,
+  score,
+  scoreLabel,
+  resultTitle,
+  resultSubTitle,
+  onRetry,
+  unlockedYucchinTypes,
+  isSpeaking,
+  trainerMessage,
+  onQuit,
+  cameraAngle,
+  onCameraAngleChange,
 }: TrainingContainerProps) => {
     const { user, refreshUser } = useAuth();
 
@@ -161,6 +164,7 @@ export const TrainingContainer = ({
                 score={score}
                 scoreLabel={scoreLabel || "記録"}
                 onRetry={onRetry}
+                unlockedYucchinTypes={unlockedYucchinTypes}
             />
         );
     }

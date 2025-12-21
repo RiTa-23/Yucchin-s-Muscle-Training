@@ -22,6 +22,7 @@ export default function PushupPage() {
   const [lastResults, setLastResults] = useState<Results | null>(null);
   const [message, setMessage] = useState<string>("");
   const [isGood, setIsGood] = useState<boolean>(false);
+  const [unlockedYucchinTypes, setUnlockedYucchinTypes] = useState<number[]>([]);
 
   // Push-up specific states
   const [count, setCount] = useState<number>(0);
@@ -177,12 +178,15 @@ export default function PushupPage() {
     if (gameState === "FINISHED") {
       const saveResult = async () => {
         try {
-          await trainingApi.createLog({
+          const response = await trainingApi.createLog({
             performed_at: new Date().toISOString(),
             exercise_name: "pushup",
             duration: 0,
             count: count,
           });
+          if (response.unlocked_yucchin_types && response.unlocked_yucchin_types.length > 0) {
+            setUnlockedYucchinTypes(response.unlocked_yucchin_types);
+          }
           console.log("Training log saved!");
         } catch (err) {
           console.error("Failed to save training log:", err);
@@ -257,6 +261,7 @@ export default function PushupPage() {
       // Result
       score={`${count}回`}
       onRetry={handleRetry}
+      unlockedYucchinTypes={unlockedYucchinTypes}
       // Navigation
       onQuit={handleQuit}
       // Camera Toggle

@@ -15,6 +15,7 @@ class TrainingLogResponse(TrainingLogBase):
     id: int
     user_id: int
     created_at: datetime
+    unlocked_yucchin_types: List[int] = []
 
     class Config:
         from_attributes = True
