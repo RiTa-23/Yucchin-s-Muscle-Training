@@ -225,6 +225,7 @@ export const TrainingContainer = ({
           {[10, 20, 30].map((rate) => (
             <button
               key={rate}
+              disabled={isSavingFps}
               className={`px-3 py-1 text-sm rounded-md font-bold transition-all ${
                 localFps === rate
                   ? "bg-blue-600 text-white shadow-lg"
