@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import bgImage from "@/assets/img/doubleyuttin.png";
+import bgImageSmall from "@/assets/img/kiriyuttin.png";
 import soundFile from "@/assets/sounds/hehe_T01.wav";
 import backSoundFile from "@/assets/sounds/he-sound_T01.wav";
 import {
@@ -38,6 +39,8 @@ export default function AuthPage() {
     }
   });
 
+  const [isPortrait, setIsPortrait] = useState(false);
+
   useEffect(() => {
     const checkSoundStatus = () => {
       try {
@@ -55,6 +58,22 @@ export default function AuthPage() {
       window.removeEventListener("storage", checkSoundStatus);
       window.removeEventListener("soundSettingChanged", checkSoundStatus);
     };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(orientation: portrait)"); // 縦長（縦幅>横幅）
+
+    const handleMatch = (e: MediaQueryListEvent | MediaQueryList) => {
+      setIsPortrait(e.matches);
+    };
+
+    // Initial check
+    handleMatch(mediaQuery);
+
+    // Listener (modern browsers)
+    mediaQuery.addEventListener("change", handleMatch);
+    return () => mediaQuery.removeEventListener("change", handleMatch);
   }, []);
 
   const toggleSound = () => {
@@ -84,13 +103,24 @@ export default function AuthPage() {
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [isSignupLoading, setIsSignupLoading] = useState(false);
 
+  type ApiErrorDetail = { msg?: string };
+  type ApiErrorResponse = {
+    response?: { data?: { detail?: string | ApiErrorDetail[] } };
+  };
+
+  const isApiErrorResponse = (error: unknown): error is ApiErrorResponse => {
+    return typeof error === "object" && error !== null && "response" in error;
+  };
+
   // Helper to process errors
-  const getErrorMessage = (error: any, defaultMessage: string) => {
-    if (!error.response?.data?.detail) {
+  const getErrorMessage = (error: unknown, defaultMessage: string) => {
+    const detail = isApiErrorResponse(error)
+      ? error.response?.data?.detail
+      : undefined;
+
+    if (!detail) {
       return error instanceof Error ? error.message : defaultMessage;
     }
-
-    const detail = error.response.data.detail;
 
     if (typeof detail === "string") {
       return detail;
@@ -98,9 +128,9 @@ export default function AuthPage() {
 
     if (Array.isArray(detail)) {
       // Pydantic validation errors
-      return detail
-        .map((d: any) => {
-          const msg = d.msg;
+      const messages = detail
+        .map((d) => {
+          const msg = typeof d?.msg === "string" ? d.msg : "";
           if (msg.includes("valid email"))
             return "有効なメールアドレスを入力してください。";
           if (msg.includes("at least"))
@@ -108,10 +138,12 @@ export default function AuthPage() {
           if (msg.includes("Field required")) return "入力は必須です。";
           return msg;
         })
-        .join("\n");
+        .filter(Boolean);
+
+      return messages.length > 0 ? messages.join("\n") : defaultMessage;
     }
 
-    return JSON.stringify(detail);
+    return defaultMessage;
   };
 
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
@@ -122,7 +154,7 @@ export default function AuthPage() {
     try {
       await login(loginEmail, loginPassword);
       // navigation is handled by useEffect when user state changes
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Login failed:", error);
       setLoginError(getErrorMessage(error, "ログインに失敗しました。"));
     } finally {
@@ -138,7 +170,7 @@ export default function AuthPage() {
     try {
       await signup(signupUsername, signupEmail, signupPassword);
       // navigation is handled by useEffect when user state changes
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Signup failed:", error);
       setSignupError(getErrorMessage(error, "新規登録に失敗しました。"));
     } finally {
@@ -146,17 +178,19 @@ export default function AuthPage() {
     }
   };
 
+  const backgroundImage = isPortrait ? bgImageSmall : bgImage;
+
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-orange-900 via-yellow-900 to-orange-800 flex items-center justify-center p-4">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-orange-900 via-yellow-900 to-orange-800 flex items-center justify-center p-4 sm:p-6">
       {/* 背景の装飾 */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-10 left-6 w-52 h-52 sm:w-72 sm:h-72 md:w-96 md:h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
         <div
-          className="absolute bottom-20 right-20 w-[500px] h-[500px] bg-red-600 rounded-full blur-3xl animate-pulse"
+          className="absolute bottom-10 right-6 w-64 h-64 sm:w-[420px] sm:h-[420px] md:w-[500px] md:h-[500px] bg-red-600 rounded-full blur-3xl animate-pulse"
           style={{ animationDelay: "1s" }}
         ></div>
         <div
-          className="absolute top-1/2 left-1/2 w-96 h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse"
+          className="absolute top-1/2 left-1/2 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse"
           style={{ animationDelay: "1.5s" }}
         ></div>
       </div>
@@ -182,11 +216,18 @@ export default function AuthPage() {
 
       {/* 背景画像 */}
       <div
-        className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat opacity-99"
-        style={{ backgroundImage: `url(${bgImage})` }}
+        className="absolute inset-0 pointer-events-none bg-no-repeat opacity-99"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: isPortrait ? "contain" : "cover",
+          backgroundPosition: isPortrait ? "-30px calc(100% + 30px)" : "center",
+        }}
       ></div>
 
-      <Tabs defaultValue="login" className="w-[420px] relative z-10">
+      <Tabs
+        defaultValue="login"
+        className="w-full max-w-md px-1 sm:px-0 relative z-10"
+      >
         <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-orange-900/50 to-red-900/50 border-2 border-orange-500/50">
           <TabsTrigger
             value="login"
@@ -210,7 +251,7 @@ export default function AuthPage() {
                 🔓 ログイン
               </CardTitle>
               <CardDescription className="text-orange-200 font-semibold">
-                おかえり♡今​日も​ゆっちんと​頑張るわよぉん
+                おかえり♡今日もゆっちんと頑張るわよぉん
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleLogin}>
@@ -275,7 +316,7 @@ export default function AuthPage() {
                 ✨ 新規登録
               </CardTitle>
               <CardDescription className="text-orange-200 font-semibold">
-                初めまして♡今​日から​あなたも​ムキムキよぉん
+                初めまして♡今日からあなたもムキムキよぉん
               </CardDescription>
             </CardHeader>
             <form onSubmit={handleSignup}>

@@ -300,6 +300,7 @@ export default function SquatPage() {
       stats={{
         label: "回数",
         value: count,
+        target: targetCount,
         unit: "回",
       }}
       cameraError={error}

@@ -253,6 +253,7 @@ export default function PushupPage() {
       stats={{
         label: "回数",
         value: count,
+        target: targetCount,
         unit: "回",
       }}
       cameraError={error}
