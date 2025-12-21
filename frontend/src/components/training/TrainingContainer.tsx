@@ -180,7 +180,7 @@ export const TrainingContainer = ({
 
   // Active (Camera) View
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-800 relative overflow-hidden flex flex-col items-center justify-center p-3 sm:p-4 pt-20 sm:pt-6 lg:pt-4">
       {/* 背景の装飾 */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <div className="absolute top-20 left-20 w-96 h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
@@ -205,10 +205,10 @@ export const TrainingContainer = ({
       ></div>
 
       {/* Quit Button (Top Left) */}
-      <div className="absolute top-4 left-4 z-50">
+      <div className="absolute top-2 left-2 sm:top-4 sm:left-4 z-50">
         <Button
           variant="outline"
-          className="bg-white/80 hover:bg-white border-2 border-orange-500/50 hover:border-orange-500 text-gray-900 font-bold shadow-[0_0_10px_rgba(251,146,60,0.4)] transition-all"
+          className="bg-white/80 hover:bg-white border-2 border-orange-500/50 hover:border-orange-500 text-gray-900 font-bold shadow-[0_0_10px_rgba(251,146,60,0.4)] transition-all text-sm sm:text-base"
           onClick={() => {
             playSound(yamerundesuka);
             setIsQuitModalOpen(true);
@@ -219,14 +219,14 @@ export const TrainingContainer = ({
       </div>
 
       {/* Top Right Controls Container */}
-      <div className="absolute top-4 right-4 z-50 flex flex-col gap-2 items-end">
+      <div className="absolute top-2 right-2 sm:top-4 sm:right-4 z-50 flex flex-col gap-1 sm:gap-2 items-end">
         {/* FPS Toggle */}
-        <div className="flex bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
+        <div className="flex flex-wrap justify-end gap-1 bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
           {[10, 20, 30].map((rate) => (
             <button
               key={rate}
               disabled={isSavingFps}
-              className={`px-3 py-1 text-sm rounded-md font-bold transition-all ${
+              className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-md font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                 localFps === rate
                   ? "bg-blue-600 text-white shadow-lg"
                   : "text-gray-300 hover:text-white"
@@ -266,7 +266,7 @@ export const TrainingContainer = ({
       </div>
 
       {/* Camera FrameContainer */}
-      <div className="relative w-full max-w-6xl aspect-video border-4 border-orange-500/50 rounded-xl shadow-[0_0_60px_rgba(251,146,60,0.6)] overflow-hidden bg-black z-10">
+      <div className="relative w-full max-w-6xl aspect-video border-4 border-orange-500/50 rounded-lg sm:rounded-xl shadow-[0_0_60px_rgba(251,146,60,0.6)] overflow-hidden bg-black z-10">
         {/* Camera Layer */}
         <PoseDetector
           onPoseDetected={onPoseDetected}
@@ -284,17 +284,17 @@ export const TrainingContainer = ({
       </div>
 
       {/* Trainer Avatar */}
-      <div className="absolute bottom-0 right-4 z-40 w-48">
+      <div className="absolute bottom-0 right-2 sm:right-4 z-40 w-24 sm:w-36 md:w-48">
         {/* Speech Bubble (Static, Larger) */}
         {isSpeaking && trainerMessage && (
-          <div className="absolute -top-60 right-10 w-[800px] max-w-[90vw] bg-white p-10 rounded-3xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="absolute -top-36 sm:-top-52 lg:-top-60 right-0 sm:right-6 lg:right-10 w-[90vw] sm:w-[520px] lg:w-[800px] bg-white p-4 sm:p-6 lg:p-10 rounded-2xl sm:rounded-3xl shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="relative">
-              <p className="text-gray-900 font-bold text-4xl text-center leading-relaxed">
+              <p className="text-gray-900 font-bold text-base sm:text-2xl lg:text-4xl text-center leading-relaxed">
                 {trainerMessage}
               </p>
             </div>
             {/* Tailwind Triangle for Bubble Tail */}
-            <div className="absolute top-full right-24 w-0 h-0 border-l-[20px] border-l-transparent border-t-[30px] border-t-white border-r-[20px] border-r-transparent drop-shadow-sm"></div>
+            <div className="absolute top-full right-8 sm:right-16 lg:right-24 w-0 h-0 border-l-[12px] sm:border-l-[16px] lg:border-l-[20px] border-l-transparent border-t-[18px] sm:border-t-[24px] lg:border-t-[30px] border-t-white border-r-[12px] sm:border-r-[16px] lg:border-r-[20px] border-r-transparent drop-shadow-sm"></div>
           </div>
         )}
 
@@ -311,7 +311,7 @@ export const TrainingContainer = ({
       {/* Quit Confirmation Modal */}
       {isQuitModalVisible && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-50 animate-in fade-in duration-200">
-          <div className="bg-white rounded-xl p-5 max-w-lg w-full shadow-2xl scale-in-95 animate-in zoom-in-95 duration-200 border-4 border-orange-500 flex flex-col items-center">
+          <div className="bg-white rounded-xl p-4 sm:p-5 max-w-lg w-full mx-4 shadow-2xl scale-in-95 animate-in zoom-in-95 duration-200 border-4 border-orange-500 flex flex-col items-center">
             <img
               src={yamerunoImage}
               alt="やめるんですか？"
@@ -320,10 +320,10 @@ export const TrainingContainer = ({
             <h3 className="text-2xl font-bold text-center mb-4 text-gray-900">
               やめるんですか？
             </h3>
-            <div className="flex gap-3 w-full">
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
               <Button
                 variant="outline"
-                className="flex-1 border-gray-300 py-6 text-lg"
+                className="flex-1 border-gray-300 py-4 sm:py-6 text-base sm:text-lg"
                 onClick={async () => {
                   // Play random "orokamono" sound
                   const sounds = [orokamono1, orokamono2];
@@ -336,7 +336,7 @@ export const TrainingContainer = ({
                 やめる
               </Button>
               <Button
-                className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-none shadow-lg py-6 text-lg"
+                className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-none shadow-lg py-4 sm:py-6 text-base sm:text-lg"
                 onClick={async () => {
                   // Play random "yamenai" sound
                   const sounds = [yamenai1, yamenai2, yamenai3];
