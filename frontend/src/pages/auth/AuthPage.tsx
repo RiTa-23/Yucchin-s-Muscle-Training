@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import bgImage from "@/assets/img/doubleyuttin.png";
+import bgImageSmall from "@/assets/img/kiriyuttin.png";
 import soundFile from "@/assets/sounds/hehe_T01.wav";
 import backSoundFile from "@/assets/sounds/he-sound_T01.wav";
 import {
@@ -38,6 +39,8 @@ export default function AuthPage() {
     }
   });
 
+  const [isPortrait, setIsPortrait] = useState(false);
+
   useEffect(() => {
     const checkSoundStatus = () => {
       try {
@@ -55,6 +58,22 @@ export default function AuthPage() {
       window.removeEventListener("storage", checkSoundStatus);
       window.removeEventListener("soundSettingChanged", checkSoundStatus);
     };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mediaQuery = window.matchMedia("(orientation: portrait)"); // 縦長（縦幅>横幅）
+
+    const handleMatch = (e: MediaQueryListEvent | MediaQueryList) => {
+      setIsPortrait(e.matches);
+    };
+
+    // Initial check
+    handleMatch(mediaQuery);
+
+    // Listener (modern browsers)
+    mediaQuery.addEventListener("change", handleMatch);
+    return () => mediaQuery.removeEventListener("change", handleMatch);
   }, []);
 
   const toggleSound = () => {
@@ -159,17 +178,19 @@ export default function AuthPage() {
     }
   };
 
+  const backgroundImage = isPortrait ? bgImageSmall : bgImage;
+
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-orange-900 via-yellow-900 to-orange-800 flex items-center justify-center p-4">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-orange-900 via-yellow-900 to-orange-800 flex items-center justify-center p-4 sm:p-6">
       {/* 背景の装飾 */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-10 left-6 w-52 h-52 sm:w-72 sm:h-72 md:w-96 md:h-96 bg-orange-600 rounded-full blur-3xl animate-pulse"></div>
         <div
-          className="absolute bottom-20 right-20 w-[500px] h-[500px] bg-red-600 rounded-full blur-3xl animate-pulse"
+          className="absolute bottom-10 right-6 w-64 h-64 sm:w-[420px] sm:h-[420px] md:w-[500px] md:h-[500px] bg-red-600 rounded-full blur-3xl animate-pulse"
           style={{ animationDelay: "1s" }}
         ></div>
         <div
-          className="absolute top-1/2 left-1/2 w-96 h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse"
+          className="absolute top-1/2 left-1/2 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 bg-yellow-500 rounded-full blur-3xl animate-pulse"
           style={{ animationDelay: "1.5s" }}
         ></div>
       </div>
@@ -195,11 +216,18 @@ export default function AuthPage() {
 
       {/* 背景画像 */}
       <div
-        className="absolute inset-0 pointer-events-none bg-cover bg-center bg-no-repeat opacity-99"
-        style={{ backgroundImage: `url(${bgImage})` }}
+        className="absolute inset-0 pointer-events-none bg-no-repeat opacity-99"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: isPortrait ? "contain" : "cover",
+          backgroundPosition: isPortrait ? "-30px calc(100% + 30px)" : "center",
+        }}
       ></div>
 
-      <Tabs defaultValue="login" className="w-[420px] relative z-10">
+      <Tabs
+        defaultValue="login"
+        className="w-full max-w-md px-1 sm:px-0 relative z-10"
+      >
         <TabsList className="grid w-full grid-cols-2 bg-gradient-to-r from-orange-900/50 to-red-900/50 border-2 border-orange-500/50">
           <TabsTrigger
             value="login"
