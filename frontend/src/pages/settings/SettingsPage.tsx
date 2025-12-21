@@ -211,7 +211,7 @@ export default function SettingsPage() {
               playSound(backSound);
               navigate(-1);
             }}
-            className="w-full sm:w-auto bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+            className="hidden sm:inline-flex bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
           >
             戻る
           </Button>
@@ -410,8 +410,6 @@ export default function SettingsPage() {
                   />
                 </label>
               </div>
-
-
             </div>
           </CardContent>
         </Card>
@@ -457,6 +455,19 @@ export default function SettingsPage() {
             </div>
           </CardContent>
         </Card>
+        {/* モバイル専用の戻るボタン（下部配置） */}
+        <div className="sm:hidden mt-4">
+          <Button
+            variant="outline"
+            onClick={() => {
+              playSound(backSound);
+              navigate(-1);
+            }}
+            className="w-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 hover:from-yellow-300 hover:via-orange-400 hover:to-red-500 border-2 border-yellow-300/50 text-white font-bold shadow-[0_0_20px_rgba(251,146,60,0.6)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)] transition-all duration-300 hover:scale-105"
+          >
+            戻る
+          </Button>
+        </div>
       </div>
     </div>
   );
