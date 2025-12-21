@@ -24,26 +24,33 @@ async def create_training_log(db: AsyncSession, log: TrainingLogCreate, user_id:
 
     old_total, old_exercises = get_totals(stats_before)
 
-    db_log = TrainingLog(
-        user_id=user_id,
-        performed_at=log.performed_at,
-        exercise_name=log.exercise_name,
-        count=log.count,
-        duration=log.duration
-    )
-    db.add(db_log)
-    await db.commit()
-    await db.refresh(db_log)
+    try:
+        db_log = TrainingLog(
+            user_id=user_id,
+            performed_at=log.performed_at,
+            exercise_name=log.exercise_name,
+            count=log.count,
+            duration=log.duration
+        )
+        db.add(db_log)
+        # flushしておかないと、直後の get_training_stats で新レコードが反映されない可能性がある
+        await db.flush()
 
-    # 保存後の統計を取得
-    stats_after = await get_training_stats(db, user_id)
-    new_total, new_exercises = get_totals(stats_after)
+        # 保存後の統計を取得
+        stats_after = await get_training_stats(db, user_id)
+        new_total, new_exercises = get_totals(stats_after)
 
-    unlocked_ids = await check_and_unlock_yucchin(db, user_id, old_total, new_total, old_exercises, new_exercises)
-    
-    # スキーマに合わせて返却するために属性を追加
-    db_log.unlocked_yucchin_types = unlocked_ids
-    return db_log
+        unlocked_ids = await check_and_unlock_yucchin(db, user_id, old_total, new_total, old_exercises, new_exercises)
+        
+        await db.commit()
+        await db.refresh(db_log)
+        
+        # スキーマに合わせて返却するために属性を追加
+        db_log.unlocked_yucchin_types = unlocked_ids
+        return db_log
+    except Exception as e:
+        await db.rollback()
+        raise e
 
 YUCCHIN_NAMES = {
     1: "ねこゆっちん", 2: "かぶとゆっちん", 3: "ティールゆっちんブーケ", 4: "ブルーゆっちんブーケ", 5: "ブルーゆっちん",
@@ -117,7 +124,6 @@ async def check_and_unlock_yucchin(db: AsyncSession, user_id: int, old_total: in
     )
     db.add(new_yucchin)
     
-    await db.commit()
     return [unlocked_id]
 
 async def get_training_stats(db: AsyncSession, user_id: int) -> TrainingStatsResponse:
