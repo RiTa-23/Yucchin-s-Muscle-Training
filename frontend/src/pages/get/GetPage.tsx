@@ -277,14 +277,17 @@ const GetPage: React.FC = () => {
 
   // バリデーション: 全てのIDが所持済みかチェック
   useEffect(() => {
+    let active = true;
     const validate = async () => {
       if (types.length === 0) {
-        navigate('/home');
+        if (active) navigate('/home');
         return;
       }
 
       try {
         const res = await client.get<UserYucchinResponse[]>("/yucchins");
+        if (!active) return;
+        
         const ownedIds = new Set(res.data.map(y => y.yucchin_type));
         
         const allOwned = types.every(id => ownedIds.has(id));
@@ -297,11 +300,13 @@ const GetPage: React.FC = () => {
         setIsValid(true);
         setIsValidating(false);
       } catch (err) {
+        if (!active) return;
         console.error("Validation failed", err);
         navigate('/home');
       }
     };
     validate();
+    return () => { active = false; };
   }, [types, navigate]);
 
   // 音声の事前読み込みと設定の反映
