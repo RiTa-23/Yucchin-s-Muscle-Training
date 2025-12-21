@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
-import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Card, CardContent } from '../../components/ui/card';
 import { Home } from 'lucide-react';
 import { YUCCHIN_MASTER, type YucchinMaster } from '../../data/yucchinMaster';
@@ -216,7 +216,6 @@ const RarityBadge: React.FC<{ rarity: YucchinMaster['rarity'] | 'SECRET' }> = ({
 
 const GetPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   // 複数対応のステート
@@ -228,22 +227,22 @@ const GetPage: React.FC = () => {
     return parsed;
   }, [searchParams]);
 
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [isValidating, setIsValidating] = useState(true);
   const [isValid, setIsValid] = useState(false);
 
   // 現在のゆっちんデータを同期的(memo)に取得
   const yucchin = useMemo(() => {
-    if (!isValid || currentIndex >= types.length) return null;
-    const targetId = types[currentIndex];
+    // For GetPage, we only expect one yucchin at a time, so we take the first one.
+    if (!isValid || types.length === 0) return null;
+    const targetId = types[0]; // Always take the first type for display
     return YUCCHIN_MASTER.find(y => y.type === targetId) || null;
-  }, [isValid, currentIndex, types]);
+  }, [isValid, types]);
 
   useEffect(() => {
     if (yucchin) {
-      console.log("GetPage: Showing yucchin:", yucchin.name, "(index:", currentIndex, "/", types.length, ")");
+      console.log("GetPage: Showing yucchin:", yucchin.name);
     }
-  }, [yucchin, currentIndex, types.length]);
+  }, [yucchin, types.length]);
   
   // 演出フェーズのステート
   const [revealStart, setRevealStart] = useState(false); // フラッシュ除去・背景開始
@@ -259,21 +258,6 @@ const GetPage: React.FC = () => {
   const voiceAudioRef = useRef<HTMLAudioElement | null>(null);     // ボイス用
   const timeoutIdsRef = useRef<number[]>([]);
   const settingsRef = useRef({ isSoundEnabled: true, volume: 0.7 });
-
-  // 演出リセット用の関数
-  const resetReveal = useCallback(() => {
-    setRevealStart(false);
-    setRevealBadge(false);
-    setRevealQuote(false);
-    setQuoteFadeOut(false);
-    setRevealImage(false);
-    setRevealText(false);
-    setIsStarted(false);
-    
-    // タイマー消去
-    timeoutIdsRef.current.forEach(clearTimeout);
-    timeoutIdsRef.current = [];
-  }, []);
 
   // バリデーション: 全てのIDが所持済みかチェック
   useEffect(() => {
@@ -388,14 +372,9 @@ const GetPage: React.FC = () => {
     audio.play().catch(e => console.warn("Preloaded playback failed", e));
   }, []);
 
-  // 次へボタンの処理
+  // 次へボタンの処理 (常にホームへ戻る)
   const handleNext = () => {
-    if (currentIndex < types.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-      resetReveal();
-    } else {
-      navigate('/home');
-    }
+    navigate('/home');
   };
 
   // 演出開始時の処理
