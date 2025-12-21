@@ -8,6 +8,7 @@ interface TrainingResultProps {
     score?: string | number;
     scoreLabel?: string;
     onRetry?: () => void;
+    unlockedYucchinType?: number;
 }
 
 export const TrainingResult = ({
@@ -15,7 +16,8 @@ export const TrainingResult = ({
     subTitle = "素晴らしいフォームでした。昨日の自分を超えましたね！",
     score,
     scoreLabel,
-    onRetry
+    onRetry,
+    unlockedYucchinType
 }: TrainingResultProps) => {
     const navigate = useNavigate();
 
@@ -30,6 +32,14 @@ export const TrainingResult = ({
 
                 <h1 className="text-3xl font-bold mb-2 text-gray-900">{title}</h1>
                 <p className="text-gray-600 mb-8">{subTitle}</p>
+
+                {unlockedYucchinType && (
+                    <div className="mb-6 animate-bounce">
+                        <span className="bg-orange-500 text-white px-4 py-2 rounded-full font-bold shadow-lg text-lg">
+                            🎉 新しいゆっちんを発見！
+                        </span>
+                    </div>
+                )}
 
                 {(score !== undefined && score !== null) && (
                     <div className="bg-gray-50 p-6 rounded-2xl mb-8 border border-gray-100">
@@ -57,6 +67,18 @@ export const TrainingResult = ({
                         >
                             <RefreshCcw className="h-4 w-4" />
                             もう一度する
+                        </Button>
+                    )}
+                    
+                    {unlockedYucchinType && (
+                        <Button
+                            size="lg"
+                            variant="secondary"
+                            className="w-full gap-2 bg-gradient-to-r from-orange-400 to-red-500 hover:from-orange-500 hover:to-red-600 text-white border-none shadow-lg animate-pulse mt-4"
+                            onClick={() => navigate(`/get?type=${unlockedYucchinType}`)}
+                        >
+                            <Trophy className="h-5 w-5" />
+                            新しいゆっちんをゲットする！
                         </Button>
                     )}
                 </div>

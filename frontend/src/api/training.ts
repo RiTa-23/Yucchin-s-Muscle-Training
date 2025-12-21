@@ -15,6 +15,7 @@ export interface TrainingLogResponse {
     count?: number;
     duration?: number;
     created_at: string;
+    unlocked_yucchin_type?: number;
 }
 
 export interface ExerciseStats {

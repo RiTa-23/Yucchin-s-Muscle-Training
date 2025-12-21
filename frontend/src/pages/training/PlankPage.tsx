@@ -23,6 +23,7 @@ export default function PlankPage() {
   const [lastResults, setLastResults] = useState<Results | null>(null);
   const [message, setMessage] = useState<string>("");
   const [isGood, setIsGood] = useState<boolean>(false);
+  const [unlockedYucchinType, setUnlockedYucchinType] = useState<number | undefined>();
 
   // Plank specific state
   const [targetDuration, setTargetDuration] = useState<number>(30);
@@ -202,12 +203,15 @@ export default function PlankPage() {
       const performedDuration = targetDurationRef.current - timeLeftRef.current;
       const saveResult = async () => {
         try {
-          await trainingApi.createLog({
+          const response = await trainingApi.createLog({
             performed_at: new Date().toISOString(),
             exercise_name: "plank",
             duration: performedDuration,
             count: 0,
           });
+          if (response.unlocked_yucchin_type) {
+            setUnlockedYucchinType(response.unlocked_yucchin_type);
+          }
           console.log("Training log saved!", performedDuration);
         } catch (err) {
           console.error("Failed to save training log:", err);
@@ -290,6 +294,7 @@ export default function PlankPage() {
       // Result
       score={`${targetDuration - timeLeft}秒`}
       onRetry={handleRetry}
+      unlockedYucchinType={unlockedYucchinType}
       // Navigation
       onQuit={handleQuit}
       // Trainer

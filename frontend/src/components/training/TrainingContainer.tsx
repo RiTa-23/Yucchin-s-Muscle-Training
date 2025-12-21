@@ -42,6 +42,7 @@ interface TrainingContainerProps {
   resultTitle?: string;
   resultSubTitle?: string;
   onRetry: () => void;
+  unlockedYucchinType?: number;
 
   // Trainer
   isSpeaking?: boolean;
@@ -76,6 +77,7 @@ export const TrainingContainer = ({
   resultTitle,
   resultSubTitle,
   onRetry,
+  unlockedYucchinType,
   isSpeaking,
   trainerMessage,
   onQuit,
@@ -131,6 +133,7 @@ export const TrainingContainer = ({
         score={score}
         scoreLabel={scoreLabel || "記録"}
         onRetry={onRetry}
+        unlockedYucchinType={unlockedYucchinType}
       />
     );
   }
